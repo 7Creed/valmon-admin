@@ -2,8 +2,15 @@
 export default {
   content: [],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brightGold: '#FFC400',
+        darkGold: '#664D00',
+      },
+    },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
+  daisyui: {
+    darkTheme: 'light',
+  },
 }
-

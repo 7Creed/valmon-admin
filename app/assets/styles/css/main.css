@@ -1,0 +1,19 @@
+@font-face {
+  font-family: satoshiR;
+  src: url('../../fonts/Satoshi-Regular.ttf') format('ttf');
+  src: url('../../fonts/Satoshi-Regular.woff') format('woff');
+  src: url('../../fonts/Satoshi-Regular.eot') format('eot');
+  src: url('../../fonts/Satoshi-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: satoshiB;
+  src: url('../../fonts/Satoshi-Bold.ttf') format('ttf');
+  src: url('../../fonts/Satoshi-Bold.woff') format('woff');
+  src: url('../../fonts/Satoshi-Bold.eot') format('eot');
+  src: url('../../fonts/Satoshi-Bold.woff2') format('woff2');
+}
+
+body {
+  font-family: satoshiR;
+}
