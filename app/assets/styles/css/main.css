@@ -13,7 +13,33 @@
   src: url('../../fonts/Satoshi-Bold.eot') format('eot');
   src: url('../../fonts/Satoshi-Bold.woff2') format('woff2');
 }
+@font-face {
+  font-family: satoshiM;
+  src: url('../../fonts/Satoshi-Medium.ttf') format('ttf');
+  src: url('../../fonts/Satoshi-Medium.woff') format('woff');
+  src: url('../../fonts/Satoshi-Medium.eot') format('eot');
+  src: url('../../fonts/Satoshi-Medium.woff2') format('woff2');
+}
 
 body {
   font-family: satoshiR;
+}
+
+/* Utilities */
+
+.satoshiB {
+  font-family: satoshiB !important;
+}
+.satoshiR {
+  font-family: satoshiR !important;
+}
+.satoshiM {
+  font-family: satoshiM !important;
+}
+.center {
+  @apply flex flex-row justify-center items-center;
+}
+
+.navigation-circle {
+  width: max-content;
 }

@@ -1,0 +1,106 @@
+<script setup>
+import Logo from '@/assets/images/Logo/valmon.svg'
+import ClientSignUp from '@/components/auth/Registration/ClientSignUp.vue'
+import ServiceCategory from '@/components/auth/Registration/ServiceCategory.vue'
+import PrimaryCategory from '@/components/auth/Registration/PrimaryCategory.vue'
+import WorkingHours from '@/components/auth/Registration/WorkingHours.vue'
+import UploadPicture from '@/components/auth/Verify/UploadPicture.vue'
+
+definePageMeta({
+  layout: false,
+})
+
+const stepsdata = [
+  { name: 'Basic info', id: 1 },
+  { name: 'Verify OTP', id: 2 },
+  { name: 'Address', id: 3 },
+  { name: 'Service Category', id: 4 },
+  { name: 'Primary Category', id: 5 },
+  { name: 'Working Hours', id: 6 },
+  { name: 'Profile Picture', id: 7 },
+]
+const step = ref(1)
+
+const increaseStep = () => {
+  if (step.value < 8) {
+    step.value++
+  }
+}
+const decreaseStep = () => {
+  console.log('works')
+  if (step.value > 1) {
+    step.value--
+  }
+}
+</script>
+
+<template>
+  <div class="p-12">
+    <div class="flex gap-10">
+      <img
+        :src="Logo"
+        alt="Valmon logo"
+        class="w-20"
+      >
+      <ul class="steps steps-vertical lg:steps-horizontal  flex-grow">
+        <li
+          v-for="(steps) in stepsdata"
+          :key="steps.id"
+          :class="['step', steps.id <= step ? 'step-neutral' : '']"
+        >
+          {{ steps.name }}
+        </li>
+      </ul>
+    </div>
+    <div class="min-h-screen center">
+      <div
+        v-if="step === 1"
+        class="card bg-base-100 shadow-xl w-1/2 xl:w-1/3"
+      >
+        <div class="card-body">
+          <ClientSignUp @register-event="increaseStep" />
+        </div>
+      </div>
+      <div />
+      <!-- OTP -->
+      <authVerify
+        v-if="step === 2"
+        class="w-1/2 xxl:w-1/3"
+        @next-event="increaseStep"
+        @prev-event="decreaseStep"
+      />
+      <!-- Address -->
+      <authRegistrationAddress
+        v-if="step === 3"
+        class="w-1/2 xl:w-1/3"
+
+        @next-event="increaseStep"
+        @prev-event="decreaseStep"
+      />
+      <ServiceCategory
+        v-if="step === 4"
+        class="w-1/2 xxl:w-1/3"
+        @next-event="increaseStep"
+        @prev-event="decreaseStep"
+      />
+      <PrimaryCategory
+        v-if="step === 5"
+        class="w-1/2 xxl:w-1/3"
+        @next-event="increaseStep"
+        @prev-event="decreaseStep"
+      />
+      <WorkingHours
+        v-if="step === 6"
+        class="w-1/2 xxl:w-1/3"
+        @next-event="increaseStep"
+        @prev-event="decreaseStep"
+      />
+      <UploadPicture
+        v-if="step === 7"
+        class="w-1/2 xl:w-1/3"
+        @next-event="increaseStep"
+        @prev-event="decreaseStep"
+      />
+    </div>
+  </div>
+</template>

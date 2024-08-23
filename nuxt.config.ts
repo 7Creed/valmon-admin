@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   // global custom css entry file
   css: ['~/assets/styles/css/main.css', '~/assets/styles/scss/main.scss'],
 
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@nuxt/image', '@pinia/nuxt'],
   tailwindcss: {
     // Options
   },
@@ -25,6 +25,19 @@ export default defineNuxtConfig({
     config: {
       stylistic: true,
 
+    },
+  },
+  image: {
+    format: ['avif', 'webp', 'jpeg', 'jpg', 'png', 'gif'],
+    // The screen sizes predefined by `@nuxt/image`:
+    screens: {
+      'xs': 320,
+      'sm': 640,
+      'md': 768,
+      'lg': 1024,
+      'xl': 1280,
+      'xxl': 1536,
+      '2xl': 1536,
     },
   },
 })

@@ -4,9 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        brightGold: '#FFC400',
-        darkGold: '#664D00',
+        brightGold: '#CFB159',
+        darkGold: '#8B6914',
+        labels: 'rgba(110, 113, 145, 1)',
+        primary_bg: '#F5F1F1',
       },
+      screens: {
+        'xs': '480px', // Small mobile devices (e.g., iPhone SE)
+        'sm': '640px', // Standard mobile devices (e.g., iPhone 6/7/8)
+        'md': '768px', // Tablets (e.g., iPad)
+        'lg': '1024px', // Small laptops and desktops
+        'xl': '1280px', // Standard laptops and desktops
+        'xxl': '1536px', // Large desktops and high-resolution displays
+        '2xl': '1536px', // Same as xxl, for consistency with Tailwind CSS
+      },
+
     },
   },
   plugins: [require('daisyui')],
