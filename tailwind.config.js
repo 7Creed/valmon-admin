@@ -6,6 +6,7 @@ export default {
       colors: {
         brightGold: '#CFB159',
         darkGold: '#8B6914',
+        valmon_yellow: '#FFEBB8',
         labels: 'rgba(110, 113, 145, 1)',
         primary_bg: '#F5F1F1',
       },

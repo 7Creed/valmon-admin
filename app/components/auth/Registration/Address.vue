@@ -17,6 +17,7 @@ const emitEvent = (event) => {
       <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-20">
         Add Physical locations of your business
       </p>
+      <!-- Add address btn -->
       <button
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border"
         onclick="my_modal_1.showModal()"
