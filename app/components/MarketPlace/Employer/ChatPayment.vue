@@ -1,5 +1,9 @@
 <script setup>
 import masterCard from '@/assets/images/UIElements/masterCard.png'
+import { useGlobalStore } from '@/store'
+
+// Initialize store
+const store = useGlobalStore()
 
 // active tag
 const activeTab = ref('job')
@@ -364,7 +368,15 @@ const completed = () => {
           class="form-control w-full max-w-xs mb-3"
         >
           <div class="label">
-            <span class="label-text">Worker is asking for?</span>
+            <span
+              v-show="store.isEmployer"
+              class="label-text"
+            >Worker is asking for?</span>
+            <span
+
+              v-show="store.isEmployee"
+              class="label-text"
+            >Ask Client To Pay?</span>
           </div>
           <input
             type="text"

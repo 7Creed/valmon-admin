@@ -4,9 +4,9 @@ import { ref } from 'vue'
 
 export const useGlobalStore = defineStore('globalStore', {
   state: () => ({
-    isProfileEnabled: ref(false),
-    profileName: ref(''),
-    isContactEnabled: ref(false),
+    // Managing UI based on user
+    isEmployer: ref(false),
+    isEmployee: ref(true),
   }),
   actions: {
 

@@ -1,7 +1,8 @@
 <script setup>
-const Tab = ref('listings')
+const activeTab = ref('personal')
+
 const toggleTab = (tab) => {
-  Tab.value = tab
+  activeTab.value = tab
 }
 
 definePageMeta({
@@ -19,6 +20,8 @@ definePageMeta({
             <a
               href="javascript:void(0);"
               class="alert hover:bg-valmon_yellow p-3 mb-2"
+              :class="{ 'bg-valmon_yellow': activeTab === 'personal' }"
+              @click="toggleTab ('personal')"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -41,6 +44,8 @@ definePageMeta({
             <a
               href="javascript:void(0);"
               class="alert hover:bg-valmon_yellow p-3 mb-2"
+              :class="{ 'bg-valmon_yellow': activeTab === 'jobs' }"
+              @click="toggleTab ('jobs')"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -63,6 +68,8 @@ definePageMeta({
             <a
               href="javascript:void(0);"
               class="alert hover:bg-valmon_yellow p-3 mb-2"
+              :class="{ 'bg-valmon_yellow': activeTab === 'payment' }"
+              @click="toggleTab ('payment')"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -85,6 +92,8 @@ definePageMeta({
             <a
               href="javascript:void(0);"
               class="alert hover:bg-valmon_yellow p-3 mb-2"
+              :class="{ 'bg-valmon_yellow': activeTab === 'password' }"
+              @click="toggleTab ('password')"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -107,6 +116,8 @@ definePageMeta({
             <a
               href="javascript:void(0);"
               class="alert hover:bg-valmon_yellow p-3 mb-2"
+              :class="{ 'bg-valmon_yellow': activeTab === 'notification' }"
+              @click="toggleTab ('notification')"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -150,33 +161,11 @@ definePageMeta({
       </aside>
       <!-- main -->
       <section class="flex-1 ">
-        <div class="flex justify-between">
-          <!-- Tab -->
-          <div
-            class="flex bg-white p-3 rounded-xl w-2/6 items-center justify-evenly mb-6"
-          >
-            <a
-              href="javascript:void(0);"
-              class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
-              :class="{ border_b: Tab === 'profile' }"
-              @click="toggleTab('profile')"
-            >Basic Information</a>
-            <a
-              href="javascript:void(0);"
-              class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
-              :class="{ border_b: Tab === 'listings' }"
-              @click="toggleTab('listings')"
-            >Marketplace Listings</a>
-          </div>
-          <RouterLink to="/addlisting">
-            <button class="btn btn-neutral">
-              Add Listing
-            </button>
-          </RouterLink>
-        </div>
-        <!-- Content -->
-        <LazyMarketPlaceEmployerBasicInfo v-if="Tab === 'profile'" />
-        <MarketPlaceEmployerMarketListingOnProfile v-if="Tab === 'listings'" />
+        <MarketPlaceEmployerPersonalInfo v-if="activeTab === 'personal'" />
+        <MarketPlaceEmployerActiveJobs v-if="activeTab === 'jobs'" />
+        <MarketPlaceEmployerPaymentInfo v-if="activeTab === 'payment'" />
+        <MarketPlaceEmployerRestPassword v-if="activeTab === 'password'" />
+        <MarketPlaceEmployerNotificationSetting v-if="activeTab === 'notification'" />
       </section>
     </div>
   </div>

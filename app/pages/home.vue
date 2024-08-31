@@ -1,7 +1,9 @@
 <script setup>
-import { useGlobalStore } from '@/store/index'
+// import { useGlobalStore } from '@/store/index'
+import { useActiveView } from '@/composables/state'
 
-const store = useGlobalStore()
+// const store = useGlobalStore()
+const { state } = useActiveView('activeView')
 
 definePageMeta({
   layout: 'market-place',
@@ -18,24 +20,30 @@ const handleSelectedOption = (option) => {
   selectedOption.skill = option.skill
   activeComp.value = 'skills'
 }
-// Render the MarketPlaceEmployerWork component
-watch(() => store.isProfileEnabled, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
+
+// Handle the name of the selected profile
+const profileName = computed(() => state.value.isProfileName)
+
+watch(() => state.value.isProfileEnabled, (newVal, oldVal) => {
+  if (newVal != oldVal && newVal === true) {
+    // Update the activeComp
     activeComp.value = 'work'
   }
-})
-watch(() => store.isContactEnabled, (newValue, oldValue) => {
-  if (newValue !== oldValue) {
+}, { immediate: true })
+
+watch(() => state.value.isContactEnabled, (newVal, oldVal) => {
+  if (newVal != oldVal && newVal === true) {
+    // Update the activeComp
     activeComp.value = 'chat'
   }
-})
+}, { immediate: true })
 </script>
 
 <template>
   <div class="px-16 bg-primary_bg min-h-screen">
     <!-- BREADCRUMBS -->
     <div
-      v-if="activeComp !=='chat'"
+      v-if="activeComp !== 'chat'"
       class="breadcrumbs text-sm text-gray-500 mb-4"
     >
       <ul>
@@ -45,10 +53,10 @@ watch(() => store.isContactEnabled, (newValue, oldValue) => {
           <a class="">{{ selectedOption.category }}</a>
         </li>
         <li v-if="selectedOption.skill">
-          <a :class="{ 'text-gray-900': store.profileName === '' }">{{ selectedOption.skill }}</a>
+          <a :class="{ 'text-gray-900': profileName === '' }">{{ selectedOption.skill }}</a>
         </li>
-        <li v-if="store.profileName !== ''">
-          <a class="text-gray-900">{{ store.profileName }}</a>
+        <li v-if="profileName !== ''">
+          <a class="text-gray-900">{{ profileName }}</a>
         </li>
       </ul>
     </div>
@@ -57,9 +65,9 @@ watch(() => store.isContactEnabled, (newValue, oldValue) => {
         v-if="activeComp === 'category'"
         @selected-option="handleSelectedOption"
       />
-      <MarketPlaceEmployerSkills v-if="activeComp ==='skills'" />
-      <MarketPlaceEmployerWork v-if="activeComp ==='work'" />
-      <MarketPlaceEmployerChatPayment v-if="activeComp ==='chat'" />
+      <MarketPlaceEmployerSkills v-if="activeComp === 'skills'" />
+      <MarketPlaceEmployerWork v-if="activeComp === 'work'" />
+      <MarketPlaceEmployerChatPayment v-if="activeComp === 'chat'" />
     </main>
   </div>
 </template>

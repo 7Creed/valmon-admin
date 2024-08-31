@@ -9,10 +9,8 @@ definePageMeta({
     <main>
       <MarketPlaceEmployerSkills
         page="favorite"
-        class="mt-6"
+        class="pt-6"
       />
     </main>
   </div>
 </template>
-
-<style></style>

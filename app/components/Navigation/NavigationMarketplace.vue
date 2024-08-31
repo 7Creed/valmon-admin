@@ -7,6 +7,11 @@ import message from '@/assets/icons/message.svg'
 import bell from '@/assets/icons/notification-bing.svg'
 import nigeriaFlag from '@/assets/icons/nigeriaflag.svg'
 
+import { useGlobalStore } from '@/store'
+
+// Initialize Variables
+const store = useGlobalStore()
+
 /* --------------------- Handles The Currency Drop Down -------------------- */
 
 // Opens and close the currency drop down
@@ -48,11 +53,19 @@ const toggleNotification = () => {
   // call the toggle helper function
   toggle(notification)
 }
+
+// Show New Job Offer Modal
+const popUp = ref(null)
+onMounted(() => {
+  setTimeout(() => {
+    if (popUp.value) popUp.value.click()
+  }, 1000)
+})
 </script>
 
 <template>
   <nav
-    class="bg-stone-950"
+    class="bg-stone-950 relative"
   >
     <div class="mx-auto max-w-full px-2 sm:px-6 lg:px-8">
       <div class="relative flex h-20 items-center justify-between">
@@ -320,31 +333,98 @@ const toggleNotification = () => {
           </div>
 
           <!-- Profile dropdown -->
-          <div
-            class="relative ml-3"
-          >
-            <div>
-              <button
-                id="user-menu-button"
-                type="button"
-                class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                aria-expanded="false"
-                aria-haspopup="true"
-              >
-                <img
-                  class="h-8 w-8 rounded-full"
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  alt=""
+          <RouterLink to="profilesetting">
+            <div
+              class="relative ml-3"
+            >
+              <div>
+                <button
+                  id="user-menu-button"
+                  type="button"
+                  class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                  aria-expanded="false"
+                  aria-haspopup="true"
                 >
-              </button>
+                  <img
+                    class="h-8 w-8 rounded-full"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt=""
+                  >
+                </button>
+              </div>
             </div>
-          </div>
+          </RouterLink>
         </div>
       </div>
     </div>
 
     <!-- Mobile menu, show/hide based on menu state. -->
   </nav>
+
+  <!-- New JOb Offer Modal -->
+  <!-- Open the modal using ID.showModal() method -->
+  <button
+    v-show="store.isClient"
+    ref="popUp"
+    class="absolute"
+    onclick="my_modal_1.showModal()"
+  />
+  <dialog
+    v-show="store.isClient"
+    id="my_modal_1"
+    class="modal"
+  >
+    <div class="modal-box text-black w-96">
+      <h3 class="font-bold text-center text-black text-xl satoshiM">
+        Possible Job Offer
+      </h3>
+      <p class="py-4 text-center ">
+        A client just reach out for a job
+      </p>
+      <div class="flex items-start gap-6 mb-5 justify-center">
+        <!-- avatar -->
+        <div class="avatar">
+          <div class="ring-darkGold ring-offset-base-100 w-16 rounded-full ring ring-offset-2">
+            <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp">
+          </div>
+        </div>
+        <!-- Profile desc -->
+        <div>
+          <h3 class="text-[#24242] font-semibold text-sm satoshiM mb-2">
+            Raman Ismail
+          </h3>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="rating w-4">
+              <input
+                type="radio"
+                name="rating-1"
+                class="mask mask-star"
+              >
+            </div>
+            <span class="text-xs font-bold">4.7</span>
+            <span class="text-black text-xs">(631 Ratings)</span>
+          </div>
+          <p class="mb-3">
+            Skill Requested
+          </p>
+          <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
+            <span class="text-black">Front-End</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-neutral w-full text-white">
+        Go To Chat
+      </button>
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">
+            Close
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
 </template>
 
 <style>

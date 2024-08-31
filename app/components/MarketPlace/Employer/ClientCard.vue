@@ -1,17 +1,16 @@
 <script setup>
-import { useGlobalStore } from '@/store/index'
+import { useActiveView } from '@/composables/state'
 
-const store = useGlobalStore()
+// use the useActiveView composables
+const { updateContactView, updateProfileView } = useActiveView()
+
 const openProfile = () => {
-  store.$patch({
-    isProfileEnabled: true,
-    profileName: 'Raman Ismail',
-  })
+  updateProfileView('Raman Ismail')
 }
 const openContact = () => {
-  store.isContactEnabled = true
+  updateContactView()
 }
-</script> store.isContactEnabled: true,
+</script>
 
 <template>
   <div class="card card-compact bg-base-100 w-80 shadow-xl">
@@ -47,11 +46,10 @@ const openContact = () => {
       </div>
       <!-- body -->
 
-      <div
-        class="alert mb-2"
-      >
+      <div class="alert mb-2">
         <p>
-          As an expert with over 20 years of experience, I've seen remarkable advancements in technology, making it more accessible and beneficial for everyday use.
+          As an expert with over 20 years of experience, I've seen remarkable advancements in technology, making it more
+          accessible and beneficial for everyday use.
         </p>
       </div>
 
