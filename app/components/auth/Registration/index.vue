@@ -22,7 +22,7 @@ const back = () => {
 </script>
 
 <template>
-  <div class="flex justify-items-center flex-row w-[90%]">
+  <div class="flex justify-items-center flex-row w-[90%] bg-white">
     <!-- Images -->
     <div class=" flex-1">
       <authValmon
@@ -62,7 +62,7 @@ const back = () => {
         v-if="user ==='client'"
         class="w-1/2"
       >
-        <ClientSignUp />
+        <ClientSignUp account-type="employer" />
       </div>
     </div>
   </div>

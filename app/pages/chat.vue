@@ -1,0 +1,11 @@
+<script setup>
+definePageMeta({
+  layout: 'market-place',
+})
+</script>
+
+<template>
+  <div class="px-16 bg-primary_bg min-h-screen">
+    <MarketPlaceEmployerChatPayment />
+  </div>
+</template>

@@ -24,7 +24,10 @@ const updateStep = (step) => {
         <MarketPlaceEmployerAddListingTwo
           v-if="activeStep === 2"
         />
-        <MarketPlaceEmployerAddListingThree v-if="activeStep === 3" />
+        <MarketPlaceEmployerAddListingThree
+          v-if="activeStep === 3"
+          class="center"
+        />
         <div class="flex items-center justify-between mt-4">
           <button
             v-if="activeStep > 1"

@@ -1,13 +1,14 @@
 <script setup>
 import Logo from '@/assets/images/Logo/valmon.svg'
 
+provide('clientSignUp', 'client')
 definePageMeta({
   layout: false,
 })
 </script>
 
 <template>
-  <div class="p-12">
+  <div class="p-12 bg-white">
     <img
       :src="Logo"
       alt="Valmon logo"

@@ -23,20 +23,6 @@ const handleSelectedOption = (option) => {
 
 // Handle the name of the selected profile
 const profileName = computed(() => state.value.isProfileName)
-
-watch(() => state.value.isProfileEnabled, (newVal, oldVal) => {
-  if (newVal != oldVal && newVal === true) {
-    // Update the activeComp
-    activeComp.value = 'work'
-  }
-}, { immediate: true })
-
-watch(() => state.value.isContactEnabled, (newVal, oldVal) => {
-  if (newVal != oldVal && newVal === true) {
-    // Update the activeComp
-    activeComp.value = 'chat'
-  }
-}, { immediate: true })
 </script>
 
 <template>
@@ -66,8 +52,6 @@ watch(() => state.value.isContactEnabled, (newVal, oldVal) => {
         @selected-option="handleSelectedOption"
       />
       <MarketPlaceEmployerSkills v-if="activeComp === 'skills'" />
-      <MarketPlaceEmployerWork v-if="activeComp === 'work'" />
-      <MarketPlaceEmployerChatPayment v-if="activeComp === 'chat'" />
     </main>
   </div>
 </template>

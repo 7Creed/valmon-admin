@@ -1,4 +1,6 @@
 <script setup>
+import { accountController } from '~/services/modules/account'
+
 const emit = defineEmits(['prevEvent'])
 
 const worker = ref(false)
@@ -11,6 +13,45 @@ onMounted(() => {
 
 const back = () => {
   emit('prevEvent')
+}
+
+// selected Image url
+const draggedFile = ref(null)
+const Image = ref(null)
+
+function handleClick() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = ''
+  input.onchange = (e) => {
+    const file = (e.target).files?.[0]
+    if (file) {
+      Image.value = file
+      const imgUrl = URL.createObjectURL(file)
+      draggedFile.value = imgUrl
+    }
+  }
+  input.click()
+}
+const { uploadProfilePicture } = accountController()
+const loading = ref(false)
+// emit signup event
+const upload = async () => {
+  loading.value = true // Set loading to true before making the request
+  const formData = new FormData()
+  formData.append('profile_pic', Image.value)
+  console.log('this is the image ->', Image.value)
+  // emit('registerEvent')
+  const { data, error, status } = await uploadProfilePicture(formData)
+  if (status.value === 'success') {
+    loading.value = false
+    handleALert('success', data.value.message)
+    navigateTo('/login')
+  }
+  if (success.value === 'error') {
+    loading.value = false
+    handleALert('error', error.value.data.message)
+  }
 }
 </script>
 
@@ -32,12 +73,21 @@ const back = () => {
       <!-- Avatar -->
       <div class="avatar mx-auto">
         <div class="w-24 rounded-full">
-          <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp">
+          <img
+            v-if="draggedFile"
+            :src="draggedFile"
+            alt=""
+          >
+          <img
+            v-else
+            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+          >
         </div>
 
         <a
           href="javascript:void(0);"
           class="p-1 bg-gradient-to-r from-brightGold to-darkGold navigation-circle rounded-full absolute bottom-[-15px] left-8"
+          @click="handleClick"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -66,12 +116,14 @@ const back = () => {
           @click="back()"
         />
         <BaseButton
+          :loading="loading"
           title="Done"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
           border="#8B6914"
           :outline="false"
           class="block mb-5 w-[20%]"
+          @click="upload"
         />
       </div>
     </div>

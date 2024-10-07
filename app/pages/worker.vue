@@ -19,7 +19,7 @@ const stepsdata = [
   { name: 'Working Hours', id: 6 },
   { name: 'Profile Picture', id: 7 },
 ]
-const step = ref(1)
+const step = ref(4)
 
 const increaseStep = () => {
   if (step.value < 8) {
@@ -32,10 +32,16 @@ const decreaseStep = () => {
     step.value--
   }
 }
+const isCategoryData = ref(null)
+const sendToPrimaryCategory = (data) => {
+  console.log('service data ->', data)
+  isCategoryData.value = data
+  increaseStep()
+}
 </script>
 
 <template>
-  <div class="p-12">
+  <div class="p-12 bg-white">
     <div class="flex gap-10">
       <img
         :src="Logo"
@@ -58,7 +64,10 @@ const decreaseStep = () => {
         class="card bg-base-100 shadow-xl w-1/2 xl:w-1/3"
       >
         <div class="card-body">
-          <ClientSignUp @register-event="increaseStep" />
+          <ClientSignUp
+            account-type="worker"
+            @register-event="increaseStep"
+          />
         </div>
       </div>
       <div />
@@ -78,14 +87,17 @@ const decreaseStep = () => {
         @prev-event="decreaseStep"
       />
       <ServiceCategory
+
         v-if="step === 4"
+        use-type="registration"
         class="w-1/2 xxl:w-1/3"
-        @next-event="increaseStep"
+        @next-event="sendToPrimaryCategory"
         @prev-event="decreaseStep"
       />
       <PrimaryCategory
         v-if="step === 5"
         class="w-1/2 xxl:w-1/3"
+        :service-data="isCategoryData"
         @next-event="increaseStep"
         @prev-event="decreaseStep"
       />

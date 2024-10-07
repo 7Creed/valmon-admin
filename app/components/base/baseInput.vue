@@ -8,8 +8,20 @@ const props = defineProps({
   iconType: String,
   placeholder: String,
   data: Array,
-
+  instanceId: String,
 })
+
+// default model with options
+const inputValue = defineModel()
+
+// HANDLE PASSWORD VISIBILITY
+const passwordVisibility = ref(false)
+
+const emits = defineEmits(['passwordVisible'])
+const toggleVisibility = () => {
+  if (props.instanceId) passwordVisibility.value = !passwordVisibility.value
+  emits('passwordVisible', { visibility: passwordVisibility.value, id: props.instanceId })
+}
 </script>
 
 <template>
@@ -24,13 +36,14 @@ const props = defineProps({
 
       <div class="relative flex items-center mt-2 mb-1">
         <button
-          v-if="props?.icon"
-          class="absolute right-0 focus:outline-none "
+          v-if="props?.icon && props.instanceId"
+          class="absolute right-0 focus:outline-none"
+          @click="toggleVisibility"
         >
           <!-- Password Icons -->
           <span v-if="props?.iconType ==='password'">
             <svg
-              v-show="false"
+              v-show="passwordVisibility === false"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -45,6 +58,7 @@ const props = defineProps({
               />
             </svg>
             <svg
+              v-show="passwordVisibility === true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -68,6 +82,7 @@ const props = defineProps({
         </button>
 
         <input
+          v-model="inputValue"
           :type="props?.type"
           :required="props?.required"
           :placeholder="props?.placeholder"
@@ -91,13 +106,16 @@ const props = defineProps({
         >{{ props?.label }}</label>
       </div>
       <select
+        v-model="inputValue"
+
         class="select select-bordered block w-full py-2.5 text-[rgba(16, 16, 17, 1)] placeholder-gray-400/70 bg-white border border-[rgba(0, 0, 0, 0.16)] rounded-lg pl-5 pr-11 focus:border-blue-400  focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
       >
         <option
           v-for="(option, key) in props.data"
           :key
+          :value="option.dial_code"
         >
-          {{ option }}
+          {{ option.name + ' ' + option.dial_code }}
         </option>
       </select>
     </div>

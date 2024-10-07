@@ -1,5 +1,53 @@
+<script setup>
+import { useGlobalStore } from '@/store'
+
+const store = useGlobalStore()
+</script>
+
 <template>
   <div class="flex gap-10 items-center mb-10">
+    <div
+      v-if="store.isEmployee"
+      class="card card-compact bg-base-100 w-64 shadow-xl"
+    >
+      <div class="card-body">
+        <h2 class="card-title text-sm">
+          Balance
+        </h2>
+        <p class="text-3xl text-darkGold satoshiB">
+          $4,945.55
+        </p>
+      </div>
+    </div>
+
+    <div
+      v-if="store.isEmployee"
+      class="card card-compact bg-base-100 w-64 shadow-xl"
+    >
+      <div class="card-body">
+        <h2 class="card-title text-sm">
+          Income
+        </h2>
+        <p class="text-3xl text-green-600 satoshiB">
+          $9,945.55
+        </p>
+      </div>
+    </div>
+
+    <div
+      v-if="store.isEmployee"
+      class="card card-compact bg-base-100 w-64 shadow-xl"
+    >
+      <div class="card-body">
+        <h2 class="card-title text-sm">
+          Withdrawn
+        </h2>
+        <p class="text-3xl text-red-600 satoshiB">
+          $4,945.55
+        </p>
+      </div>
+    </div>
+
     <div
 
       class="card card-compact bg-base-100 w-64 shadow-xl"
@@ -15,6 +63,7 @@
     </div>
 
     <div
+      v-if="store.isEmployer"
       class="card card-compact bg-base-100 w-64 shadow-xl"
     >
       <div class="card-body">

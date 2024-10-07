@@ -58,14 +58,16 @@ const toggleNotification = () => {
 const popUp = ref(null)
 onMounted(() => {
   setTimeout(() => {
-    if (popUp.value) popUp.value.click()
+    if (popUp.value && store.isEmployee) {
+      popUp.value.click()
+    }
   }, 1000)
 })
 </script>
 
 <template>
   <nav
-    class="bg-stone-950 relative"
+    class="bg-stone-950 fixed w-full z-[1000]"
   >
     <div class="mx-auto max-w-full px-2 sm:px-6 lg:px-8">
       <div class="relative flex h-20 items-center justify-between">
@@ -156,10 +158,12 @@ onMounted(() => {
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
                 aria-current="page"
               >Explore Skills</a>
-              <a
-                href="#"
+              <NuxtLink
+                to="/marketplace"
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
-              >MarketPlace</a>
+              >
+                MarketPlace
+              </NuxtLink>
             </div>
           </div>
           <NuxtLink to="/favorites">
@@ -174,16 +178,19 @@ onMounted(() => {
               >
             </button>
           </NuxtLink>
-          <button
+          <NuxtLink to="chat">
+            <button
 
-            type="button"
-            class="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-          >
-            <img
-              :src="message"
-              alt="heart icon"
+              type="button"
+              class="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
             >
-          </button>
+              <img
+                :src="message"
+                alt="heart icon"
+              >
+            </button>
+          </NuxtLink>
+
           <div class="relative">
             <button
               type="button"
@@ -364,14 +371,14 @@ onMounted(() => {
   <!-- New JOb Offer Modal -->
   <!-- Open the modal using ID.showModal() method -->
   <button
-    v-show="store.isClient"
+    v-show="store.isEmployee"
     ref="popUp"
     class="absolute"
-    onclick="my_modal_1.showModal()"
+    onclick="my_modal_100.showModal()"
   />
   <dialog
-    v-show="store.isClient"
-    id="my_modal_1"
+    v-show="store.isEmployee"
+    id="my_modal_100"
     class="modal"
   >
     <div class="modal-box text-black w-96">

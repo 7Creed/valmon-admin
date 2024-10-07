@@ -1,4 +1,19 @@
+import swal from 'sweetalert'
+
 // for toggling reactive variables
 export const toggle = (param) => {
   param.value = !param.value
+}
+
+export const handleALert = (icon, text, title = '') => {
+  swal({
+    icon: `${icon}`,
+    text: `${text}`,
+    title: `${title}`,
+  })
+}
+
+export const handleError = (error) => {
+  handleALert('error', ( 'An error occurred while processing your request'))
+  console.log(error)
 }

@@ -2,11 +2,22 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: false },
+  runtimeConfig: {
+    public: {
+      apiBase: 'https://valmon.techr.me/api',
+    },
+  },
 
   // global custom css entry file
   css: ['~/assets/styles/css/main.css', '~/assets/styles/scss/main.scss'],
 
-  modules: ['@nuxtjs/tailwindcss', '@nuxt/eslint', '@nuxt/image', '@pinia/nuxt'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@nuxt/eslint',
+    '@nuxt/image',
+    '@pinia/nuxt',
+    'nuxt-echarts',
+  ],
   tailwindcss: {
     // Options
   },

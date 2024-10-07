@@ -1,9 +1,50 @@
 <script setup>
 import google from '@/assets/icons/google.svg'
+
+import { authController } from '~/services/modules/auth'
+
+const userInfo = useCookie('userInfo', {
+  maxAge: 60 * 12,
+})
+const tokenCookies = useCookie('token', {
+  maxAge: 60 * 12,
+  // secure: true,
+})
+
+const { loginUser } = authController()
+const loading = ref(false)
+const userData = reactive({
+  email: '',
+  password: '',
+})
+
+// emit signup event
+const signIn = async () => {
+  loading.value = true // Set loading to true before making the request
+
+  try {
+    const { data, error, status } = await loginUser(userData)
+    if (status.value === 'success') {
+      tokenCookies.value = data.value.data.token
+      userInfo.value = data.value.data.user
+      handleALert('success', 'Login successful')
+      navigateTo('/home')
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <div class="flex justify-items-center flex-row w-[90%]">
+  <div class="flex justify-items-center flex-row w-[90%] bg-white">
     <!-- Authentication -->
     <div class="Login flex-1 center">
       <div class="w-1/2">
@@ -16,12 +57,14 @@ import google from '@/assets/icons/google.svg'
           </p>
         </div>
         <BaseInput
+          v-model="userData.email"
           label="Email"
           type="email"
           placeholder="Johndoe@email.com"
           class="mb-6 "
         />
         <BaseInput
+          v-model="userData.password"
           label="Password"
           type="password"
           :icon="true"
@@ -37,11 +80,13 @@ import google from '@/assets/icons/google.svg'
           </label>
         </div>
         <BaseButton
+          :loading="loading"
           title="Sign In"
           color="#8B6914"
           text-color="rgba(255, 255, 255, 1)"
           :outline="false"
           class="block w-full mb-5"
+          @click="signIn"
         />
         <div class="divider mb-5">
           OR

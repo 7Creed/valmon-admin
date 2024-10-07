@@ -24,6 +24,7 @@ const selectCardBtn = ref(null)
 const paymentBtn = ref(null)
 const otpBtn = ref(null)
 const paymentSuccessBtn = ref(null)
+const awaitBtn = ref(null)
 
 // Job status
 const jobStatus = ref('')
@@ -33,7 +34,7 @@ const completed = () => {
   jobStatus.value = 'Completed'
 
   // Array of button refs
-  const buttons = [selectCardBtn, paymentBtn, otpBtn, paymentSuccessBtn]
+  const buttons = [selectCardBtn, paymentBtn, otpBtn, paymentSuccessBtn, awaitBtn]
 
   // click each button
   buttons.forEach((btn) => {
@@ -601,14 +602,32 @@ const completed = () => {
           Payment Success
         </h2>
 
-        <p class="text-sm text-black mb-3">
+        <p
+          v-show="store.isEmployer"
+          class=" text-black mb-3"
+        >
           Payment was successful, worker would be paid
           once you mark job as completed
         </p>
+        <p
+          v-show="store.isEmployee"
+          class=" text-black mb-3"
+        >
+          Client has paid for this service, mark job as completed when done
+          to receive payment
+        </p>
       </div>
       <button
+        v-show="store.isEmployer"
         class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
         @click="completed"
+      >
+        Done
+      </button>
+      <button
+        v-show="store.isEmployee"
+        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+        onclick="my_modal_8.showModal()"
       >
         Done
       </button>
@@ -620,6 +639,44 @@ const completed = () => {
           <!-- if there is a button in form, it will close the modal -->
 
           <button ref="paymentSuccessBtn" />
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Await Confirmation  for worker flow -->
+  <dialog
+    v-show="store.isEmployee"
+    id="my_modal_8"
+    class="modal"
+  >
+    <div class="modal-box">
+      <div class="card-body p-2">
+        <h2 class="card-title text-black font-bold text-2xl text-center center">
+          Awaiting Confirmation
+        </h2>
+
+        <p
+          class=" text-black mb-3"
+        >
+          You have marked this job as completed, please wait for client to
+          confirm completion so you can be paid
+        </p>
+      </div>
+      <button
+        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+        @click="completed"
+      >
+        Close
+      </button>
+      <div class="modal-action w-full">
+        <form
+          method="dialog"
+          class="w-full"
+        >
+          <!-- if there is a button in form, it will close the modal -->
+
+          <button ref="awaitBtn" />
         </form>
       </div>
     </div>
@@ -708,13 +765,25 @@ const completed = () => {
 
         <label class="form-control w-full mb-2">
           <div class="label">
-            <span class="label-text">What are you willing to pay</span>
+            <span
+              v-show="store.isEmployer"
+              class="label-text"
+            >What are you willing to pay</span>
+            <span
+              v-show="store.isEmployee"
+              class="label-text"
+            >Ask Client To Pay</span>
           </div>
           <input
             type="text"
             class="input input-bordered w-full"
           >
         </label>
+        <div v-show="store.isEmployee" class="text-center">
+          <p class="mb-3">Valmon Service charge: 8%</p>
+          <p class="mb-3">You Get <span class="font-extrabold"> NGN 47,000</span></p>
+        </div>
+
         <button
           class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
         >

@@ -1,20 +1,19 @@
 <script setup>
+import { accountController } from '~/services/modules/account'
+
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
-const emitEvent = (event) => {
-  emits(event)
-}
 // Handles the check box via the click of the button
 const schedulesId = ref(1)
-const workingHours = [
-  { day: 'Monday', time: '10:00 AM to 4:00PM', id: 1 },
-  { day: 'Tuesday', time: '10:00 AM to 4:00PM', id: 2 },
-  { day: 'Wednesday', time: '10:00 AM to 4:00PM', id: 3 },
-  { day: 'Thursday', time: '10:00 AM to 4:00PM', id: 4 },
-  { day: 'Friday', time: '10:00 AM to 4:00PM', id: 5 },
-  { day: 'Saturday', time: '10:00 AM to 4:00PM', id: 6 },
-  { day: 'Sunday', time: '10:00 AM to 4:00PM', id: 7 },
-]
+const workingHours = ref([
+  { day: 'Monday', from: '10:00 AM', to: '4:00PM', id: 1 },
+  { day: 'Tuesday', from: '10:00 AM', to: '4:00PM', id: 2 },
+  { day: 'Wednesday', from: '10:00 AM', to: '4:00PM', id: 3 },
+  { day: 'Thursday', from: '10:00 AM', to: '4:00PM', id: 4 },
+  { day: 'Friday', from: '10:00 AM', to: '4:00PM', id: 5 },
+  { day: 'Saturday', from: '10:00 AM', to: '4:00PM', id: 6 },
+  { day: 'Sunday', from: '10:00 AM', to: '4:00PM', id: 7 },
+])
 const check = (id) => {
   schedulesId.value = id
 }
@@ -25,6 +24,88 @@ const workingDay = ref('')
 const editWorkingHours = (id, day) => {
   WorkingId.value = id
   workingDay.value = day
+}
+
+const from = ref('')
+const to = ref('')
+const FromComputed = computed(() => {
+  const [Hr, min] = from.value.split(':')
+  let selectedTime
+  if (parseInt(Hr) > 12) {
+    selectedTime = `${from.value} PM`
+  }
+  else {
+    selectedTime = `${from.value} AM`
+  }
+  return selectedTime
+})
+const ToComputed = computed(() => {
+  const [Hr, min] = to.value.split(':')
+  let selectedTime
+  if (parseInt(Hr) > 12) {
+    selectedTime = `${to.value} PM`
+  }
+  else {
+    selectedTime = `${to.value} AM`
+  }
+  return selectedTime
+})
+const EditWorkHours = () => {
+  workingHours.value.forEach((e) => {
+    if (e.id === WorkingId.value) {
+      e.from = FromComputed.value ?? '10:00 AM'
+      e.to = ToComputed.value ?? '10:00 AM'
+    }
+  })
+}
+
+const workHours = reactive({
+  working_hours: [],
+})
+
+const updateWorkingHours = () => {
+  workingHours.value.forEach((e) => {
+    workHours.working_hours.push({
+      day: e.day,
+      from: e.from,
+      to: e.to,
+      open: true,
+    })
+  })
+}
+
+const buttonOption = ref('Verify')
+const { addWorkHours } = accountController()
+const loading = ref(false)
+const saveWorkHours = async () => {
+  loading.value = true
+  updateWorkingHours()
+  if (workHours.working_hours.length) {
+    const { data, error, status } = await addWorkHours(workHours)
+    console.log(data.value)
+    if (status.value === 'success') {
+      buttonOption.value = 'Next'
+      loading.value = false
+      handleALert('success', data.value.message)
+    }
+    if (status.value === 'error') {
+      loading.value = false
+      console.log(error.value)
+      handleALert('error', error.value.data.message)
+    }
+  }
+}
+
+const emitEvent = (event) => {
+  if (event === 'Verify') {
+    saveWorkHours()
+  }
+  else if (event === 'prevEvent') {
+    emits('prevEvent')
+  }
+  else {
+    emits('nextEvent')
+  }
 }
 </script>
 
@@ -49,7 +130,7 @@ const editWorkingHours = (id, day) => {
             :checked="schedules.id === schedulesId ?? ''"
             class="checkbox"
           ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{ schedules.day }}</span></span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">{{ schedules.time }}</span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">{{ schedules.from }} - {{ schedules.to }}</span>
           <span
             class="text-darkGold font-bold hover:text-brightGold"
             onclick="my_modal_1.showModal()"
@@ -68,13 +149,14 @@ const editWorkingHours = (id, day) => {
           @click="emitEvent('prevEvent')"
         />
         <BaseButton
-          title="Next"
+          :title="buttonOption"
+          :loading="loading"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
           border="#8B6914"
           :outline="false"
           class="block mb-5 w-[20%]"
-          @click="emitEvent('nextEvent')"
+          @click="emitEvent(buttonOption)"
         />
       </div>
     </div>
@@ -95,11 +177,13 @@ const editWorkingHours = (id, day) => {
         </p>
         <div class="center gap-2 mb-5">
           <BaseInput
+            v-model="from"
             label="From"
             type="time"
             class="flex-1 "
           />
           <BaseInput
+            v-model="to"
             label="To"
             type="time"
             class="flex-1 "
@@ -129,14 +213,14 @@ const editWorkingHours = (id, day) => {
           </label>
         </div>
         <div class="center gap-4 ">
-          <BaseButton
+          <!-- <BaseButton
             title="Cancel"
             color="rgba(255, 255, 255, 1)"
             text-color="#8B6914"
             border="#8B6914"
             :outline="true"
             class="block mb-5 w-[30%]"
-          />
+          /> -->
           <BaseButton
             title="Save"
             color="rgba(33, 31, 31, 1)"
@@ -144,6 +228,7 @@ const editWorkingHours = (id, day) => {
             border="#8B6914"
             :outline="false"
             class="block mb-5 w-[30%]"
+            @click="EditWorkHours"
           />
         </div>
         <div class="modal-action">

@@ -1,4 +1,45 @@
 <script setup>
+import { authController } from '~/services/modules/auth'
+
+const { resetPassword } = authController()
+
+const loading = ref(false)
+
+const userInfo = useCookie('userInfo')
+const token = useCookie('token')
+
+const userData = reactive({
+  email: userInfo.value.email ?? null,
+  token: token.value ?? null,
+  current_password: '',
+  new_password: '',
+  confirm_password: '',
+})
+
+const ResetPassword = async () => {
+  if (userData.email && userData.token) {
+    loading.value = true // Set loading to true before making the request
+
+    try {
+      const { data, error, status } = await resetPassword(userData)
+      if (status.value === 'success') {
+        handleALert('success', data.value.message)
+      }
+      if (status.value === 'error') {
+        handleALert('error', error.value.data.message)
+      }
+    }
+    catch (error) {
+      handleError(error)
+    }
+    finally {
+      loading.value = false
+    }
+  }
+  else {
+    handleError('error', 'Something went wrong')
+  }
+}
 </script>
 
 <template>
@@ -8,28 +49,45 @@
         Password Reset
       </h1>
       <BaseInput
+        v-model="userData.current_password"
         label="Current Password"
         type="password"
         :icon="true"
         icon-type="password"
         class="mb-3"
+        :required="true"
       />
       <BaseInput
+        v-model="userData.new_password"
         label="New Password"
         type="password"
         :icon="true"
         icon-type="password"
         class="mb-3"
+        :required="true"
       />
       <BaseInput
+        v-model="userData.confirm_password"
         label="Confirm Password"
         type="password"
         :icon="true"
         icon-type="password"
         class="mb-3"
+        :required="true"
       />
-      <button class="btn btn-neutral bg-black text-white">
-        Reset Passsword
+      <button
+        class="btn btn-neutral bg-black text-white"
+        @click="ResetPassword"
+      >
+        <span
+          v-if="loading"
+          class="loading loading-spinner loading-md"
+        />
+        <span
+          v-else
+        >Reset
+          Password
+        </span>
       </button>
     </div>
   </div>

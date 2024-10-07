@@ -5,7 +5,7 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
 </script>
 
 <template>
-  <nav class="bg-stone-950">
+  <nav class="bg-stone-950 w-full fixed z-[1000]">
     <div class="mx-auto max-w-full px-2 sm:px-6 lg:px-8">
       <div class="relative flex h-20 items-center justify-between">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">

@@ -4,24 +4,35 @@ export const useActiveView = () => {
     isProfileEnabled: false,
     isContactEnabled: false,
     isProfileName: '',
+    chatId: '',
   }))
 
   // Function to update the isProfileEnabled  and profileName state
-  const updateProfileView = (value) => {
+  const updateProfileView = async (value) => {
     state.value.isProfileEnabled = !state.value.isProfileEnabled
     state.value.isProfileName = value
-    // console.log(state.isProfileEnabled)
+    // navigate to profile page
+    navigateTo('/profile')
   }
 
   // Function to update the isContactEnabled state
   const updateContactView = () => {
     state.value.isContactEnabled = !state.value.isContactEnabled
+    // navigate to contact/chat page
+    navigateTo('/chat')
+  }
+
+  // Open Chat from marketPlace
+  const setMarketPlaceChatId = (id) => {
+    state.value.chatId = id
+    console.log(id)
   }
 
   // Return the state and the functions
   return {
     state,
-    updateContactView,
     updateProfileView,
+    updateContactView,
+    setMarketPlaceChatId,
   }
 }

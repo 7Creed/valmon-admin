@@ -1,9 +1,70 @@
 <script setup>
+import { appServicesController } from '~/services/modules/appServices'
+
+const { getAppServices } = appServicesController()
 const emits = defineEmits(['nextEvent', 'prevEvent'])
+// Comp is Used by Employer Registration
+const props = defineProps({
+  useType: String,
+})
+
+
+// Hold the category which is passed on the primary category as a props
+const categoryData = ref([])
+
+//  get the selected category and updates the addCategory data
+const fetchedServicesData = ref({})
+
+const addCategoryData = reactive({
+  name: '',
+  experience: null,
+  service_id: null,
+})
+
+watch(fetchedServicesData, (newVal, oldVal) => {
+  if (newVal) {
+    addCategoryData.name = fetchedServicesData.value.name
+    addCategoryData.service_id = fetchedServicesData.value.service_category_id
+  }
+})
+
+// Updates the CategoryData Object
+const saveCategory = () => {
+  const isFilled = Object.values(addCategoryData).every(e => e !== '')
+  if (isFilled) {
+    categoryData.value.push({
+      name: addCategoryData.name,
+      years_of_experience: addCategoryData.experience,
+      service_id: addCategoryData.service_id,
+      primary: false,
+    })
+  }
+}
+const fetchData = ref([])
+const fetchCategory = async () => {
+  const { data, status } = await getAppServices()
+  if (status.value === 'success' && data.value.data) {
+    console.log(data.value.data)
+    fetchData.value = data.value.data
+  }
+  // if (status.value) {
+  //   fetchStatus.value = status.value
+  // }
+}
+
+fetchCategory()
 
 const emitEvent = (event) => {
-  emits(event)
+  if (event === 'nextEvent' && categoryData.value.length > 0) {
+    emits(event, categoryData.value)
+  }
+  else {
+    emits(event)
+  }
 }
+onMounted(() => {
+  fetchCategory()
+})
 </script>
 
 <template>
@@ -15,22 +76,26 @@ const emitEvent = (event) => {
       <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-10">
         Please add your service category so clients can find you
       </p>
-      <button class="btn btn-block mb-5">
+      <button
+        v-for="(item, index) in categoryData"
+        :key="index"
+        class="btn btn-block mb-5"
+      >
         <span class="flex flex-row justify-between w-full">
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">Message Therapy</span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience 3</span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ item.name }}</span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{ item.years_of_experience
+          }}</span>
           <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
           <span class="text-darkGold text-base font-bold  hover:text-brightGold">Delete</span>
         </span>
       </button>
-      <button class="btn btn-block mb-5">
-        <span class="flex flex-row justify-between w-full">
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">Message Therapy</span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience 3</span>
-          <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
-          <span class="text-darkGold text-base font-bold  hover:text-brightGold">Delete</span>
-        </span>
-      </button>
+      <p
+        v-if="categoryData.length === 0"
+        class="text-[rgba(105, 102, 113, 1)] text-sm font-bold text-pink-700 text-center mb-2"
+      >
+        No Services Available!
+      </p>
+
       <button
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2 mx-auto"
         onclick="my_modal_1.showModal()"
@@ -87,19 +152,28 @@ const emitEvent = (event) => {
           <div class="label">
             <span class="label-text text-base text-labels font-medium mb-1">Select Category</span>
           </div>
-          <select class="select select-bordered">
+          <select
+            v-model="fetchedServicesData"
+            class="select select-bordered"
+          >
             <option
               disabled
               selected
             >Pick one</option>
-            <option>Star Wars</option>
+            <option
+              v-for="(item, index) in fetchData "
+              :key="index"
+              :value="item"
+            >{{ item?.name }}</option>
           </select>
 
         </label>
         <BaseInput
+          v-model="addCategoryData.experience"
           label="Year of Experience"
           type="text"
           :icon="false"
+          :required="true"
           class="block mb-4"
         />
         <BaseButton
@@ -108,6 +182,7 @@ const emitEvent = (event) => {
           text-color="rgba(255, 255, 255, 1)"
           :outline="false"
           class="block w-full"
+          @click="saveCategory"
         />
         <p class="py-4 font-medium text-sm text-[rgba(36, 36, 36, 1)]">
           If Your Category does not exist, you can request for it to be added below

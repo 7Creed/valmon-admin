@@ -9,6 +9,11 @@ export default {
         valmon_yellow: '#FFEBB8',
         labels: 'rgba(110, 113, 145, 1)',
         primary_bg: '#F5F1F1',
+        valmon_dark: '#151212',
+        valmon_Gold: '#C09742',
+        valmon_menu: '#232222',
+        card: '#8181A5',
+        valmon_green: '#00B69B',
       },
       screens: {
         'xs': '480px', // Small mobile devices (e.g., iPhone SE)

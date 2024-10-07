@@ -1,5 +1,8 @@
-<script  setup>
+<script setup>
 import location from '@/assets/icons/location.svg'
+import { useGlobalStore } from '@/store'
+
+const store = useGlobalStore()
 </script>
 
 <template>
@@ -15,8 +18,8 @@ import location from '@/assets/icons/location.svg'
     <!-- Description -->
     <div>
       <div class="mb-6">
-        <h3 class="mb-1 text-[#24242] font-semibold text-lg satoshiM flex items-center gap-2 mb-3">
-          <span>  Raman Ismail</span>
+        <h3 class=" text-[#24242] font-semibold text-lg satoshiM flex items-center gap-2 mb-3">
+          <span> Raman Ismail</span>
           <a href="javascript:void(0);">
             <svg
               width="14"
@@ -42,9 +45,7 @@ import location from '@/assets/icons/location.svg'
             </svg>
           </a>
         </h3>
-        <div
-          class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1"
-        >
+        <div class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1">
           <img
             :src="location"
             alt="Location icon"
@@ -123,6 +124,7 @@ import location from '@/assets/icons/location.svg'
         </p>
       </div>
       <button
+        v-show="store.isEmployer"
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2"
         onclick="my_modal_1.showModal()"
       >
@@ -143,6 +145,13 @@ import location from '@/assets/icons/location.svg'
 
         Become A Service Provider
       </button>
+      <!-- For Employee view -->
+      <div class="">
+        <div class="mb-5">
+          <MarketPlaceWorkerServiceCategory />
+        </div>
+        <MarketPlaceWorkerWorkHours />
+      </div>
     </div>
   </div>
 </template>

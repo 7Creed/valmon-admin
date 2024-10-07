@@ -1,5 +1,7 @@
 <script setup>
+import { useGlobalStore } from '@/store'
 
+const store = useGlobalStore()
 </script>
 
 <template>
@@ -29,9 +31,23 @@
             <span class="font-bold ms-3">NGN 14000</span>
           </span>
           <a
+            v-show="store.isEmployer"
             href="javascript:void(0)"
             class="font-black text-darkGold"
           >Hire</a>
+          <span
+            v-show="store.isEmployee"
+            class="flex gap-10"
+          >
+            <a
+              href="javascript:void(0)"
+              class="font-black text-darkGold"
+            >Hire</a>
+            <a
+              href="javascript:void(0)"
+              class="font-black text-red-600"
+            >Delete</a>
+          </span>
         </div>
       </div>
     </div>
