@@ -58,7 +58,10 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
             </svg>
           </button>
         </div>
-        <div class="flex items-center justify-center sm:items-stretch sm:justify-start">
+        <NuxtLink
+          to="/"
+          class="flex items-center justify-center sm:items-stretch sm:justify-start"
+        >
           <div class="flex flex-shrink-0 items-center">
             <img
               class="w-auto"
@@ -66,7 +69,7 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
               alt="Valmon Brand Logo"
             >
           </div>
-        </div>
+        </NuxtLink>
         <!-- Left side  -->
         <div class="flex items-center justify-end flex-1 space-x-4">
           <!-- search input -->
@@ -97,11 +100,11 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
                 href="#"
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
               >MarketPlace</a>
-              <a
-                href="#"
+              <NuxtLink
+                to="/login"
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
               >Sign
-                In</a>
+                In</NuxtLink>
             </div>
           </div>
           <button class="btn btn-outline bg-inherit text-white">

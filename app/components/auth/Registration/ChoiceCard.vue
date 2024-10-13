@@ -6,7 +6,10 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="card bg-base-100 w-full shadow-xl">
+  <a
+    href="javascript:void(0)"
+    class="card bg-base-100 w-full shadow-xl"
+  >
     <div class="card-body">
       <h2 class="card-title text-2xl text-darkGold justify-center mb-2">
         {{ props.title }}
@@ -15,5 +18,5 @@ const props = defineProps({
         {{ props.text }}
       </p>
     </div>
-  </div>
+  </a>
 </template>

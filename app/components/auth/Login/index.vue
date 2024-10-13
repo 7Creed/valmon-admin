@@ -4,10 +4,10 @@ import google from '@/assets/icons/google.svg'
 import { authController } from '~/services/modules/auth'
 
 const userInfo = useCookie('userInfo', {
-  maxAge: 60 * 12,
+  maxAge: 60 * 60 * 24,
 })
 const tokenCookies = useCookie('token', {
-  maxAge: 60 * 12,
+  maxAge: 60 * 60 * 24,
   // secure: true,
 })
 
@@ -25,6 +25,7 @@ const signIn = async () => {
   try {
     const { data, error, status } = await loginUser(userData)
     if (status.value === 'success') {
+      console.log(data)
       tokenCookies.value = data.value.data.token
       userInfo.value = data.value.data.user
       handleALert('success', 'Login successful')
@@ -70,7 +71,7 @@ const signIn = async () => {
           :icon="true"
           icon-type="password"
         />
-        <div class="form-control mb-5">
+        <div class="form-control mb-5 flex flex-row items-center justify-between">
           <label class="label cursor-pointer justify-start">
             <input
               type="checkbox"
@@ -78,6 +79,12 @@ const signIn = async () => {
             >
             <span class=" ms-2 label-text text-base text-[rgba(35, 35, 35, 1)]">Keep me logged in</span>
           </label>
+          <NuxtLink
+            to="/forgotpassword"
+            class=" ms-2 label-text text-base text-darkGold hover:underline"
+          >
+            forgot password
+          </NuxtLink>
         </div>
         <BaseButton
           :loading="loading"

@@ -1,16 +1,41 @@
 <script setup>
-import { appServicesController } from '~/services/modules/appServices'
+import { servicesController } from '~/services/modules/services'
+import { useGlobalStore } from '~/store'
 
-const { getAppServices } = appServicesController()
+// Initialize variables
+const store = useGlobalStore()
+const { getAppServices } = servicesController()
 const emits = defineEmits(['nextEvent', 'prevEvent'])
+
 // Comp is Used by Employer Registration
 const props = defineProps({
   useType: String,
 })
 
+// Fetch service category
+const fetchData = ref([])
+const fetchCategory = async () => {
+  const { data, status, refresh } = await getAppServices()
+  if (status.value === 'success' && data.value.data) {
+    console.log('account', data.value.data)
+    fetchData.value = data.value.data
+  }
+  if (!fetchData.value.length) refresh(data)
+  // if (status.value) {
+  //   fetchStatus.value = status.value
+  // }
+}
 
+// Function call
+fetchCategory()
+
+// ADD SERVICE CATEGORY
 // Hold the category which is passed on the primary category as a props
 const categoryData = ref([])
+// Update  categoryData  on component mount
+onMounted(() => {
+  categoryData.value = store.serviceCategory
+})
 
 //  get the selected category and updates the addCategory data
 const fetchedServicesData = ref({})
@@ -38,22 +63,18 @@ const saveCategory = () => {
       service_id: addCategoryData.service_id,
       primary: false,
     })
+    // Update the store;
+    store.$patch({
+      serviceCategory: categoryData.value,
+    })
   }
 }
-const fetchData = ref([])
-const fetchCategory = async () => {
-  const { data, status } = await getAppServices()
-  if (status.value === 'success' && data.value.data) {
-    console.log(data.value.data)
-    fetchData.value = data.value.data
-  }
-  // if (status.value) {
-  //   fetchStatus.value = status.value
-  // }
+
+const removeServiceCategory = (index) => {
+  categoryData.value.splice(index, 1)
 }
 
-fetchCategory()
-
+// Emit events
 const emitEvent = (event) => {
   if (event === 'nextEvent' && categoryData.value.length > 0) {
     emits(event, categoryData.value)
@@ -62,9 +83,6 @@ const emitEvent = (event) => {
     emits(event)
   }
 }
-onMounted(() => {
-  fetchCategory()
-})
 </script>
 
 <template>
@@ -86,7 +104,10 @@ onMounted(() => {
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{ item.years_of_experience
           }}</span>
           <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
-          <span class="text-darkGold text-base font-bold  hover:text-brightGold">Delete</span>
+          <span
+            class="text-darkGold text-base font-bold  hover:text-brightGold"
+            @click="removeServiceCategory "
+          >Delete</span>
         </span>
       </button>
       <p
@@ -99,6 +120,7 @@ onMounted(() => {
       <button
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2 mx-auto"
         onclick="my_modal_1.showModal()"
+        @click="fetchCategory"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

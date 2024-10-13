@@ -2,11 +2,36 @@
 import location from '@/assets/icons/location.svg'
 import { useGlobalStore } from '@/store'
 
+import { accountController } from '~/services/modules/account'
+
+const { userAccount } = accountController()
+
+const userInfo = ref({})
+
+const getUserInfo = async () => {
+  try {
+    const { status, data, error } = await userAccount()
+    if (status.value === 'success')
+      userInfo.value = data.value.data
+    if (status.value === 'error') {
+      handleALert('error', 'Unable to fetch Account Information')
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+}
 const store = useGlobalStore()
 </script>
 
 <template>
-  <div class="flex bg-white p-3 rounded-xl w-full lg:w-[800px]  justify-evenly mb-6 gap-8">
+  <div  v-if="false" class="AltLoader center w-1/2 h-[50vh]">
+    <span class="loading loading-ring w-20" />
+  </div>
+  <div
+  
+    class="flex bg-white p-3 rounded-xl w-full lg:w-[800px]  justify-evenly mb-6 gap-8"
+  >
     <!-- avatar -->
     <div>
       <div class="avatar">

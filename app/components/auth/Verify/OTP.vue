@@ -31,12 +31,12 @@ const OTPData = reactive({
   code: '',
 })
 const tokenCookies = useCookie('token', {
-  maxAge: 60 * 12,
+  maxAge: 60 * 60 * 24,
   // secure: true,
 })
 
 const userInfo = useCookie('userInfo', {
-  maxAge: 60 * 12,
+  maxAge: 60 * 60 * 24,
 })
 const verifyOTP = async () => {
   if (OTPData.email) {

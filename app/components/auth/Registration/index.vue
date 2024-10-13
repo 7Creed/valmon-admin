@@ -47,13 +47,13 @@ const back = () => {
           title="Hire Skilled Workers"
           text="Get The Right Person For The Job"
           class="mb-5 hover:bg-slate-100"
-          @click="registrationPath('worker')"
+          @click="registrationPath('client')"
         />
         <ChoiceCard
           title="Earn By Selling My Skills"
           text="Expand Your Client Base, Get a Wider Reach"
           class=" hover:bg-slate-100"
-          @click="registrationPath('client')"
+          @click="registrationPath('worker')"
         />
       </div>
 

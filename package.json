@@ -19,7 +19,6 @@
     "nuxt": "^3.12.4",
     "nuxt-echarts": "^0.2.3",
     "pinia": "^2.2.2",
-    "pinia-plugin-persistedstate": "^4.0.2",
     "sweetalert": "^2.1.2",
     "vue": "latest"
   },

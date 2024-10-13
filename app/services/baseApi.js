@@ -2,11 +2,9 @@ import { useFetch } from '#app'
 
 export const useBaseApi = () => {
   //  This function retrieves runtime configuration settings defined in your Nuxt application
-  const config = useRuntimeConfig()
-
   const apiFetch = async (url, options = {}) => {
     const defaults = {
-      baseURL: config.public.apiBase,
+      baseURL: 'https://valmon.techr.me/api/',
       key: url,
       watch: false,
       ...options,
@@ -16,6 +14,7 @@ export const useBaseApi = () => {
         if (token) {
           options.headers = {
             ...options.headers,
+
             Authorization: `Bearer ${token}`,
           }
         }
@@ -30,7 +29,7 @@ export const useBaseApi = () => {
     }
 
     // Call the useFetch function
-    const res = await useFetch(url, defaults)
+    const res = useFetch(url, defaults)
     console.log('This is from BaseApi ->', res)
 
     return res

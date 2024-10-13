@@ -62,7 +62,7 @@ const userData = reactive({
 // Check for password mach
 const passwordMatch = ref(true)
 const emailCookies = useCookie('email', {
-  maxAge: 60 * 24,
+  maxAge: 60 * 60 * 24,
 })
 
 const register = async () => {
@@ -117,109 +117,109 @@ const signUp = () => {
         Sign up to find the best Man For The Job
       </p>
     </div>
-    <!-- <form @submit.prevent="signUp"> -->
-    <div class="center gap-2 mb-5">
-      <BaseInput
-        v-model="userData.first_name"
-        label="First Name"
-        type="text"
-        placeholder="John"
-        class="flex-1 "
-        :required="true"
-      />
-      <BaseInput
-        v-model="userData.last_name"
-        label="Last Name"
-        type="text"
-        placeholder="Doe"
-        class="flex-1 "
-        :required="true"
-      />
-    </div>
-    <BaseInput
-      v-model="userData.email"
-      label="Email"
-      type="email"
-      placeholder="Johndoe@email.com"
-      class="flex-1 mb-5"
-      :required="true"
-    />
-    <div class="center gap-2 mb-5">
-      <BaseInput
-        v-model="userData.country_code"
-        label="Country Code"
-        type="select"
-        :data="countryCode"
-        class="flex-1 "
-        :required="true"
-      />
-      <BaseInput
-        v-model="userData.phone"
-        label="Phone Number"
-        type="tel"
-        placeholder="08123487678"
-        class="flex-1 "
-        :required="true"
-      />
-    </div>
-    <div class="gap-2 mb-5">
-      <div class="center gap-2">
+    <form @submit.prevent="signUp">
+      <div class="center gap-2 mb-5">
         <BaseInput
-          v-model="userData.password"
-          label="Password"
-          :type="password1Type"
-          :icon="true"
-          icon-type="password"
-          :instance-id="'password1'"
+          v-model="userData.first_name"
+          label="First Name"
+          type="text"
+          placeholder="John"
           class="flex-1 "
           :required="true"
-          @password-visible="handlePasswordVisible"
         />
         <BaseInput
-          v-model="userData.password_confirmation"
-          label="Confirm Password"
-          :type="password2Type"
-          :icon="true"
-          icon-type="password"
-          :instance-id="'password2'"
+          v-model="userData.last_name"
+          label="Last Name"
+          type="text"
+          placeholder="Doe"
           class="flex-1 "
           :required="true"
-          @password-visible="handlePasswordVisible"
         />
       </div>
-      <p
-        v-if="!passwordMatch"
-        class="mt-2 text-pink-600 text-sm"
-      >
-        Password does not match
-      </p>
-    </div>
-
-    <BaseButton
-      title="Sign Up"
-      color="#8B6914"
-      text-color="rgba(255, 255, 255, 1)"
-      :outline="false"
-      :loading="loading"
-      class="block w-full mb-5"
-      @click="signUp"
-    />
-    <div class="divider mb-5">
-      OR
-    </div>
-    <div>
-      <BaseButton
-        title="Sign up with Google"
-        color="rgba(255, 255, 255, 1)"
-        text-color="rgba(35, 35, 35, 1)"
-        border="rgba(230, 232, 231, 1)"
-        :outline="true"
-        alt="google"
-        :src="google"
-        class=" w-full mb-5"
+      <BaseInput
+        v-model="userData.email"
+        label="Email"
+        type="email"
+        placeholder="Johndoe@email.com"
+        class="flex-1 mb-5"
+        :required="true"
       />
-    </div>
-    <!-- </form> -->
+      <div class="center gap-2 mb-5">
+        <BaseInput
+          v-model="userData.country_code"
+          label="Country Code"
+          type="select"
+          :data="countryCode"
+          class="flex-1 "
+          :required="true"
+        />
+        <BaseInput
+          v-model="userData.phone"
+          label="Phone Number"
+          type="tel"
+          placeholder="08123487678"
+          class="flex-1 "
+          :required="true"
+        />
+      </div>
+      <div class="gap-2 mb-5">
+        <div class="center gap-2">
+          <BaseInput
+            v-model="userData.password"
+            label="Password"
+            :type="password1Type"
+            :icon="true"
+            icon-type="password"
+            :instance-id="'password1'"
+            class="flex-1 "
+            :required="true"
+            @password-visible="handlePasswordVisible"
+          />
+          <BaseInput
+            v-model="userData.password_confirmation"
+            label="Confirm Password"
+            :type="password2Type"
+            :icon="true"
+            icon-type="password"
+            :instance-id="'password2'"
+            class="flex-1 "
+            :required="true"
+            @password-visible="handlePasswordVisible"
+          />
+        </div>
+        <p
+          v-if="!passwordMatch"
+          class="mt-2 text-pink-600 text-sm"
+        >
+          Password does not match
+        </p>
+      </div>
+
+      <BaseButton
+        title="Sign Up"
+        color="#8B6914"
+        text-color="rgba(255, 255, 255, 1)"
+        :outline="false"
+        :loading="loading"
+        class="block w-full mb-5"
+        type="submit"
+      />
+      <div class="divider mb-5">
+        OR
+      </div>
+      <div>
+        <BaseButton
+          title="Sign up with Google"
+          color="rgba(255, 255, 255, 1)"
+          text-color="rgba(35, 35, 35, 1)"
+          border="rgba(230, 232, 231, 1)"
+          :outline="true"
+          alt="google"
+          :src="google"
+          class=" w-full mb-5"
+        />
+      </div>
+    </form>
 
     <p class="text-lg font-semibold text-center">
       Already Have account? <NuxtLink

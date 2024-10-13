@@ -1,27 +1,58 @@
-// FOR HOLDING GLOBAL AND TEMPORARY VARIABLE
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { watch } from 'vue'
 
-export const useGlobalStore = defineStore('globalStore', {
+export const useStore = defineStore('valmon_app_store', {
   state: () => ({
-    // Managing UI based on user
-    isEmployer: ref(false),
-    isEmployee: ref(true),
-    marketPlaceHeaderTab: ref(''),
+    isEmployer: false,
+    isEmployee: true,
+    marketPlaceHeaderTab: '',
     activeSideMenu: 'summary',
-    viewParentSubCategory: ref(false),
-    viewSkills: ref(false),
-    viewProfileFromDashboard: ref(false),
-    userEmail: 'tapahem842@jofuso.com',
-    token: null,
+    viewParentSubCategory: false,
+    viewSkills: false,
+    viewProfileFromDashboard: false,
+    serviceCategory: [],
   }),
-
   actions: {
-    // Function to update the active tab on the marketplace lower header
-    updateHeader: (value) => {
-      this.state.marketPlaceHeaderTab = value
+    updateHeader(value) {
+      this.marketPlaceHeaderTab = value
     },
-
+    // function to save the state to the local storage
+    saveState() {
+      console.log('save_sate')
+      localStorage.setItem('valmonStore', JSON.stringify(this.$state))
+    },
+    // Retrieves the state form localStorage and update the state
+    loadState() {
+      console.log('load_sate')
+      const saved = localStorage.getItem('valmonStore')
+      if (saved) {
+        this.$patch(JSON.parse(saved))
+      }
+    },
   },
-
 })
+
+// Custom composable for persistence
+export const useGlobalStore = () => {
+  const store = useStore()
+
+  // Load state when store is initialized
+  if (import.meta.client) {
+    store.loadState()
+
+    // Watch for changes in the store and save to localStorage
+    watch(
+      () => store.$state,
+      () => {
+        store.saveState()
+      },
+      { deep: true },
+    )
+    // Save state on page unload
+    window.addEventListener('beforeunload', () => {
+      store.saveState()
+    })
+  }
+
+  return store
+}

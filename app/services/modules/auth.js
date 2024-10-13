@@ -3,7 +3,7 @@ import { useBaseApi } from '../baseApi'
 export const authController = () => {
   const { post } = useBaseApi()
 
-  const createUser = userData => post('/auth/register', userData)
+  const createUser = userData => post('auth/register', userData)
   const verifyOtp = data => post('auth/verify-otp', data)
   const Resend = data => post('auth/verify/resend', data)
   const forgotPassword = data => post('auth/password/forgot', data)

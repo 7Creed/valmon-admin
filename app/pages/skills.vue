@@ -35,6 +35,9 @@ const toggleTab = (tab) => {
     </div>
     <!-- Transaction  -->
     <DashboardTransaction v-if="Tab === 'transaction'" />
+    <!--
+      1. Renders parent category
+    -->
     <DashboardServices v-if="Tab === 'category'" />
   </div>
 </template>

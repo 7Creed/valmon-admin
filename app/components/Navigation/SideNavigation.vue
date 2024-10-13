@@ -11,6 +11,8 @@ const activeMenu = computed(() => store.activeSideMenu)
 function changeActiveMenu(menu) {
   store.$patch({
     activeSideMenu: menu,
+    // Rerender the skill tab
+    viewParentSubCategory: false,
   })
 }
 </script>

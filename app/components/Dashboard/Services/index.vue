@@ -1,13 +1,59 @@
 <script setup>
 import { useGlobalStore } from '@/store'
-
+import { categoryController } from '~/services/modules/category'
 // Initialize Variable
 const store = useGlobalStore()
 
+const loading = ref(false)
+const savedBtn = ref('Save Category')
+// Handle Views
 function viewSubCategory() {
   store.$patch({
     viewParentSubCategory: true,
   })
+}
+
+const fileData = ref(null)
+const setFile = (e) => {
+  fileData.value = (e.target).files?.[0]
+}
+
+// Handle Parent Category feedback data
+const parentCategoryData = reactive({
+  name: '',
+  description: '',
+})
+
+// Api call
+const { createCategory } = categoryController()
+
+const saveCategory = async () => {
+  loading.value = true
+  const formData = new FormData()
+  formData.append('category_image', fileData.value)
+  formData.append('name', parentCategoryData.description)
+  formData.append('description', parentCategoryData.name)
+
+  try {
+    const { status, data, error } = await createCategory(formData)
+    if (status.value === 'success') {
+      // Temporal
+      setTimeout(() => {
+        savedBtn.value = 'saved!'
+      }, 500)
+      savedBtn.value = 'Save Category'
+      handleALert('success', data.value.message)
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -74,6 +120,7 @@ function viewSubCategory() {
             <BaseAddButton
               title="Add New"
               class=""
+              onclick="my_modal_1.showModal()"
             />
           </span>
         </div>
@@ -315,4 +362,67 @@ function viewSubCategory() {
   <!-- Sub-Category -->
   <DashboardServicesSubCategory v-if="store.viewParentSubCategory && store.viewSkills === false" />
   <DashboardServicesSkill v-if="store.viewSkills" />
+
+  <!-- Open the modal using ID.showModal() method -->
+  <!-- Add Category -->
+  <dialog
+    id="my_modal_1"
+    class="modal"
+  >
+    <div class="modal-box">
+      <h3 class="text-3xl font-bold text-center text-[rgba(35, 35, 35, 1)] mb-4">
+        Add Parent Category
+      </h3>
+      <BaseInput
+        v-model="parentCategoryData.name"
+        label="Name"
+        type="text"
+        :icon="false"
+        :required="true"
+        class="block mb-4"
+      />
+      <label class="form-control mb-4">
+        <div class="label">
+          <span class="label-text text-base text-labels font-medium">Description</span>
+        </div>
+        <textarea
+          v-model="parentCategoryData.description"
+          class="textarea textarea-bordered h-24"
+          placeholder="Bio"
+        />
+
+      </label>
+
+      <label class="form-control w-full mb-6">
+        <div class="label">
+          <span class="label-text text-labels font-medium">Pick a file</span>
+
+        </div>
+        <input
+          type="file"
+          class="file-input file-input-bordered w-full "
+          @change="setFile"
+        >
+      </label>
+
+      <BaseButton
+        :loading="loading"
+        :title="savedBtn"
+        color="rgba(33, 31, 31, 1)"
+        text-color="rgba(255, 255, 255, 1)"
+        :outline="false"
+        class="block w-full"
+        @click="saveCategory"
+      />
+
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">
+            Close
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
 </template>

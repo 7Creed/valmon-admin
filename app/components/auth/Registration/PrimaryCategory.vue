@@ -6,20 +6,17 @@ const emits = defineEmits(['nextEvent', 'prevEvent'])
 const props = defineProps({
   serviceData: Array,
 })
-// Handles the check box via the click of the button
-const categoryId = ref(1)
-const check = (id) => {
-  categoryId.value = id
-}
 
 console.log('This is from service Data sent to primary', props?.serviceData)
+// For Updating the UI
 const renderServiceData = ref(props.serviceData)
 
-// Fix this
-const selectPrimaryCategory = () => {
-  renderServiceData.value[categoryId.value].primary = !renderServiceData.value[categoryId.value].primary
+// This function updates the primary properties in renderServiceData
+const selectPrimaryCategory = (index) => {
+  renderServiceData.value[index].primary = !renderServiceData.value[index].primary
 }
 
+// Provides the api data for posting primary services
 const primaryCategory = reactive({
   services: [],
 })
@@ -33,9 +30,12 @@ const updatePrimaryData = () => {
     },
   ))
 }
+// Variables
 const buttonOption = ref('Verify')
 const { addServiceCategory } = accountController()
 const loading = ref(false)
+
+// Handles API call
 const savePrimaryCategory = async () => {
   loading.value = true
   updatePrimaryData()
@@ -55,6 +55,7 @@ const savePrimaryCategory = async () => {
   }
 }
 
+// Make api call and emit directional events for Next and Back Button
 const emitEvent = (event) => {
   if (event === 'Verify') {
     savePrimaryCategory()
@@ -81,15 +82,13 @@ const emitEvent = (event) => {
         v-for="(category, index) in renderServiceData"
         :key="index"
         class="btn btn-block mb-5"
-        @click="check(index)"
+        @click="selectPrimaryCategory(index)"
       >
         <span class="flex flex-row justify-between w-full">
           <span class="flex gap-2 items-center"><input
-            v-model="renderServiceData[index].primary"
             type="checkbox"
-            :checked="index === categoryId ?? ''"
+            :checked="category.primary"
             class="checkbox"
-            @change="selectPrimaryCategory"
           ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{ category.name }}</span></span>
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{ category.years_of_experience }}</span>
         </span>

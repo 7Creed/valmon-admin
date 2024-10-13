@@ -1,10 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
+  ssr: false,
   compatibilityDate: '2024-04-03',
   devtools: { enabled: false },
   runtimeConfig: {
     public: {
-      apiBase: 'https://valmon.techr.me/api',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE,
     },
   },
 
@@ -50,5 +52,9 @@ export default defineNuxtConfig({
       'xxl': 1536,
       '2xl': 1536,
     },
+  },
+  routeRules: {
+    'api/': { proxy: { to: `https://valmon.techr.me/api/**` } },
+    // 'api/**': { proxy: { to: `https://valmon.techr.me/api/**` }, ssr: false },
   },
 })

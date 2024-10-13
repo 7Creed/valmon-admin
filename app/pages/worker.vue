@@ -42,7 +42,7 @@ const sendToPrimaryCategory = (data) => {
 
 <template>
   <div class="p-12 bg-white">
-    <div class="flex gap-10">
+    <NuxtLink to="/" class="flex gap-10">
       <img
         :src="Logo"
         alt="Valmon logo"
@@ -57,7 +57,7 @@ const sendToPrimaryCategory = (data) => {
           {{ steps.name }}
         </li>
       </ul>
-    </div>
+    </NuxtLink>
     <div class="min-h-screen center">
       <div
         v-if="step === 1"

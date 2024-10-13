@@ -4,28 +4,32 @@ import { accountController } from '~/services/modules/account'
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
 // Handles the check box via the click of the button
-const schedulesId = ref(1)
 const workingHours = ref([
-  { day: 'Monday', from: '10:00 AM', to: '4:00PM', id: 1 },
-  { day: 'Tuesday', from: '10:00 AM', to: '4:00PM', id: 2 },
-  { day: 'Wednesday', from: '10:00 AM', to: '4:00PM', id: 3 },
-  { day: 'Thursday', from: '10:00 AM', to: '4:00PM', id: 4 },
-  { day: 'Friday', from: '10:00 AM', to: '4:00PM', id: 5 },
-  { day: 'Saturday', from: '10:00 AM', to: '4:00PM', id: 6 },
-  { day: 'Sunday', from: '10:00 AM', to: '4:00PM', id: 7 },
+  { day: 'Monday', from: '10:00 AM', to: '4:00PM', open: false },
+  { day: 'Tuesday', from: '10:00 AM', to: '4:00PM', open: false },
+  { day: 'Wednesday', from: '10:00 AM', to: '4:00PM', open: false },
+  { day: 'Thursday', from: '10:00 AM', to: '4:00PM', open: false },
+  { day: 'Friday', from: '10:00 AM', to: '4:00PM', open: false },
+  { day: 'Saturday', from: '10:00 AM', to: '4:00PM', open: false },
+  { day: 'Sunday', from: '10:00 AM', to: '4:00PM', open: false },
 ])
-const check = (id) => {
-  schedulesId.value = id
+
+// Set availability
+const setAvailability = (id) => {
+  console.log(id)
+  workingHours.value[id].open = !workingHours.value[id].open
 }
 
 // Editing Working Hours
 const WorkingId = ref()
 const workingDay = ref('')
 const editWorkingHours = (id, day) => {
+  saveButton.value = 'save'
   WorkingId.value = id
   workingDay.value = day
 }
 
+// Computed the working hours set time into PM Or AM
 const from = ref('')
 const to = ref('')
 const FromComputed = computed(() => {
@@ -39,6 +43,7 @@ const FromComputed = computed(() => {
   }
   return selectedTime
 })
+
 const ToComputed = computed(() => {
   const [Hr, min] = to.value.split(':')
   let selectedTime
@@ -50,13 +55,36 @@ const ToComputed = computed(() => {
   }
   return selectedTime
 })
+
+// Apply a set or selected working hours to all days
+const applyTo = ref(false)
+const applyToAllDays = () => {
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  // reset the workingHours;
+  workingHours.value = []
+  for (const day of days) {
+    workingHours.value.push({
+      day: day,
+      from: FromComputed.value,
+      to: FromComputed.value,
+      open: true,
+    })
+  }
+}
+
+// The EditWorkHours function
 const EditWorkHours = () => {
-  workingHours.value.forEach((e) => {
-    if (e.id === WorkingId.value) {
-      e.from = FromComputed.value ?? '10:00 AM'
-      e.to = ToComputed.value ?? '10:00 AM'
-    }
-  })
+  if (applyTo.value === false) {
+    workingHours.value.forEach((e, index) => {
+      if (index === WorkingId.value) {
+        e.from = FromComputed.value ?? '10:00 AM'
+        e.to = ToComputed.value ?? '10:00 AM'
+      }
+    })
+  }
+  else {
+    applyToAllDays()
+  }
 }
 
 const workHours = reactive({
@@ -69,7 +97,7 @@ const updateWorkingHours = () => {
       day: e.day,
       from: e.from,
       to: e.to,
-      open: true,
+      open: e.open,
     })
   })
 }
@@ -119,22 +147,22 @@ const emitEvent = (event) => {
         When would you be available for bookings
       </p>
       <button
-        v-for="schedules in workingHours"
-        :key="schedules.id"
+        v-for="(schedules, index) in workingHours"
+        :key="index"
         class="btn btn-block mb-5"
-        @click="check(schedules.id)"
+        @click="setAvailability(index)"
       >
         <span class="flex flex-row justify-between w-full">
           <span class="flex gap-2 items-center"><input
             type="checkbox"
-            :checked="schedules.id === schedulesId ?? ''"
+            :checked="schedules.open"
             class="checkbox"
           ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{ schedules.day }}</span></span>
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">{{ schedules.from }} - {{ schedules.to }}</span>
           <span
             class="text-darkGold font-bold hover:text-brightGold"
             onclick="my_modal_1.showModal()"
-            @click="editWorkingHours(schedules.id, schedules.day)"
+            @click="editWorkingHours(index, schedules.day)"
           >Edit Hours</span>
         </span>
       </button>
@@ -197,6 +225,7 @@ const emitEvent = (event) => {
           <label class="label cursor-pointer justify-start">
             <input
               type="checkbox"
+              checked
               class="checkbox border-2 border-[rgba(0, 0, 0, 1)]"
             >
             <span class=" ms-2 label-text text-base text-[rgba(35, 35, 35, 1)]">I Work 24 Hours</span>
@@ -206,6 +235,7 @@ const emitEvent = (event) => {
         <div class="form-control mb-7">
           <label class="label cursor-pointer justify-start">
             <input
+              v-model="applyTo"
               type="checkbox"
               class="checkbox border-2 border-[rgba(0, 0, 0, 1)]"
             >
