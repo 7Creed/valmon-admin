@@ -1,19 +1,25 @@
 <script setup>
 // import { useGlobalStore } from '@/store/index'
 import { useActiveView } from '@/composables/state'
-
+import { categoryController } from '~/services/modules/category'
 // const store = useGlobalStore()
-const { state } = useActiveView('activeView')
 
 definePageMeta({
   layout: 'market-place',
 })
+
+const { state } = useActiveView('activeView')
+
 // Handles breadcrumbs and Components rendering
 const activeComp = ref('category')
 const selectedOption = reactive({
   category: '',
   skill: '',
 })
+
+const History = () => {
+  activeCom.value = 'category'
+}
 
 const handleSelectedOption = (option) => {
   selectedOption.category = option.category
@@ -23,6 +29,30 @@ const handleSelectedOption = (option) => {
 
 // Handle the name of the selected profile
 const profileName = computed(() => state.value.isProfileName)
+
+const loading = ref(false)
+const CategoryServices = ref([])
+const { getCategory_Services } = categoryController()
+const fetchCategoryServices = async () => {
+  loading.value = true
+  try {
+    const { status, data, error } = await getCategory_Services ()
+    if (status.value === 'success') {
+      CategoryServices.value = data.value.data
+    }
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+fetchCategoryServices()
 </script>
 
 <template>
@@ -47,11 +77,16 @@ const profileName = computed(() => state.value.isProfileName)
       </ul>
     </div>
     <main>
+      <SharedLoader v-if="loading" />
       <MarketPlaceEmployer
-        v-if="activeComp === 'category'"
+        v-if="activeComp === 'category' && !loading"
+        :categories="CategoryServices"
         @selected-option="handleSelectedOption"
       />
-      <MarketPlaceEmployerSkills v-if="activeComp === 'skills'" />
+      <MarketPlaceEmployerSkills
+        v-if="activeComp === 'skills' && !loading"
+        @back="History()"
+      />
     </main>
   </div>
 </template>

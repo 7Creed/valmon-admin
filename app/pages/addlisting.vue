@@ -1,17 +1,64 @@
 <script setup>
+import { accountController } from '~/services/modules/account'
+import { useGlobalStore } from '@/store'
 // Define Data
 const activeStep = ref(1)
-
+const store = useGlobalStore()
 // Function to update steps
 const updateStep = (step) => {
   if (step === 'increase' && activeStep.value < 3) activeStep.value++
   if (step === 'decrease' && activeStep.value > 1) activeStep.value--
 }
+
+const { addListing } = accountController()
+const loading = ref(false)
+const postListing = async () => {
+  loading.value = true
+  const formData = new FormData()
+  for (const key in store.listingData) {
+    if (key === 'images') {
+      store.listingData.images.forEach((image) => {
+        formData.append(key, image)
+      })
+    }
+    formData.append(key, store.listingData[key])
+  }
+
+  try {
+    const { status, data, error } = await addListing(formData, store.listingData.listing_category_id, store.listingData.location)
+    if (status.value === 'success') {
+      console.log(data.value.data)
+      handleALert('success', data.value.message)
+      store.$patch({
+        listing_category_id: '',
+        location: '',
+        title: '',
+        color: '',
+        price: '',
+        negotiable: 1,
+        condition: '',
+        description: '',
+        images: [],
+      })
+      store.fetchListing = true
+      await navigateTo('/profilesetting')
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <div class="min-h-screen center">
-    <div class="card bg-base-100 shadow-xl rounded-sm w-2/6">
+  <div class="min-h-screen center bg-white">
+    <div class="card bg-base-100 shadow-xl rounded-sm w-3/6">
       <div class="card-body">
         <h3 class="text-xl font-bold text-center text-[#171616] mb-4 satoshiM">
           Add Listing ({{ activeStep }} of 3)
@@ -47,8 +94,13 @@ const updateStep = (step) => {
           <button
             v-if="activeStep === 3"
             class="btn btn-neutral text-white w-24 ms-auto"
+            @click="postListing()"
           >
-            Post
+            <span
+              v-if="loading"
+              class="loading loading-spinner loading-md"
+            />
+            <span v-else>Post</span>
           </button>
         </div>
       </div>

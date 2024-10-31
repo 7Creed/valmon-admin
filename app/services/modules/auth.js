@@ -9,6 +9,7 @@ export const authController = () => {
   const forgotPassword = data => post('auth/password/forgot', data)
   const resetPassword = data => post('auth/password/reset', data)
   const loginUser = data => post('auth/login', data)
+  
 
   return {
     createUser,

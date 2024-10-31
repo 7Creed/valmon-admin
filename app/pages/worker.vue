@@ -19,7 +19,7 @@ const stepsdata = [
   { name: 'Working Hours', id: 6 },
   { name: 'Profile Picture', id: 7 },
 ]
-const step = ref(4)
+const step = ref(3)
 
 const increaseStep = () => {
   if (step.value < 8) {
@@ -42,7 +42,10 @@ const sendToPrimaryCategory = (data) => {
 
 <template>
   <div class="p-12 bg-white">
-    <NuxtLink to="/" class="flex gap-10">
+    <NuxtLink
+      to="/"
+      class="flex gap-10"
+    >
       <img
         :src="Logo"
         alt="Valmon logo"
@@ -87,7 +90,6 @@ const sendToPrimaryCategory = (data) => {
         @prev-event="decreaseStep"
       />
       <ServiceCategory
-
         v-if="step === 4"
         use-type="registration"
         class="w-1/2 xxl:w-1/3"
@@ -103,6 +105,7 @@ const sendToPrimaryCategory = (data) => {
       />
       <WorkingHours
         v-if="step === 6"
+        use-type="registration"
         class="w-1/2 xxl:w-1/3"
         @next-event="increaseStep"
         @prev-event="decreaseStep"

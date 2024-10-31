@@ -4,6 +4,8 @@ import { categoryController } from '~/services/modules/category'
 // Initialize Variable
 const store = useGlobalStore()
 
+provide('services', 'services')
+
 const loading = ref(false)
 const savedBtn = ref('Save Category')
 // Handle Views

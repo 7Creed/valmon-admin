@@ -1,11 +1,18 @@
 <script setup>
+import { servicesController } from '~/services/modules/services'
+import { useGlobalStore } from '~/store'
+
 const props = defineProps({
   page: {
     type: String,
     default: 'employer',
   },
 })
+const emit = defineEmits(['back'])
 
+const goBack = () => {
+  emit('back')
+}
 // Handles tab
 
 const activeTab = ref('job')
@@ -17,6 +24,95 @@ const filter = ref(false)
 const toggleFilter = () => {
   filter.value = !filter.value
 }
+
+const store = useGlobalStore()
+
+const loading = ref(false)
+const paginationInfo = ref({})
+const { getUserByService } = servicesController()
+
+const userByServices = ref([])
+const getUsersByServices = async (id, query) => {
+  loading.value = true
+  try {
+    const { status, data, error } = await getUserByService(id, query)
+    if (status.value === 'success') {
+      console.log(data.value.data)
+      userByServices.value = data.value.data.results
+      paginationInfo.value = data.value.data.pagination
+
+      // currentPage.value = data.value.data.pagination.current_page
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+// Handles Pagination
+
+// First Call of the getUserByServices Api using the service id and pagination data
+getUsersByServices(store.usersByServices, store.usersByServiceCP)
+
+const pagination = (value) => {
+  // Render The pagination contents
+  handlePagination(value)
+  let currPage = store.usersByServiceCP
+  switch (value) {
+    case 'prev' && currPage > 1:
+      currPage--
+      getUserByService(store.usersByServices, currPage)
+      store.$patch({
+        usersByServiceCP: currPage,
+      })
+      break
+    case 'next' && currPage < paginationInfo.value.total:
+      currPage++
+      getUserByService(store.usersByServices, currPage)
+      store.$patch({
+        usersByServiceCP: currPage,
+      })
+      break
+
+    default:
+      getUserByService(store.usersByServices, value)
+
+      break
+  }
+}
+
+// Handles Pagination template Rendering
+const paginationList = ref([1, 2, 3, 4])
+const handlePagination = (value) => {
+  const newPaginationList = []
+  for (let items of paginationList.value) {
+    if (value === 'next') {
+      items++
+      newPaginationList.push(items)
+    }
+    else if (value === 'prev') {
+      items--
+      newPaginationList.push(items)
+    }
+    else if (typeof value === Number) {
+      const derivedPC = (value) - (paginationList[-1])
+      const deriveItem = items + (derivedPC)
+      newPaginationList.push(deriveItem)
+    }
+    else {
+      return
+    }
+  }
+  paginationList.value = newPaginationList
+}
+
+handlePagination(store.usersByServiceCP)
 </script>
 
 <template>
@@ -24,7 +120,7 @@ const toggleFilter = () => {
     <!-- FILTER -->
     <div class="bg-[#211F1FFF] rounded-2xl py-3 px-4 mb-10 ">
       <div class="flex items-center gap-6">
-        <SharedButton />
+        <SharedButton @click="goBack()" />
         <div
           v-if="filter === false"
           class="skill_container flex items-center justify-between  flex-1"
@@ -229,9 +325,7 @@ const toggleFilter = () => {
         class="flex flex-wrap gap-6 mb-10"
       >
         <MarketPlaceEmployerClientCard
-          v-for="(cards, index) in 16"
-
-          :key="index"
+          :service-by-users="userByServices"
         />
       </div>
       <div
@@ -251,33 +345,41 @@ const toggleFilter = () => {
           <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
             <option>16</option>
           </select>
-          <span class="text-sm">1-13 of 12,400 items</span>
+          <span class="text-sm">1-{{ userByServices.length }} of {{ pagination.total }} items</span>
         </div>
         <div class="join">
-          <button class="join-item btn btn-sm">
+          <button
+            class="join-item btn btn-sm"
+            @click="pagination('prev')"
+          >
             «
           </button>
-          <button class="join-item btn bg-black text-white  btn-sm">
-            1
+          <button
+            v-for="(item, index) of paginationList"
+            :key="index"
+
+            class="join-item btn bg-black text-white  btn-sm"
+            g
+            @click="pagination(item)"
+          >
+            {{ item }}
           </button>
-          <button class="join-item btn  btn-sm">
-            2
-          </button>
-          <button class="join-item btn  btn-sm">
-            3
-          </button>
-          <button class="join-item btn  btn-sm">
-            4
-          </button>
+
           <span
             class="join-item btn  btn-sm"
           >
             ...
           </span>
-          <button class="join-item btn  btn-sm">
-            25
+          <button
+            class="join-item btn  btn-sm"
+            @click="pagination(paginationInfo.total)"
+          >
+            {{ paginationInfo.total }}
           </button>
-          <button class="join-item btn  btn-sm">
+          <button
+            class="join-item btn  btn-sm"
+            @click="pagination('next')"
+          >
             »
           </button>
         </div>

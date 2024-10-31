@@ -1,13 +1,27 @@
 <script setup>
+import { useGlobalStore } from '~/store'
+
+definePageMeta({
+  layout: 'market-place',
+})
+const store = useGlobalStore()
 const activeTab = ref('personal')
 
 const toggleTab = (tab) => {
   activeTab.value = tab
 }
 
-definePageMeta({
-  layout: 'market-place',
-})
+const token = useCookie('token')
+
+const logOut = async () => {
+  console.log('j')
+  token.value = null
+  store.$patch({
+    User: null,
+  })
+
+  await navigateTo('/login')
+}
 </script>
 
 <template>
@@ -140,6 +154,7 @@ definePageMeta({
             <a
               href="javascript:void(0);"
               class="alert hover:bg-valmon_yellow p-3 mb-2"
+              @click="logOut()"
             >
               <svg
                 width="24"
@@ -154,7 +169,9 @@ definePageMeta({
                 />
               </svg>
 
-              <span class="text-[#E60B0B] text-sm ">Log Out</span>
+              <span
+                class="text-[#E60B0B] text-sm "
+              >Log Out</span>
             </a>
           </div>
         </div>

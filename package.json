@@ -14,17 +14,21 @@
   "dependencies": {
     "@nuxt/eslint": "^0.5.0",
     "@nuxt/image": "^1.7.0",
+    "@nuxtjs/leaflet": "^1.2.3",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@pinia/nuxt": "^0.5.4",
     "nuxt": "^3.12.4",
     "nuxt-echarts": "^0.2.3",
+    "nuxt-swiper": "^1.2.2",
     "pinia": "^2.2.2",
     "sweetalert": "^2.1.2",
     "vue": "latest"
   },
   "devDependencies": {
     "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
+    "@vue-leaflet/vue-leaflet": "^0.10.1",
     "daisyui": "^4.12.10",
+    "leaflet": "^1.9.4",
     "sass": "^1.77.8"
   }
 }

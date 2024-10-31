@@ -6,7 +6,8 @@ export const servicesController = () => {
 
   // Users
   const getAppServices = () => get(`services`)
-  const getUserByService = id => get(`services${id}users`)
+  const getUserByService = (id, query) => get(`services/${id}/users?page=${query}`)
+
 
   // Admin
   const createServices = data => post('admin/create/service', data)

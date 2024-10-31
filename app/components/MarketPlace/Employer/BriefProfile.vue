@@ -1,7 +1,11 @@
 <script setup>
 import slide_1 from '@/assets/images/UIElements/slide_1.jpg'
 import slide_2 from '@/assets/images/UIElements/slide_2.jpg'
+import { useGlobalStore } from '@/store'
+import { accountController } from '~/services/modules/account'
 
+const emits = defineEmits(['openTab'])
+const store = useGlobalStore()
 // rating
 const ratings = [
   { id: 5, value: 100 },
@@ -10,6 +14,33 @@ const ratings = [
   { id: 2, value: 40 },
   { id: 1, value: 20 },
 ]
+
+const viewAll = (tab) => {
+  emits('openTab', tab)
+}
+const GalleryLoading = ref(false)
+const Gallery = ref([])
+const { getUserGallery } = accountController()
+const fetchGallery = async (id) => {
+  GalleryLoading.value = true
+  try {
+    const { status, data, error } = await getUserGallery(id)
+    if (status.value === 'success') {
+      GalleryLoading.value = data.value.data
+    }
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    GalleryLoading.value = false
+  }
+}
+
+fetchGallery(store.userIdForProfileCheck)
 </script>
 
 <template>
@@ -20,7 +51,7 @@ const ratings = [
         <!-- header -->
         <div class="text-xl font-semibold flex justify-between mb-4 satoshiM">
           <h3>Images</h3>
-          <a class="link link-hover text-darkGold hover:decoration-darkGold">View All</a>
+          <a class="link link-hover text-darkGold hover:decoration-darkGold" @click="viewAll('gallery')">View All</a>
         </div>
 
         <!-- CAROUSEL -->
@@ -55,9 +86,13 @@ const ratings = [
             </svg>
           </div>
           <div class="carousel rounded-box min-w-5/6 h-[500px] gap-4 relative">
-            <div class="carousel-item w-1/2">
+            <div
+              v-for="(item, index) in Gallery.slice(4)"
+              :key="index"
+              class="carousel-item w-1/2"
+            >
               <img
-                :src="slide_1"
+                :src="item.asset_url"
                 class="w-full"
               >
             </div>
@@ -108,7 +143,7 @@ const ratings = [
         <!-- header -->
         <div class="text-xl font-semibold flex justify-between mb-4 satoshiM">
           <h3>Services</h3>
-          <a class="link link-hover text-darkGold hover:decoration-darkGold">View All</a>
+          <a class="link link-hover text-darkGold hover:decoration-darkGold"  @click="viewAll('service')">View All</a>
         </div>
 
         <div class="card-body">
@@ -148,7 +183,7 @@ const ratings = [
         <!-- header -->
         <div class="text-xl font-semibold flex justify-between mb-4 satoshiM">
           <h3>Reviews</h3>
-          <a class="link link-hover text-darkGold hover:decoration-darkGold">View All</a>
+          <a class="link link-hover text-darkGold hover:decoration-darkGold"  @click="viewAll('review')">View All</a>
         </div>
 
         <div class="card-body flex-row gap-5">

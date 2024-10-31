@@ -10,6 +10,13 @@ const emit = defineEmits(['custom-events'])
 const view = () => {
   emit('custom-events')
 }
+
+const Services = inject('services')
+
+if(Services === 'services') {
+  
+}
+console.log(Services)
 </script>
 
 <template>

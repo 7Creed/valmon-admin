@@ -1,10 +1,48 @@
 <script setup>
+import { MarketplaceController } from '@/services/modules/Admin/marketplace'
 
+const categoryName = ref('')
+const loading = ref(false)
+const { createMarketPlaceListing } = MarketplaceController()
+const Save = async () => {
+  loading.value = true // Set loading to true before making the request
+
+  const { data, error, status } = await createMarketPlaceListing({ name: categoryName.value })
+  if (status.value === 'success') {
+    loading.value = false
+    handleALert('success', data.value.message)
+  }
+  if (success.value === 'error') {
+    loading.value = false
+    handleALert('error', error.value.data.message)
+  }
+}
+
+const listingCategory = ref([])
+const { getMarketPlaceListing } = MarketplaceController()
+const fetchLoading = ref(false)
+const fetchListingCategory = async () => {
+  fetchLoading.value = true // Set loading to true before making the request
+
+  const { data, error, status } = await getMarketPlaceListing()
+  if (status.value === 'success') {
+    fetchLoading.value = false
+    listingCategory.value = data.value.data
+  }
+  if (success.value === 'error') {
+    fetchLoading.value = false
+    handleALert('error', error.value.data.message)
+  }
+}
+
+fetchListingCategory()
 </script>
 
 <template>
+  <SharedLoader v-if="fetchLoading" />
   <!-- Table -->
   <div
+    v-else
     class="card card-compact bg-base-100 w-full shadow-xl"
   >
     <div class="card-body">
@@ -64,6 +102,7 @@
             <BaseAddButton
               title="Add New"
               class=""
+              onclick="my_modal_1.showModal()"
             />
           </span>
         </div>
@@ -180,14 +219,14 @@
           <tbody>
             <!-- row 1 -->
             <tr
-              v-for="(item, index) in 6"
+              v-for="(item, index) in listingCategory"
               :key="index"
             >
               <th>
                 1
               </th>
               <td>
-                Phones
+              {{ item.name }}
               </td>
               <td class="">
                 13,000
@@ -274,4 +313,48 @@
       </div>
     </div>
   </div>
+  <!-- Add Proifle -->
+  <dialog
+    id="my_modal_1"
+    class="modal"
+  >
+    <div class="modal-box">
+      <div class="card-body  flex justify-center gap-10">
+        <h2
+          class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl text-center"
+        >
+          Add Category
+        </h2>
+
+        <BaseInput
+          v-model="categoryName"
+          label="Category Name"
+          type="text"
+          placeholder="phone"
+          class="mb-6 "
+        />
+        <div class="card-actions justify-center">
+          <BaseButton
+            :loading="loading"
+            title="Save"
+            color="rgba(33, 31, 31, 1)"
+            text-color="rgba(255, 255, 255, 1)"
+            border="#8B6914"
+            :outline="false"
+            class="block mb-5 w-[50%]"
+            @click="Save"
+          />
+        </div>
+      </div>
+
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">
+            Close
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
 </template>

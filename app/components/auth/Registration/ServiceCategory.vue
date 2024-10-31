@@ -1,5 +1,7 @@
 <script setup>
 import { servicesController } from '~/services/modules/services'
+import { accountController } from '~/services/modules/account'
+
 import { useGlobalStore } from '~/store'
 
 // Initialize variables
@@ -10,8 +12,10 @@ const emits = defineEmits(['nextEvent', 'prevEvent'])
 // Comp is Used by Employer Registration
 const props = defineProps({
   useType: String,
+
 })
 
+const loading = ref(false)
 // Fetch service category
 const fetchData = ref([])
 const fetchCategory = async () => {
@@ -45,6 +49,18 @@ const addCategoryData = reactive({
   experience: null,
   service_id: null,
 })
+const addCategoryFromAccount = reactive({
+  years_of_experience: null,
+  service_id: null,
+  primary: false,
+})
+
+watch(addCategoryData, (newVal, oldVal) => {
+  if (newVal) {
+    addCategoryFromAccount.years_of_experience = parseInt(newVal.experience)
+    addCategoryFromAccount.service_id = parseInt(newVal.service_id)
+  }
+})
 
 watch(fetchedServicesData, (newVal, oldVal) => {
   if (newVal) {
@@ -53,23 +69,68 @@ watch(fetchedServicesData, (newVal, oldVal) => {
   }
 })
 
+// This for User Registration
+const updateCategoryRegister = () => {
+  categoryData.value.push({
+    name: addCategoryData.name,
+    years_of_experience: addCategoryData.experience,
+    service_id: addCategoryData.service_id,
+    primary: false,
+  })
+  // Update the store;
+  store.$patch({
+    serviceCategory: categoryData.value,
+  })
+}
+
+const serviceData = {
+  services: [],
+}
+const { addServiceCategory } = accountController()
+const saveCategoryFromAccount = async () => {
+  loading.value = true
+  serviceData.services.push(addCategoryFromAccount)
+  try {
+    const { status, data, error } = await addServiceCategory(serviceData)
+    if (status.value === 'success') {
+      handleALert('success', data.value.message)
+      store.$patch({
+        callUserAccount: true,
+      })
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+    store.$patch({
+      callUserAccount: false,
+    })
+  }
+}
+onMounted(() => {
+  store.$patch({
+    callUserAccount: true,
+  })
+})
 // Updates the CategoryData Object
 const saveCategory = () => {
   const isFilled = Object.values(addCategoryData).every(e => e !== '')
   if (isFilled) {
-    categoryData.value.push({
-      name: addCategoryData.name,
-      years_of_experience: addCategoryData.experience,
-      service_id: addCategoryData.service_id,
-      primary: false,
-    })
-    // Update the store;
-    store.$patch({
-      serviceCategory: categoryData.value,
-    })
+    if (props.useType === 'registration') {
+      updateCategoryRegister()
+    }
+    if (props.useType === 'account') {
+      saveCategoryFromAccount()
+    }
   }
 }
 
+// Delete
 const removeServiceCategory = (index) => {
   categoryData.value.splice(index, 1)
 }
@@ -110,15 +171,40 @@ const emitEvent = (event) => {
           >Delete</span>
         </span>
       </button>
+      <!-- For rendering the service category -->
+      <button
+        v-for="(item, index) in store.UserAccount.profile.services"
+        :key="index"
+        class="btn btn-block mb-5"
+      >
+        <span class="flex flex-row justify-between w-full">
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ item.service.name }}</span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{ item.years_of_experience
+          }}</span>
+          <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
+          <span
+            class="text-darkGold text-base font-bold  hover:text-brightGold"
+            @click="removeServiceCategory "
+          >Delete</span>
+        </span>
+      </button>
       <p
-        v-if="categoryData.length === 0"
+        v-if="categoryData.length === 0 && store.UserAccount.profile.services.length === 0"
+        class="text-[rgba(105, 102, 113, 1)] text-sm font-bold text-pink-700 text-center mb-2"
+      >
+        No Services Available!
+      </p>
+
+      <p
+        v-if="store.UserAccount.profile.services.length === 0"
         class="text-[rgba(105, 102, 113, 1)] text-sm font-bold text-pink-700 text-center mb-2"
       >
         No Services Available!
       </p>
 
       <button
-        class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2 mx-auto"
+        class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2"
+        :class="{ 'mx-auto': props?.useType !== 'account' }"
         onclick="my_modal_1.showModal()"
         @click="fetchCategory"
       >
@@ -139,7 +225,10 @@ const emitEvent = (event) => {
 
         Add Category
       </button>
-      <div class="card-actions justify-between ">
+      <div
+        v-if="props?.useType !== 'account'"
+        class="card-actions justify-between "
+      >
         <BaseButton
           title="Back"
           color="rgba(255, 255, 255, 1)"
@@ -150,6 +239,7 @@ const emitEvent = (event) => {
           @click="emitEvent('prevEvent')"
         />
         <BaseButton
+          :loading="loading"
           title="Next"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
@@ -198,6 +288,20 @@ const emitEvent = (event) => {
           :required="true"
           class="block mb-4"
         />
+        <p
+          v-if="props.useType === 'account'"
+          class="py-5 text-center"
+        >
+          You can add a custom category below
+        </p>
+        <BaseInput
+          v-model="custom"
+          label="Add Custom"
+          type="text"
+          :icon="false"
+          :required="true"
+          class="block mb-4"
+        />
         <BaseButton
           title="Save Category"
           color="rgba(33, 31, 31, 1)"
@@ -206,10 +310,15 @@ const emitEvent = (event) => {
           class="block w-full"
           @click="saveCategory"
         />
-        <p class="py-4 font-medium text-sm text-[rgba(36, 36, 36, 1)]">
+
+        <p
+          v-if="props.useType === 'registration'"
+          class="py-4 font-medium text-sm text-[rgba(36, 36, 36, 1)]"
+        >
           If Your Category does not exist, you can request for it to be added below
         </p>
         <BaseButton
+          v-if="props.useType === 'registration'"
           title="Request For Category"
           color="rgba(255, 255, 255, 1)"
           text-color="#8B6914"

@@ -5,10 +5,10 @@
   <div
     class="hero h-48 rounded-2xl header_wrapper relative"
   >
-    <sharedButton
+    <!-- <sharedButton
       color="rgba(0, 0, 0, 1)"
       class="left-[12px] top-[12px] absolute"
-    />
+    /> -->
     <div class="hero-overlay bg-opacity-0 rounded-2xl bg-gray-800 " />
 
     <div class="hero-content text-white text-center ">

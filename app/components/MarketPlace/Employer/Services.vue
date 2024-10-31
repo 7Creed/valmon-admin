@@ -1,53 +1,62 @@
 <script setup>
 import { useGlobalStore } from '@/store'
+import { accountController } from '~/services/modules/account'
 
 const store = useGlobalStore()
+const loading = ref(false)
+const { getUserServices } = accountController()
+const userServices = ref([])
+const fetchServices = async () => {
+  loading.value = true
+  try {
+    const { status, data, error } = await getUserServices()
+    if (status.value === 'success') {
+      userServices.value = data.value.data
+      console.log(data.value)
+    }
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+fetchServices()
 </script>
 
 <template>
   <!-- Services -->
   <section>
-    <div class="card card-compact bg-base-100 shadow-xl px-6 py-4 mb-6">
-      <div class="card-body">
-        <!-- row -->
-        <div
-          v-for="(items, index) in 15"
-          :key="index"
-          role="alert"
-          class="alert bg-white border-2 text-base text-[rgba(0,0,0,1)] flex justify-between items-center mb-4"
-        >
-          <span class="font-bold">Tailoring</span>
-          <span class="">
-            <span>Title</span>
-            <span class="font-bold ms-3">Male Suit Top</span>
-          </span>
-
-          <span>
-            <span>Pricing Type</span>
-            <span class="font-bold marker ms-3">Per Unit</span>
-          </span>
-          <span>
-            <span>Price</span>
-            <span class="font-bold ms-3">NGN 14000</span>
-          </span>
-          <a
-            v-show="store.isEmployer"
-            href="javascript:void(0)"
-            class="font-black text-darkGold"
-          >Hire</a>
-          <span
-            v-show="store.isEmployee"
-            class="flex gap-10"
-          >
-            <a
-              href="javascript:void(0)"
-              class="font-black text-darkGold"
-            >Hire</a>
-            <a
-              href="javascript:void(0)"
-              class="font-black text-red-600"
-            >Delete</a>
-          </span>
+    <div
+      v-for="i in 6"
+      class="card card-compact bg-base-100 shadow-md px-6 py-4 mb-6"
+    >
+      <!-- row -->
+      <div className="bg-white rounded-lg overflow-hidden">
+        <div className="px-6 py-4 flex items-center gap-6">
+          <div className="font-bold text-xl mb-2">
+            Male Suit Top
+          </div>
+          <div class="flex-1">
+            <div className="px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
+              <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
+                <span>Title</span> <span class="satoshiM inline-block ml-2">Male Suit Top</span>
+              </span>
+              <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
+                <span>Pricing Type</span> <span class="satoshiM inline-block ml-2">Per Unit</span>
+              </span>
+              <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
+                <span>Price</span> <span class="satoshiM inline-block ml-2">NGN 14,000</span>
+              </span>
+            </div>
+            <p className="text-gray-700 text-base ">
+              Experience The Luxury Of A Custom-Made Suit Top Designed Specifically For You. I Will Take Your Exact Measurements And Work With You To Choose The Perfect Fabric, Style, And Details. Whether It's For A Formal Event, Business Meeting, Or A Special Occasion, I Ensure A Flawless Fit And A Polished, Professional Finish.
+            </p>
+          </div>
         </div>
       </div>
     </div>

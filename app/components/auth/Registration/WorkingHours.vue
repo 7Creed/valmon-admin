@@ -1,6 +1,12 @@
 <script setup>
 import { accountController } from '~/services/modules/account'
 
+// Comp is Used by Employer Registration
+const props = defineProps({
+  useType: String,
+
+})
+
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
 // Handles the check box via the click of the button
@@ -103,6 +109,8 @@ const updateWorkingHours = () => {
 }
 
 const buttonOption = ref('Verify')
+const buttonOption2 = ref('Save')
+
 const { addWorkHours } = accountController()
 const loading = ref(false)
 const saveWorkHours = async () => {
@@ -112,6 +120,9 @@ const saveWorkHours = async () => {
     const { data, error, status } = await addWorkHours(workHours)
     console.log(data.value)
     if (status.value === 'success') {
+      if (props.useType === 'account') {
+        buttonOption.value = 'save'
+      }
       buttonOption.value = 'Next'
       loading.value = false
       handleALert('success', data.value.message)
@@ -125,7 +136,7 @@ const saveWorkHours = async () => {
 }
 
 const emitEvent = (event) => {
-  if (event === 'Verify') {
+  if (event === 'Verify' || event === 'save') {
     saveWorkHours()
   }
   else if (event === 'prevEvent') {
@@ -161,13 +172,14 @@ const emitEvent = (event) => {
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">{{ schedules.from }} - {{ schedules.to }}</span>
           <span
             class="text-darkGold font-bold hover:text-brightGold"
-            onclick="my_modal_1.showModal()"
+            onclick="my_modal_12.showModal()"
             @click="editWorkingHours(index, schedules.day)"
           >Edit Hours</span>
         </span>
       </button>
       <div class="card-actions justify-between ">
         <BaseButton
+          v-if="props.useType === 'registration'"
           title="Back"
           color="rgba(255, 255, 255, 1)"
           text-color="#8B6914"
@@ -177,7 +189,7 @@ const emitEvent = (event) => {
           @click="emitEvent('prevEvent')"
         />
         <BaseButton
-          :title="buttonOption"
+          :title="props.useType ==='account'? buttonOption2: buttonOption"
           :loading="loading"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
@@ -190,7 +202,7 @@ const emitEvent = (event) => {
     </div>
     <!-- Open the modal using ID.showModal() method -->
     <dialog
-      id="my_modal_1"
+      id="my_modal_12"
       class="modal"
     >
       <div class="modal-box">

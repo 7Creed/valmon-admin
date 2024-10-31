@@ -5,14 +5,48 @@ import send from '@/assets/icons/send-2.svg'
 import copySuccess from '@/assets/icons/copy-success.svg'
 import location from '@/assets/icons/location.svg'
 
-import { useGlobalStore } from '@/store'
+import { accountController } from '~/services/modules/account'
 
-const store = useGlobalStore()
+import { useGlobalStore } from '@/store'
 
 const workerTab = ref('profile')
 const toggleTab = (tab) => {
   workerTab.value = tab
 }
+
+const viewAll = (tab) => {
+  console.log(tab)
+  workerTab.value = tab
+}
+
+const store = useGlobalStore()
+
+const { SingleUserAccount } = accountController()
+
+const loading = ref(false)
+const userInfo = ref({})
+
+const getUserInfo = async (id) => {
+  loading.value = true
+  try {
+    const { status, data } = await SingleUserAccount(id)
+    if (status.value === 'success') {
+      userInfo.value = data.value.data
+    }
+
+    if (status.value === 'error') {
+      handleALert('error', 'Unable to fetch Account Information')
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+getUserInfo(store.userIdForProfileCheck)
 </script>
 
 <template>
@@ -118,7 +152,14 @@ const toggleTab = (tab) => {
                         fill="#0CA408"
                       />
                     </svg>
-                    <span class="text-sm font-bold text-green-500">Online</span>
+                    <span
+                      v-if="userInfo.account_status === 'ACTIVE'"
+                      class="text-sm font-bold text-green-500"
+                    >Online</span>
+                    <span
+                      v-if="!userInfo.account_status === 'ACTIVE'"
+                      class="text-sm font-bold text-green-500"
+                    >Offline</span>
                   </div>
                 </div>
               </div>
@@ -200,29 +241,31 @@ const toggleTab = (tab) => {
                 <div
                   class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2"
                 >
-                  <img
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  >
+                  <img :src="userInfo.profile_pic">
                 </div>
               </div>
               <!-- Profile desc -->
               <div>
                 <h3 class="mb-1 text-[#24242] font-semibold text-sm">
-                  Raman Ismail
+                  {{ userInfo.first_name }} {{ userInfo.last_name }}
                 </h3>
                 <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
                   <span class="t#62646Aext-black">Front-End</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <div class="rating w-4">
+                <div class="flex items-center gap-2 ">
+                  <div
+                    v-for="(rate, index) in userInfo.ratings"
+                    :key="index"
+                    class="rating w-4"
+                  >
                     <input
                       type="radio"
                       name="rating-1"
                       class="mask mask-star"
                     >
                   </div>
-                  <span class="text-xs font-bold">4.7</span>
-                  <span class="text-black text-xs">(631 Ratings)</span>
+                  <span class="text-xs font-bold">{{ userInfo.rating }}</span>
+                  <span class="text-black text-xs">({{ userInfo.ratings_count }} Ratings)</span>
                 </div>
               </div>
             </div>
@@ -233,22 +276,20 @@ const toggleTab = (tab) => {
                 About Me
               </h3>
               <p class="text-xs">
-                As an expert with over 20 years of experience, I've seen
-                remarkable advancements in technology, making it more accessible
-                and beneficial for everyday use.
+                {{ userInfo?.profile?.bio ?? 'Nil' }}
               </p>
             </div>
             <div
               class="flex justify-between items-center text-[#404145] text-xs mb-1"
             >
               <span class="font-medium">Inbox response time</span>
-              <span class="font-bold">3 Mins</span>
+              <span class="font-bold">{{ userInfo.inbox_response_time }} Mins</span>
             </div>
             <div
               class="flex justify-between items-center text-[#404145] text-xs mb-1"
             >
-              <span class="font-medium">Inbox response time</span>
-              <span class="font-bold">3 Mins</span>
+              <span class="font-medium">Inbox response rate</span>
+              <span class="font-bold">{{ userInfo.inbox_response_rate }} %</span>
             </div>
             <div
               class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1"
@@ -258,7 +299,7 @@ const toggleTab = (tab) => {
                 alt="Location icon"
                 class="h-5"
               >
-              <span class="font-medium text-[rgba(0,0,0,1)]">Lagos, Nigeria</span>
+              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.city ?? 'Nil' }}, {{ userInfo?.profile?.country ?? 'Nil' }}</span>
             </div>
             <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
               <img
@@ -266,7 +307,7 @@ const toggleTab = (tab) => {
                 alt="copy-success icon"
                 class="h-5"
               >
-              <span class="text-[rgba(0,0,0,1)] font-medium">65 jobs Completed</span>
+              <span class="text-[rgba(0,0,0,1)] font-medium">0 jobs Completed</span>
             </div>
             <!-- Online Presence -->
             <div class="relative flex gap-2">
@@ -337,7 +378,7 @@ const toggleTab = (tab) => {
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
           :class="{ border_b: workerTab === 'service' }"
           @click="toggleTab('service')"
-        >Services</a>
+        >Gigs</a>
         <a
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
@@ -352,7 +393,10 @@ const toggleTab = (tab) => {
         >Marketplace Listings</a>
       </div>
       <!-- Content -->
-      <MarketPlaceEmployerBriefProfile v-if="workerTab === 'profile'" />
+      <MarketPlaceEmployerBriefProfile
+        v-if="workerTab === 'profile'"
+        @open-tab="viewAll"
+      />
       <MarketPlaceEmployerWorkGallery v-if="workerTab === 'gallery'" />
       <MarketPlaceEmployerServices v-if="workerTab === 'service'" />
       <MarketPlaceEmployerReviews v-if="workerTab === 'review'" />

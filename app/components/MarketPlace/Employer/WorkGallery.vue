@@ -1,36 +1,91 @@
 <script setup>
 import { useGlobalStore } from '@/store'
+import { accountController } from '~/services/modules/account'
 
-const images = import.meta.glob('@/assets/images/UIElements/img_*.jpg', { eager: true })
-const ImageArray = Object.values(images).map(module => module.default)
+const props = defineProps({
+  refreshV: Boolean,
+})
 
 const store = useGlobalStore()
+
+const loading = ref(false)
+const Gallery = ref([])
+const { getUserGallery } = accountController()
+const fetchGallery = async () => {
+  loading.value = true
+  try {
+    const { status, data, error } = await getUserGallery()
+    if (status.value === 'success') {
+      Gallery.value = data.value.data
+    }
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+fetchGallery()
+
+if (props.refreshV === true) {
+  fetchGallery()
+}
+
+// Delete Gallery
+const { deleteGallery } = accountController()
+
+const delGallery = async (id) => {
+  try {
+    const { status, data, error } = await deleteGallery(id)
+    if (status.value === 'success') {
+      handleALert('success', 'Image deleted successfully')
+      fetchGallery()
+    }
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
+  <SharedLoader v-if="loading" />
   <div
+    v-else
     class="flex flex-wrap flex-row gap-10"
   >
     <div
-      v-for="(image, index) in ImageArray"
-      :key="index"
+      v-for="(image, index) in Gallery"
+      :key="image.id"
       class="card card-compact bg-base-100 w-[300px] h-[320px] shadow-xl p-4 relative"
     >
       <img
-        :src="image"
-        :alt="`Image ${index + 1}`"
+        :src="image.asset_url"
+        :alt="`Image ${image.id + 1}`"
         class=" h-[100%] "
       >
       <div
-        v-show="store.isEmployee"
+        v-show="store.User.account_type === 'worker'"
         class="absolute w-fit center p-2 bg-white rounded-full right-0 shadow-xl"
       >
         <svg
+
           xmlns="http://www.w3.org/2000/svg"
           width="22"
           height="22"
           viewBox="0 0 18 18"
           fill="none"
+          @click="delGallery(image.id)"
         >
           <path
             d="M15.2678 4.38453C14.1701 4.27544 13.0724 4.19363 11.9678 4.13226V4.12544L11.8179 3.23908C11.7156 2.61181 11.5656 1.6709 9.97012 1.6709H8.18376C6.59512 1.6709 6.44512 2.5709 6.33603 3.23226L6.19285 4.10499C5.55876 4.1459 4.92467 4.18681 4.29058 4.24817L2.89967 4.38453C2.6133 4.41181 2.40876 4.66408 2.43603 4.94363C2.4633 5.22317 2.70876 5.42772 2.99512 5.40044L4.38603 5.26408C7.95876 4.90953 11.5588 5.0459 15.1724 5.40726C15.1929 5.40726 15.2065 5.40726 15.2269 5.40726C15.486 5.40726 15.711 5.20953 15.7383 4.94363C15.7588 4.66408 15.5542 4.41181 15.2678 4.38453Z"

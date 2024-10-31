@@ -2,10 +2,10 @@
 import google from '@/assets/icons/google.svg'
 
 import { authController } from '~/services/modules/auth'
+import { useGlobalStore } from '~/store'
 
-const userInfo = useCookie('userInfo', {
-  maxAge: 60 * 60 * 24,
-})
+const store = useGlobalStore()
+
 const tokenCookies = useCookie('token', {
   maxAge: 60 * 60 * 24,
   // secure: true,
@@ -27,7 +27,7 @@ const signIn = async () => {
     if (status.value === 'success') {
       console.log(data)
       tokenCookies.value = data.value.data.token
-      userInfo.value = data.value.data.user
+      store.User = data.value.data.user
       handleALert('success', 'Login successful')
       navigateTo('/home')
     }

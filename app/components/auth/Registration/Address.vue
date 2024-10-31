@@ -1,10 +1,72 @@
 <script setup>
-import map from '@/assets/images/UIElements/map.jpg'
+import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import L from 'leaflet'
+import { accountController } from '~/services/modules/account'
 
 const emits = defineEmits(['nextEvent', 'prevEvent'])
+const map = ref(null)
+
+const lat = ref(47.21322)
+const lng = ref(-1.559482)
+
+const getUserLocation = async() => {
+  if(navigator.geolocation) {
+
+    // get location
+    navigator.geolocation.getCurrentPosition(pos => {
+      // set user location
+    })
+  }
+}
+// When the map is ready
+const onMapReady = () => {
+  // Access the Leaflet map instance
+  console.log(map.value.leafletObject)
+}
+onMounted(() => {
+  console.log(L)
+  console.log(map.value.latLng)
+})
+
+const addresses = {
+  addresses: [
+    {
+      details: null,
+      street: 'nwaniba',
+      city: 'uyo',
+      state: 'akwa-ibom',
+      country: 'nigeria',
+      postal_code: '520101',
+    },
+  ],
+}
+
+const buttonNext = ref('Verify')
+const { addAddresses } = accountController()
+const loading = ref(false)
+const handleAddAddress = async () => {
+  loading.value = true
+  const { status, data, error } = await addAddresses(addresses)
+  if (status.value === 'success') {
+    buttonNext.value = 'Next'
+    loading.value = false
+  }
+  if (status.value === 'error') {
+    handleError('error', error.value.data.message)
+    loading.value = false
+  }
+}
 
 const emitEvent = (event) => {
-  emits(event)
+  if (event === 'nextEvent' && buttonNext.value === 'Verify') {
+    handleAddAddress()
+  }
+  else if (event === 'nextEvent' && buttonNext.value === 'Next') {
+    emits('nextEvent')
+  }
+  else {
+    emits(event)
+  }
 }
 </script>
 
@@ -50,7 +112,8 @@ const emitEvent = (event) => {
           @click="emitEvent('prevEvent')"
         />
         <BaseButton
-          title="Next"
+          :loading="loading"
+          :title="buttonNext"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
           border="#8B6914"
@@ -91,13 +154,22 @@ const emitEvent = (event) => {
             placeholder="search for location"
           >
         </label>
-        <div class="">
-          <img
-            :src="map"
-            alt="map"
-            class="object-cover"
-          >
-        </div>
+        <LMap
+          ref="map"
+          style="height: 350px"
+          :zoom="6"
+          :center="[lat, lng]"
+          :use-global-leaflet="true"
+          @ready="onMapReady"
+        >
+          <LTileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&amp;copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
+            layer-type="base"
+            name="OpenStreetMap"
+          />
+          <LMarker :lat-lng="[50, 50]" draggable />
+        </LMap>
         <p class="py-4 text-base">
           Floor or apartment details
         </p>

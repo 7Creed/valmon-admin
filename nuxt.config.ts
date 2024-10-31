@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
 
   // global custom css entry file
-  css: ['~/assets/styles/css/main.css', '~/assets/styles/scss/main.scss'],
+  css: ['~/assets/styles/css/main.css', '~/assets/styles/scss/main.scss', 'leaflet/dist/leaflet.css'],
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -19,6 +19,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@pinia/nuxt',
     'nuxt-echarts',
+    '@nuxtjs/leaflet',
   ],
   tailwindcss: {
     // Options

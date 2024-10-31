@@ -7,6 +7,7 @@
     <MarketPlaceEmployerMarket
       v-for=" (items, index) in 12"
       :key="index"
+      type="marketListing"
     />
   </div>
 </template>
