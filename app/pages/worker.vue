@@ -18,8 +18,12 @@ const stepsdata = [
   { name: 'Primary Category', id: 5 },
   { name: 'Working Hours', id: 6 },
   { name: 'Profile Picture', id: 7 },
+
 ]
 const step = ref(3)
+
+// Handle profile setup
+const profileSetup = ref('')
 
 const increaseStep = () => {
   if (step.value < 8) {
@@ -38,6 +42,10 @@ const sendToPrimaryCategory = (data) => {
   isCategoryData.value = data
   increaseStep()
 }
+const setupProfile = () => {
+  step.value = 0
+  profileSetup.value = 'setup'
+}
 </script>
 
 <template>
@@ -51,7 +59,10 @@ const sendToPrimaryCategory = (data) => {
         alt="Valmon logo"
         class="w-20"
       >
-      <ul class="steps steps-vertical lg:steps-horizontal  flex-grow">
+      <ul
+        v-if="step > 1 || profileSetup === 'setup'"
+        class="steps steps-vertical lg:steps-horizontal  flex-grow"
+      >
         <li
           v-for="(steps) in stepsdata"
           :key="steps.id"
@@ -111,10 +122,16 @@ const sendToPrimaryCategory = (data) => {
         @prev-event="decreaseStep"
       />
       <UploadPicture
-        v-if="step === 7"
+        v-if="step === 7 "
         class="w-1/2 xl:w-1/3"
         @next-event="increaseStep"
         @prev-event="decreaseStep"
+        @setup-process="setupProfile"
+      />
+      <AuthProfileSetUp
+        v-if="profileSetup"
+        class="w-1/2 xl:w-1/3"
+        @continue-profile-setup="profileSetup = 'onProcess'"
       />
     </div>
   </div>

@@ -1,7 +1,7 @@
 <script setup>
 import { accountController } from '~/services/modules/account'
 
-const emit = defineEmits(['prevEvent'])
+const emit = defineEmits(['prevEvent', 'setupProcess'])
 
 const worker = ref(false)
 onMounted(() => {
@@ -46,12 +46,16 @@ const upload = async () => {
   if (status.value === 'success') {
     loading.value = false
     handleALert('success', data.value.message)
-    navigateTo('/login')
+    // takes to profile setup process
+    // emit('setupProcess')
   }
   if (success.value === 'error') {
     loading.value = false
     handleALert('error', error.value.data.message)
   }
+}
+const test = ()=> {
+  emit('setupProcess')
 }
 </script>
 
@@ -59,7 +63,7 @@ const upload = async () => {
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
       <h2
-        class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl"
+        class="card-title center text-[rgba(35, 35, 35, 1)] font-bold text-3xl text-center"
         :class="{ 'mb-8': worker }"
       >
         Upload Profile Picture
@@ -123,7 +127,7 @@ const upload = async () => {
           border="#8B6914"
           :outline="false"
           class="block mb-5 w-[20%]"
-          @click="upload"
+          @click="test"
         />
       </div>
     </div>

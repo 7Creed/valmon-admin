@@ -15,6 +15,12 @@ export const handleALert = (icon, text, title = '', time = 3000) => {
 }
 
 export const handleError = (error) => {
-  handleALert('error', ('An error occurred while processing your request'))
+  handleALert('error', 'An error occurred while processing your request')
   console.log(error)
+}
+
+export const closeModal = (val) => {
+  if (val.value) {
+    val.value.click()
+  }
 }

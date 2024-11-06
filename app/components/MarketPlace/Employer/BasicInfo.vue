@@ -3,46 +3,20 @@ import location from '@/assets/icons/location.svg'
 import copysuccess from '@/assets/icons/copy-success.svg'
 
 import { useGlobalStore } from '@/store'
+
 import { accountController } from '~/services/modules/account'
 
 const store = useGlobalStore()
-const { userAccount } = accountController()
+const { UpdateProfile } = accountController()
 
-const loading = ref(false)
-const userInfo = ref({})
-
-const getUserInfo = async () => {
-  loading.value = true
-  try {
-    const { status, data } = await userAccount()
-    if (status.value === 'success') {
-      userInfo.value = data.value.data
-      store.UserAccount = data.value.data
-      console.log(data.value.data)
-    }
-
-    if (status.value === 'error') {
-      handleALert('error', 'Unable to fetch Account Information')
-    }
-  }
-  catch (error) {
-    handleError(error)
-  }
-  finally {
-    loading.value = false
-    profile_loading.value = false
-  }
-}
-
-getUserInfo()
-
-const { callUserAccount } = storeToRefs(store)
-watch(callUserAccount, (newVal, oldVal) => {
-  if (newVal === true) {
-    console.log('works')
-    getUserInfo()
-  }
-})
+store.getAccount()
+// const { callUserAccount } = storeToRefs(store)
+// watch(callUserAccount, (newVal, oldVal) => {
+//   if (newVal === true) {
+//     console.log('works')
+//     getUserInfo()
+//   }
+// })
 // selected Image url
 const draggedFile = ref(null)
 const Image = ref(null)
@@ -72,13 +46,69 @@ const upload = async () => {
   // emit('registerEvent')
   const { data, error, status } = await uploadProfilePicture(formData)
   if (status.value === 'success') {
-    loading.value = false
+    profile_loading.value = false
     handleALert('success', data.value.message)
-    getUserInfo()
+    store.getAccount()
   }
   if (success.value === 'error') {
     profile_loading.value = false
     handleALert('error', error.value.data.message)
+  }
+}
+
+const userBio = reactive({
+  first_name: store.UserAccount?.first_name,
+  last_name: store.UserAccount?.last_name,
+  bio: '',
+})
+const bioLoading = ref(false)
+
+const updateBio = async () => {
+  bioLoading.value = true
+  try {
+    const { status, data } = await UpdateProfile(userBio)
+    if (status.value === 'success') {
+      handleALert('success', data.value.message)
+      store.getAccount()
+    }
+    if (status.value === 'error') {
+      handleALert('error', 'Unable to fetch Account Information')
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    bioLoading.value = false
+  }
+}
+
+const addresses = {
+  addresses: [
+    {
+      details: null,
+      street: 'nwaniba',
+      city: 'uyo',
+      state: 'akwa-ibom',
+      country: 'nigeria',
+      postal_code: '520101',
+    },
+  ],
+}
+
+const { addAddresses } = accountController()
+const addressLoading = ref(false)
+const handleAddAddress = async () => {
+  addressLoading.value = true
+  const { status, data, error } = await addAddresses(addresses)
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+    addressLoading.value = false
+    store.getAccount()
+  }
+  if (status.value === 'error') {
+    handleError('error', error.value.data.message)
+    addressLoading.value = false
   }
 }
 </script>
@@ -94,7 +124,10 @@ const upload = async () => {
     <div>
       <div class="avatar">
         <div class="w-24 rounded-full">
-          <img :src="userInfo.profile_pic">
+          <img
+            :src="store.UserAccount
+              .profile_pic"
+          >
         </div>
         <a
           href="javascript:void(0);"
@@ -130,7 +163,9 @@ const upload = async () => {
     <div class="flex-1">
       <div class="mb-6">
         <h3 class=" text-[#24242] font-semibold text-lg satoshiM flex items-center gap-2 mb-3">
-          <span> {{ userInfo.first_name }} {{ userInfo.last_name }}</span>
+          <span> {{ store.UserAccount
+            .first_name }} {{ store.UserAccount
+            .last_name }}</span>
         </h3>
         <div class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1">
           <img
@@ -138,8 +173,13 @@ const upload = async () => {
             alt="Location icon"
             class="h-5"
           >
-          <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.city ?? 'Nil' }}, {{ userInfo?.profile?.country ?? 'Nil' }}</span>
-          <a href="javascript:void(0);">
+          <span class="font-medium text-[rgba(0,0,0,1)]">{{ JSON.parse(store.UserAccount
+            .profile.addresses)[0].city ?? 'Nil' }}, {{ JSON.parse(store.UserAccount
+            .profile.addresses)[0].country ?? 'Nil' }}</span>
+          <a
+            href="javascript:void(0);"
+            onclick="my_modal_3.showModal()"
+          >
             <svg
               width="14"
               height="14"
@@ -166,7 +206,8 @@ const upload = async () => {
         </div>
         <div class="flex items-center gap-2 mb-1">
           <div
-            v-for="(rate, index) in userInfo.ratings"
+            v-for="(rate, index) in store.UserAccount
+              .ratings"
             :key="index"
             class="rating w-4"
           >
@@ -176,8 +217,10 @@ const upload = async () => {
               class="mask mask-star"
             >
           </div>
-          <span class="text-xs font-bold">{{ userInfo.rating }}</span>
-          <span class="text-black text-xs">({{ userInfo.ratings_count }} Ratings)</span>
+          <span class="text-xs font-bold">{{ store.UserAccount
+            .rating }}</span>
+          <span class="text-black text-xs">({{ store.UserAccount
+            .ratings_count }} Ratings)</span>
         </div>
         <div
           v-if="store.User.account_type === 'worker'"
@@ -200,19 +243,24 @@ const upload = async () => {
           class="flex items-center text-[#404145] gap-8 text-sm mb-1"
         >
           <span class="font-medium">Inbox response time</span>
-          <span class="font-bold satoshiM">{{ userInfo.inbox_response_time }} Mins</span>
+          <span class="font-bold satoshiM">{{ store.UserAccount
+            .inbox_response_time }} Mins</span>
         </div>
         <div
           class="flex  items-center text-[#404145] gap-8 text-xs mb-1"
         >
           <span class="font-medium">Inbox response rate</span>
-          <span class="font-bold satoshiM">{{ userInfo.inbox_response_rate }}%</span>
+          <span class="font-bold satoshiM">{{ store.UserAccount
+            .inbox_response_rate }}%</span>
         </div>
       </div>
       <div class="alert block mb-6">
         <h3 class="font-bold mb-2 flex items-center gap-2 justify-between">
           <span class="satoshiM">About Me </span>
-          <a href="javascript:void(0);">
+          <a
+            href="javascript:void(0);"
+            onclick="my_modal_10.showModal()"
+          >
             <svg
               width="14"
               height="14"
@@ -238,7 +286,8 @@ const upload = async () => {
           </a>
         </h3>
         <p class="text-xs">
-          {{ userInfo?.profile?.bio ?? 'Nil' }}
+          {{ store.UserAccount
+            ?.profile?.bio ?? 'Nil' }}
         </p>
       </div>
       <button
@@ -345,6 +394,125 @@ const upload = async () => {
             Close
           </button>
         </form>
+      </div>
+    </div>
+  </dialog>
+  <!-- update bio -->
+
+  <dialog
+    id="my_modal_10"
+    class="modal"
+  >
+    <div class="modal-box">
+      <h3 class="text-lg font-bold mb-4">
+        Update Bio
+      </h3>
+      <label
+        class=" text-base text-[#6E7191] mb-3"
+        for=""
+      >Description</label>
+      <textarea
+        v-model="userBio.bio"
+        placeholder=""
+        class="textarea textarea-bordered textarea-lg w-full "
+      />
+      <BaseButton
+        title="Save"
+        color="rgba(33, 31, 31, 1)"
+        text-color="rgba(255, 255, 255, 1)"
+        :outline="false"
+        class="block w-full mb-5 mt-4"
+        :loading="bioLoading"
+        @click="updateBio"
+      />
+    </div>
+    <form
+      method="dialog"
+      class="modal-backdrop"
+    >
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Add address -->
+  <dialog
+    id="my_modal_3"
+    class="modal"
+  >
+    <div class="modal-box">
+      <h3 class="text-2xl font-bold center mb-4 text-[rgba(30, 30, 30, 1)]">
+        Add Address
+      </h3>
+
+      <div class="w-full">
+        <BaseInput
+          v-model="addresses.addresses[0].postal_code"
+          label="Postal Code"
+          type="text"
+          placeholder=""
+          class="mb-4 "
+        />
+        <label class="form-control w-full  mb-4">
+          <div class="label">
+            <span class="label-text-alt text-base text-[#6E7191]">Country</span>
+          </div>
+          <select
+            v-model="addresses.addresses[0].country"
+            class="select select-bordered"
+          >
+            <option>Nigeria</option>
+            <option>Uk</option>
+
+          </select>
+
+        </label>
+        <BaseInput
+          v-model="addresses.addresses[0].state"
+          label="State"
+          type="text"
+          placeholder=""
+          class="mb-4 "
+        />
+        <BaseInput
+          v-model="addresses.addresses[0].city"
+          label="City"
+          type="text"
+          placeholder=""
+          class="mb-4 "
+        />
+        <BaseInput
+          v-model="addresses.addresses[0].street"
+          label="Address"
+          type="text"
+          placeholder=""
+          class="mb-4 "
+        />
+        <BaseInput
+          v-model="addresses.addresses[0].details"
+          label="Floor or apartment details"
+          type="text"
+          placeholder=""
+          class="mb-4 "
+        />
+
+        <BaseButton
+          title="Save Address"
+          color="rgba(33, 31, 31, 1)"
+          text-color="rgba(255, 255, 255, 1)"
+          :outline="false"
+          class="block w-full mb-5 mt-4"
+          :loading="addressLoading"
+          @click="handleAddAddress"
+        />
+
+        <div class="modal-action h-0">
+          <form method="dialog">
+            <!-- if there is a button in form, it will close the modal -->
+            <button class="btn">
+              Close
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </dialog>

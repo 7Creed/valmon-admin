@@ -1,13 +1,4 @@
 <script setup>
-import { authController } from '~/services/modules/auth'
-
-const { resetPassword } = authController()
-
-const loading = ref(false)
-
-const userInfo = useCookie('userInfo')
-const token = useCookie('token')
-
 const userData = reactive({
   email: userInfo.value.email ?? null,
   token: token.value ?? null,
@@ -15,31 +6,6 @@ const userData = reactive({
   new_password: '',
   confirm_password: '',
 })
-
-const ResetPassword = async () => {
-  if (userData.email && userData.token) {
-    loading.value = true // Set loading to true before making the request
-
-    try {
-      const { data, error, status } = await resetPassword(userData)
-      if (status.value === 'success') {
-        handleALert('success', data.value.message)
-      }
-      if (status.value === 'error') {
-        handleALert('error', error.value.data.message)
-      }
-    }
-    catch (error) {
-      handleError(error)
-    }
-    finally {
-      loading.value = false
-    }
-  }
-  else {
-    handleError('error', 'Something went wrong')
-  }
-}
 </script>
 
 <template>

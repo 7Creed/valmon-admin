@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia'
 import { watch } from 'vue'
+import { accountController } from '~/services/modules/account'
+
+const { userAccount } = accountController()
 
 export const useStore = defineStore('valmon_app_store', {
   state: () => ({
@@ -35,6 +38,7 @@ export const useStore = defineStore('valmon_app_store', {
     globalLoader: false,
 
     callUserAccount: false,
+    profileSetupProcess: false,
   }),
   actions: {
     updateHeader(value) {
@@ -52,6 +56,27 @@ export const useStore = defineStore('valmon_app_store', {
       if (saved) {
         this.$patch(JSON.parse(saved))
       }
+    },
+    // Fetch user acc
+    async getAccount() {
+      // this.globalLoader = true
+      try {
+        const { status, data } = await userAccount()
+        if (status.value === 'success') {
+          this.UserAccount = data.value.data
+          console.log(data.value.data)
+        }
+
+        if (status.value === 'error') {
+          handleALert('error', 'Unable to fetch Account Information')
+        }
+      }
+      catch (error) {
+        handleError(error)
+      }
+      // finally {
+      //   this.globalLoader = false
+      // }
     },
   },
 })

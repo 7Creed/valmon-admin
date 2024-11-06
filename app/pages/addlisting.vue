@@ -18,7 +18,7 @@ const postListing = async () => {
   for (const key in store.listingData) {
     if (key === 'images') {
       store.listingData.images.forEach((image) => {
-        formData.append(key, image)
+        formData.append('images[]', image)
       })
     }
     formData.append(key, store.listingData[key])

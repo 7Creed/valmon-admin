@@ -143,7 +143,7 @@ if (props.type === 'marketListing') {
       <div class="card-body">
         <figure>
           <img
-            src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+            :src="item.images[0]"
             alt="Shoes"
           >
         </figure>

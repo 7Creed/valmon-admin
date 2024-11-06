@@ -1,32 +1,7 @@
 <script setup>
-import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
-import L from 'leaflet'
 import { accountController } from '~/services/modules/account'
 
 const emits = defineEmits(['nextEvent', 'prevEvent'])
-const map = ref(null)
-
-const lat = ref(47.21322)
-const lng = ref(-1.559482)
-
-const getUserLocation = async() => {
-  if(navigator.geolocation) {
-
-    // get location
-    navigator.geolocation.getCurrentPosition(pos => {
-      // set user location
-    })
-  }
-}
-// When the map is ready
-const onMapReady = () => {
-  // Access the Leaflet map instance
-  console.log(map.value.leafletObject)
-}
-onMounted(() => {
-  console.log(L)
-  console.log(map.value.latLng)
-})
 
 const addresses = {
   addresses: [
@@ -112,8 +87,9 @@ const emitEvent = (event) => {
           @click="emitEvent('prevEvent')"
         />
         <BaseButton
-          :loading="loading"
-          :title="buttonNext"
+          :disabled="buttonNext === 'Verify'"
+     
+          title="Next"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
           border="#8B6914"
@@ -129,72 +105,78 @@ const emitEvent = (event) => {
       class="modal"
     >
       <div class="modal-box">
-        <h3 class="text-2xl font-bold mb-4 text-[rgba(30, 30, 30, 1)]">
+        <h3 class="text-2xl font-bold center mb-4 text-[rgba(30, 30, 30, 1)]">
           Add Address
         </h3>
-        <label class="input input-bordered flex items-center gap-2 mb-5">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
-          </svg>
 
-          <input
+        <div class="w-full">
+          <BaseInput
+            v-model="addresses.addresses[0].postal_code"
+            label="Postal Code"
             type="text"
-            class="grow"
-            placeholder="search for location"
-          >
-        </label>
-        <LMap
-          ref="map"
-          style="height: 350px"
-          :zoom="6"
-          :center="[lat, lng]"
-          :use-global-leaflet="true"
-          @ready="onMapReady"
-        >
-          <LTileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&amp;copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
-            layer-type="base"
-            name="OpenStreetMap"
+            placeholder=""
+            class="mb-4 "
           />
-          <LMarker :lat-lng="[50, 50]" draggable />
-        </LMap>
-        <p class="py-4 text-base">
-          Floor or apartment details
-        </p>
-        <input
-          type="text"
-          placeholder="Type here"
-          class="input input-bordered w-full"
-        >
-        <p class="py-4 text-red-500 text-sm">
-          Floor or apartment details are private and will not be visible to other users
-        </p>
-        <BaseButton
-          title="Save Address"
-          color="rgba(33, 31, 31, 1)"
-          text-color="rgba(255, 255, 255, 1)"
-          :outline="false"
-          class="block w-full mb-5"
-        />
-        <div class="modal-action">
-          <form method="dialog">
-            <!-- if there is a button in form, it will close the modal -->
-            <button class="btn">
-              Close
-            </button>
-          </form>
+          <label class="form-control w-full  mb-4">
+            <div class="label">
+              <span class="label-text-alt text-base text-[#6E7191]">Country</span>
+            </div>
+            <select
+              v-model="addresses.addresses[0].country"
+              class="select select-bordered"
+            >
+              <option>Nigeria </option>
+
+            </select>
+
+          </label>
+          <BaseInput
+            v-model="addresses.addresses[0].state"
+            label="State"
+            type="text"
+            placeholder=""
+            class="mb-4 "
+          />
+          <BaseInput
+            v-model="addresses.addresses[0].city"
+            label="City"
+            type="text"
+            placeholder=""
+            class="mb-4 "
+          />
+          <BaseInput
+            v-model="addresses.addresses[0].street"
+            label="Address"
+            type="text"
+            placeholder=""
+            class="mb-4 "
+          />
+          <BaseInput
+            v-model="addresses.addresses[0].details"
+            label="Floor or apartment details"
+            type="text"
+            placeholder=""
+            class="mb-4 "
+          />
+
+          <BaseButton
+            title="Save Address"
+            color="rgba(33, 31, 31, 1)"
+            text-color="rgba(255, 255, 255, 1)"
+            :outline="false"
+            class="block w-full mb-5 mt-4"
+            @click="emitEvent('nextEvent')"
+                 :loading="loading"
+          />
+
+          <div class="modal-action h-0">
+            <form method="dialog">
+              <!-- if there is a button in form, it will close the modal -->
+              <button class="btn">
+                Close
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </dialog>

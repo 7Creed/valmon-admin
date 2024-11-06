@@ -8,6 +8,8 @@ const landingPages = [
   '/login',
   '/privacy',
   '/verifyOtp',
+  '/worker',
+  '/addlisting',
 
 ]
 

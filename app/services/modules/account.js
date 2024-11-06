@@ -27,6 +27,15 @@ export const accountController = () => {
   const getListingCategories = () => get('account/marketplace/categories')
   const singleListingCategory = id => get(`account/info/${id}/marketplace`)
 
+  // Add Gigs
+  const addNewGig = data => post('account/gigs', data)
+  const getNewGig = () => get('account/gigs')
+
+  // Update Bio
+  const UpdateProfile = data => post('account/profile', data)
+
+  const resetpassword = data => post('account/reset-password', data)
+
   return {
     uploadProfilePicture,
     addServiceCategory,
@@ -43,5 +52,9 @@ export const accountController = () => {
     SingleUserAccount,
     singleGallery,
     singleListingCategory,
+    addNewGig,
+    getNewGig,
+    UpdateProfile,
+    resetpassword,
   }
 }
