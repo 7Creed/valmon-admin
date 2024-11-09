@@ -10,13 +10,7 @@ const store = useGlobalStore()
 const { UpdateProfile } = accountController()
 
 store.getAccount()
-// const { callUserAccount } = storeToRefs(store)
-// watch(callUserAccount, (newVal, oldVal) => {
-//   if (newVal === true) {
-//     console.log('works')
-//     getUserInfo()
-//   }
-// })
+
 // selected Image url
 const draggedFile = ref(null)
 const Image = ref(null)
@@ -111,6 +105,15 @@ const handleAddAddress = async () => {
     addressLoading.value = false
   }
 }
+
+// Handle User Location
+const userLocation = computed(() => {
+  if (store.UserAccount?.profile?.addresses) {
+    const address = JSON.parse(store.UserAccount.profile.addresses)
+    return address[0]
+  }
+  return 'NA'
+})
 </script>
 
 <template>
@@ -173,9 +176,7 @@ const handleAddAddress = async () => {
             alt="Location icon"
             class="h-5"
           >
-          <span class="font-medium text-[rgba(0,0,0,1)]">{{ JSON.parse(store.UserAccount
-            .profile.addresses)[0].city ?? 'Nil' }}, {{ JSON.parse(store.UserAccount
-            .profile.addresses)[0].country ?? 'Nil' }}</span>
+          <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation.city }}, {{ userLocation.country }}</span>
           <a
             href="javascript:void(0);"
             onclick="my_modal_3.showModal()"
@@ -223,7 +224,7 @@ const handleAddAddress = async () => {
             .ratings_count }} Ratings)</span>
         </div>
         <div
-          v-if="store.User.account_type === 'worker'"
+          v-if="store.UserAccount.account_type === 'worker'"
           class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1"
         >
           <img
@@ -236,7 +237,7 @@ const handleAddAddress = async () => {
       </div>
       <!-- Inbox response -->
       <div
-        v-if="store.User.account_type === 'worker'"
+        v-if="store.UserAccount.account_type === 'worker'"
         class="mb-6"
       >
         <div
@@ -291,7 +292,7 @@ const handleAddAddress = async () => {
         </p>
       </div>
       <button
-        v-show="store.User.account_type === 'employer'"
+        v-show="store.UserAccount.account_type === 'employer'"
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2"
         onclick="my_modal_1.showModal()"
       >
@@ -314,7 +315,7 @@ const handleAddAddress = async () => {
       </button>
       <!-- For Employee view -->
       <div
-        v-show="store.User.account_type === 'worker'"
+        v-show="store.UserAccount.account_type === 'worker'"
         class=""
       >
         <div class="mb-5">
@@ -407,6 +408,7 @@ const handleAddAddress = async () => {
       <h3 class="text-lg font-bold mb-4">
         Update Bio
       </h3>
+
       <label
         class=" text-base text-[#6E7191] mb-3"
         for=""
@@ -425,13 +427,15 @@ const handleAddAddress = async () => {
         :loading="bioLoading"
         @click="updateBio"
       />
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">
+            Close
+          </button>
+        </form>
+      </div>
     </div>
-    <form
-      method="dialog"
-      class="modal-backdrop"
-    >
-      <button>close</button>
-    </form>
   </dialog>
 
   <!-- Add address -->

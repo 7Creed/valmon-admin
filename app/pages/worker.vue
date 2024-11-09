@@ -20,7 +20,7 @@ const stepsdata = [
   { name: 'Profile Picture', id: 7 },
 
 ]
-const step = ref(3)
+const step = ref(4)
 
 // Handle profile setup
 const profileSetup = ref('')
@@ -60,7 +60,7 @@ const setupProfile = () => {
         class="w-20"
       >
       <ul
-        v-if="step > 1 || profileSetup === 'setup'"
+        v-if="step > 0 || profileSetup === 'setup'"
         class="steps steps-vertical lg:steps-horizontal  flex-grow"
       >
         <li

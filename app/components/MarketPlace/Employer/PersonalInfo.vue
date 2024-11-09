@@ -97,7 +97,7 @@ const GigsLoading = ref(false)
 const addGig = reactive({
   gigs: [],
 })
-Object.values(store.UserAccount.profile.gigs).forEach(elem => addGig.gigs.push(elem))
+// Object.values(store.UserAccount.profile.gigs).forEach(elem => addGig.gigs.push(elem))
 
 const saveGig = async () => {
   GigsLoading.value = true
@@ -136,14 +136,14 @@ const saveGig = async () => {
           @click="toggleTab('profile')"
         >Basic Information</a>
         <a
-          v-show="store.User?.account_type === 'worker'"
+          v-show="store.UserAccount?.account_type === 'worker'"
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
           :class="{ border_b: Tab === 'gallery' }"
           @click="toggleTab('gallery')"
         >Work Gallery</a>
         <a
-          v-show="store.User?.account_type === 'worker'"
+          v-show="store.UserAccount?.account_type === 'worker'"
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
           :class="{ border_b: Tab === 'services' }"
@@ -165,14 +165,14 @@ const saveGig = async () => {
         </button>
       </RouterLink>
       <button
-        v-show="Tab === 'gallery' && store.User?.account_type === 'worker'"
+        v-show="Tab === 'gallery' && store.UserAccount?.account_type === 'worker'"
         class="btn btn-neutral"
         onclick="my_modal_1.showModal()"
       >
         Add Image
       </button>
       <button
-        v-show="Tab === 'services' && store.User?.account_type === 'worker'"
+        v-show="Tab === 'services' && store.UserAccount?.account_type === 'worker'"
         class="btn btn-neutral"
         onclick="my_modal_3.showModal()"
       >
@@ -188,7 +188,7 @@ const saveGig = async () => {
 
   <!-- Add Gallery -->
   <dialog
-    v-show="Tab === 'gallery' && store.User?.account_type === 'worker'"
+    v-show="Tab === 'gallery' && store.UserAccount?.account_type === 'worker'"
     id="my_modal_1"
     class="modal"
   >

@@ -1,3 +1,12 @@
+<script setup>
+const toPlatform = () => {
+  reloadNuxtApp({
+    force: true,
+    path: '/home',
+  })
+}
+</script>
+
 <template>
   <div class="flex flex-col items-center gap-10">
     <div>
@@ -76,6 +85,11 @@
     <p class="text-[#232323] text-2xl satoshiB">
       Account Setup Complete
     </p>
-    <button class="btn bg-black text-white w-[50%]">Go Home</button>
+    <button
+      class="btn bg-black text-white w-[50%]"
+      @click="toPlatform"
+    >
+      Go Home
+    </button>
   </div>
 </template>

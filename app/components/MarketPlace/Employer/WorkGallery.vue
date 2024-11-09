@@ -75,7 +75,7 @@ const delGallery = async (id) => {
         class=" h-[100%] "
       >
       <div
-        v-show="store.User.account_type === 'worker'"
+        v-show="store.UserAccount.account_type === 'worker'"
         class="absolute w-fit center p-2 bg-white rounded-full right-0 shadow-xl"
       >
         <svg

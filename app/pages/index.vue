@@ -8,7 +8,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 import SellOnValmon from '~/components/MarketPlace/Market/SellOnValmon.vue'
 
 import { categoryController } from '~/services/modules/category'
-import { servicesController } from '~/services/modules/services'
+import { MarketplaceController } from '~/services/modules/Admin/marketplace'
 
 const images = import.meta.glob('@/assets/images/UIElements/valmonskills*.png', { eager: true })
 const ImageArray = Object.values(images).map(module => module.default)
@@ -32,13 +32,14 @@ const Features = [
 ]
 
 const Skills = ['Tutor', 'Shoe Expert', 'Tailor', 'Barber', 'Cleaner', 'Hair Dresser', 'Gardener mechanic']
+
 const loading = ref(false)
 const CategoryServices = ref([])
-const { getCategory_Services } = categoryController()
+const { getPublicCategory_Services } = categoryController()
 const fetchCategoryServices = async () => {
   loading.value = true
   try {
-    const { status, data, error } = await getCategory_Services ()
+    const { status, data, error } = await getPublicCategory_Services()
     if (status.value === 'success') {
       CategoryServices.value = data.value.data
     }
@@ -53,47 +54,26 @@ const fetchCategoryServices = async () => {
     loading.value = false
   }
 }
-const servicesLoading = ref(false)
-const { getAppServices } = servicesController()
-// Fetch service category
-const fetchData = ref([])
-const fetchCategory = async () => {
-  const { data, status } = await getAppServices()
-  if (status.value === 'success' && data.value.data) {
-    fetchData.value = data.value.data
-    servicesLoading.value = false
+fetchCategoryServices()
+
+const { getPublicMarketPlaceListing } = MarketplaceController()
+const listingLoader = ref(true)
+const featuredListings = ref([])
+const featuredListing = async () => {
+  listingLoader.value = true
+  const { status, data, error } = await getPublicMarketPlaceListing()
+  if (status.value === 'success') {
+    console.log(data.value.data)
+    featuredListings.value = data.value.data
+    listingLoader.value = false
   }
-  if (status.value === 'error')
-    servicesLoading.value = false
-  handleError('error', error.value.data.message)
+  if (status.value === 'error') {
+    handleALert('error', error.value.data.message)
+    listingLoader.value = false
+  }
 }
 
-// const store = useGlobalStore()
-
-// const marketListings = ref([])
-// const { getListings } = accountController()
-
-// const fetchListing = async () => {
-//   store.globalLoader = true
-//   const { status, data, error } = await getListings()
-//   if (status.value === 'success') {
-//     console.log(data.value.data)
-//     marketListings.value = data.value.data
-//     store.globalLoader = false
-//   }
-//   if (status.value === 'error') {
-//     handleALert('error', error.value.data.message)
-//     store.globalLoader = false
-//   }
-// }
-
-// // Function call
-
-// fetchListing()
-
-fetchCategory()
-
-fetchCategoryServices()
+featuredListing()
 </script>
 
 <template>
@@ -194,7 +174,9 @@ fetchCategoryServices()
             class="absolute rectangular"
           >
         </h4>
-        <div class="h-[730px] rounded-lg w-[60%] flex text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold ">
+        <div
+          class="h-[730px] rounded-lg w-[60%] flex text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold "
+        >
           <div class="techinical_services w-[400px] ">
             <h5 class="_header font-extrabold mb-4 p-3 text-center bg-darkGold">
               {{ CategoryServices.length ? CategoryServices[0].name : 'Technical Services' }}
@@ -219,7 +201,7 @@ fetchCategoryServices()
           </div>
           <div class="softeare_skills  w-[400px]">
             <h5 class="_header font-extrabold p-3 mb-4 text-center bg-darkGold">
-              {{ CategoryServices.length ? CategoryServices[1].name : 'Software Skills  ' }}
+              {{ CategoryServices.length ? CategoryServices[1].name : 'Software Skills ' }}
             </h5>
             <div class="flex gap-4 items-center flex-wrap justify-center ">
               <span
@@ -236,19 +218,20 @@ fetchCategoryServices()
         </div>
       </div>
 
-
-
       <!-- Other solutions -->
       <div class="text-white mb-40">
         <h4 class="text-3xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
-          We hosts skilled professionals delivering innovative web designs, cutting-edge software solutions, and more with creativity and expertise.
+          We hosts skilled professionals delivering innovative web designs, cutting-edge software solutions, and more
+          with creativity and expertise.
           <img
             :src="rectangle"
             alt="Rectangular"
             class="absolute rectangular"
           >
         </h4>
-        <div class="min-h-[730px] w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg">
+        <div
+          class="min-h-[730px] w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+        >
           <div
             v-for="(items, index) in ImageArray"
             :key="index"
@@ -266,7 +249,8 @@ fetchCategoryServices()
       <!-- Featured Product -->
       <div class="text-white mb-40">
         <h4 class="text-3xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
-          Our marketplace empowers customers to sell their items with ease, providing a trusted platform for high-quality transactions and exceptional service
+          Our marketplace empowers customers to sell their items with ease, providing a trusted platform for
+          high-quality transactions and exceptional service
           <img
             :src="rectangle"
             alt="Rectangular"
@@ -277,10 +261,12 @@ fetchCategoryServices()
         <h5 class="text-2xl font-bold w-[60%] mx-auto satoshiM mb-5">
           Featured Listings
         </h5>
-        <div class="h-[900px] w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg">
+        <div
+          class=" w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+        >
           <HomeFeaturedListing
-            v-for="(item, index) in 5"
             :key="index"
+            :listings="featuredListings"
             class="max-h-[400px]"
           />
         </div>
@@ -293,7 +279,9 @@ fetchCategoryServices()
         <h4 class="text-3xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
           Testimonials
         </h4>
-        <div class="h-[900px] w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg">
+        <div
+          class="h-[900px] w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+        >
           <HomeTestimonies
             v-for="(item, index) in 5"
             :key="index"
@@ -316,7 +304,9 @@ fetchCategoryServices()
             <p class="mb-4 text-lg font-medium ">
               Connect with clients and skilled professionals from around the world.
             </p>
-            <button class="btn btn-outline bg-inherit text-white border-2 bg-gradient-to-r hover:from-[#C09742] hover:to-[#C09742] hover:border-[#CFB159]">
+            <button
+              class="btn btn-outline bg-inherit text-white border-2 bg-gradient-to-r hover:from-[#C09742] hover:to-[#C09742] hover:border-[#CFB159]"
+            >
               <span class="text-base font-medium">Sign Up Now</span>
               <svg
                 width="12"
@@ -345,6 +335,7 @@ fetchCategoryServices()
   z-index: -1;
   width: 58px;
 }
+
 .heroCommunity {
   background-image: url('../assets//images/UIElements/Community.png');
 }

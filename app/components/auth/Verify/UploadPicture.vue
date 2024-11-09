@@ -3,6 +3,8 @@ import { accountController } from '~/services/modules/account'
 
 const emit = defineEmits(['prevEvent', 'setupProcess'])
 
+const accountType = ref(inject('signUpType')) ?? 'worker'
+
 const worker = ref(false)
 onMounted(() => {
   const route = useRoute()
@@ -47,15 +49,20 @@ const upload = async () => {
     loading.value = false
     handleALert('success', data.value.message)
     // takes to profile setup process
-    // emit('setupProcess')
+    if (accountType.value === 'employer') {
+      reloadNuxtApp({
+        force: true,
+        path: '/home',
+      })
+    }
+    else {
+      emit('setupProcess')
+    }
   }
   if (success.value === 'error') {
     loading.value = false
     handleALert('error', error.value.data.message)
   }
-}
-const test = ()=> {
-  emit('setupProcess')
 }
 </script>
 
@@ -70,7 +77,7 @@ const test = ()=> {
       </h2>
       <p
         v-if="worker === false"
-        class="text-[rgba(106, 106, 106, 1)] text-lg mb-5"
+        class="text-[rgba(106, 106, 106, 1)] text-lg mb-5 text-center"
       >
         When would you be available for bookings
       </p>
@@ -121,13 +128,14 @@ const test = ()=> {
         />
         <BaseButton
           :loading="loading"
+          :disabled="!draggedFile"
           title="Done"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
           border="#8B6914"
           :outline="false"
           class="block mb-5 w-[20%]"
-          @click="test"
+          @click="upload()"
         />
       </div>
     </div>

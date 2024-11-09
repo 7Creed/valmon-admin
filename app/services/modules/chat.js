@@ -1,20 +1,28 @@
 // composables/api/modules/users.js
 import { useBaseApi } from '../baseApi'
 
-export const servicesController = () => {
+export const chatController = () => {
   const { get, post, put, del } = useBaseApi()
 
   // Users
   const getConversation = () => get(`chats/conversations`)
-  const sendConversation = data => post(`chats/conversations`, data)
+  const createConversation = data => post(`chats/conversations`, data)
 
   const getMessages = id => get(`chats/conversations/${id}/messages`)
   const sendMessages = (data, id) => post(`/chats/conversations/${id}/send`, data)
 
+  // Negotiations
+  const sendProposal = data => post(`chats/negotiations/proposal`, data)
+  const acceptProposal = data => post(`chats/negotiations/accept-proposal`, data)
+  const rejectProposal = data => post(`chats/negotiations/reject-proposal`, data)
+
   return {
     getConversation,
     getMessages,
-    sendConversation,
+    createConversation,
     sendMessages,
+    sendProposal,
+    acceptProposal,
+    rejectProposal,
   }
 }

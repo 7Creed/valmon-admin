@@ -2,6 +2,13 @@
 import masterCard from '@/assets/images/UIElements/masterCard.png'
 import { useGlobalStore } from '@/store'
 
+import { chatController } from '@/services/modules/chat'
+
+const { createConversation } = chatController()
+
+const props = defineProps({
+  chatType: String,
+})
 // Initialize store
 const store = useGlobalStore()
 
@@ -43,9 +50,30 @@ const completed = () => {
     }
   })
 }
+
+// Handle creating conversation
+const newConversation = async () => {
+  loading.value = true
+  try {
+    const { status, data, error } = await createConversation(data)
+    if (status.value === 'success') {
+      CategoryServices.value = data.value.data
+    }
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
+  <SharedLoader />
   <div class="flex gap-10 pt-10">
     <!-- card 1 -->
     <div class="card bg-base-100 w-[400px] shadow-xl flex-2 text-[#93939A]">
@@ -779,9 +807,16 @@ const completed = () => {
             class="input input-bordered w-full"
           >
         </label>
-        <div v-show="store.isEmployee" class="text-center">
-          <p class="mb-3">Valmon Service charge: 8%</p>
-          <p class="mb-3">You Get <span class="font-extrabold"> NGN 47,000</span></p>
+        <div
+          v-show="store.isEmployee"
+          class="text-center"
+        >
+          <p class="mb-3">
+            Valmon Service charge: 8%
+          </p>
+          <p class="mb-3">
+            You Get <span class="font-extrabold"> NGN 47,000</span>
+          </p>
         </div>
 
         <button

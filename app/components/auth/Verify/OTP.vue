@@ -1,14 +1,18 @@
 <script setup>
 import { authController } from '~/services/modules/auth'
 
+import { useGlobalStore } from '~/store'
+
+const store = useGlobalStore()
+
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
-refreshCookie('email')
+
 const userEmail = useCookie('email')
 
 const buttonOption = ref('Verify')
 const loading = ref(false)
-// const accountType = ref(inject('clientSignUp')) ?? 'employer'
+const accountType = ref(inject('SignUpType')) ?? 'worker'
 
 const maskedEmail = computed(() => {
   if (userEmail.value && userEmail.value.includes('@')) {
@@ -35,9 +39,6 @@ const tokenCookies = useCookie('token', {
   // secure: true,
 })
 
-const userInfo = useCookie('userInfo', {
-  maxAge: 60 * 60 * 24,
-})
 const verifyOTP = async () => {
   if (OTPData.email) {
     loading.value = true // Set loading to true before making the request
@@ -47,7 +48,7 @@ const verifyOTP = async () => {
         buttonOption.value = 'Next'
 
         tokenCookies.value = data.value.data.token
-        userInfo.value = data.value.data.user
+        store.UserAccount = data.value.data.user
         handleALert('success', data.value.message)
       }
       else {
@@ -74,10 +75,10 @@ const emitEvent = async (event) => {
     case 'Next':
       emits('nextEvent')
       break
-    case 'employer':
+    case 'worker':
       emits('prevEvent')
       break
-    case 'client':
+    case 'employer':
       await navigateTo('/getstarted')
       break
     default:

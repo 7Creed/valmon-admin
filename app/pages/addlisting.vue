@@ -1,5 +1,6 @@
 <script setup>
 import { accountController } from '~/services/modules/account'
+
 import { useGlobalStore } from '@/store'
 // Define Data
 const activeStep = ref(1)

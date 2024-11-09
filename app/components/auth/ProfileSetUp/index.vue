@@ -1,20 +1,35 @@
 <script setup>
+import { accountController } from '~/services/modules/account'
+
 const emits = defineEmits(['continueProfileSetup'])
 
+const { UpdateProfile, addGallery } = accountController()
+
 const setup = ref(null)
+
 onMounted(() => {
   closeModal(setup)
 })
 
 // Navigate to the plaform
-const toPlatform = async () => {
+const toPlatform = () => {
   closeModal(closeMdal)
-  await navigateTo('/home')
+  reloadNuxtApp({
+    force: true,
+    path: '/home',
+  })
 }
+const activeSetupProcess = ref(1)
+
+const buttonOption = ref('Next')
 
 const continueProfile = ref(false)
+const hideNextBtn = ref(true)
 // close the modal
 const closeMdal = ref(null)
+const enableNextBtn = () => {
+  hideNextBtn.value = false
+}
 // to profile setup process
 const toProfileSetup = () => {
   continueProfile.value = activeSetupProcess.value
@@ -22,14 +37,48 @@ const toProfileSetup = () => {
   closeModal(closeMdal)
 }
 
-const activeSetupProcess = ref(1)
+// Handles Basic Profiles
+const loading = ref(false)
+const handleBasicProfile = async (func, UserData) => {
+  loading.value = true
+  const { status, error } = await func(UserData)
+  if (status.value === 'success') {
+    loading.value = false
+    Next('next')
+  }
+  if (status.value === 'error') {
+    handleError('error', error.value.data.message)
+    loading.value = false
+  }
+}
 
-const buttonOption = ref('Next')
+const BasicDetails = ref(null)
 
-const nextProcess = (step, type = 'next') => {
-  Next(type)
+const handleBasicDetails = (eventData) => {
+  BasicDetails.value = eventData
+}
+
+const nextProcess = (step) => {
+  if (step === 1) {
+    // Bio
+    handleBasicProfile(UpdateProfile, BasicDetails.value)
+  }
+  if (step === 2) {
+    // Gallery
+    const formData = new FormData()
+    BasicDetails.value.forEach((image) => {
+      formData.append('images[]', image)
+    })
+
+    handleBasicProfile(addGallery, formData)
+  }
+  if (step === 3) {
+    // Gig
+    Next('next')
+  }
 }
 const Next = (param) => {
+  console.log('called')
   if (param === 'next' && activeSetupProcess.value < 5) {
     activeSetupProcess.value++
   }
@@ -54,12 +103,20 @@ const Next = (param) => {
             @click="Next('next')"
           >skip</a>
           <!-- Components -->
-          <AuthProfileSetUpBPDetails v-if="activeSetupProcess === 1" />
+          <AuthProfileSetUpBPDetails
+            v-if="activeSetupProcess === 1"
+            @basic-profile="handleBasicDetails($event)"
+          />
           <MarketPlaceEmployerAddListingThree
             v-if="activeSetupProcess === 2"
             class="justify-center"
+            type="BasicProfileSetup"
+            @basic-profile="handleBasicDetails($event)"
           />
-          <AuthProfileSetUpAddGigs v-if="activeSetupProcess === 3" />
+          <AuthProfileSetUpAddGigs
+            v-if="activeSetupProcess === 3"
+            @basic-profile="enableNextBtn"
+          />
 
           <div class="card-actions justify-between mt-3">
             <BaseButton
@@ -74,6 +131,7 @@ const Next = (param) => {
             />
             <BaseButton
               :loading="loading"
+              :disabled="hideNextBtn && activeSetupProcess === 3"
               :title="buttonOption"
               color="rgba(33, 31, 31, 1)"
               text-color="rgba(255, 255, 255, 1)"

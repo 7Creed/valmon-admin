@@ -8,10 +8,12 @@ export const MarketplaceController = () => {
   const getMarketPlaceListing = () => get('admin/marketplace/listing-category')
   const createMarketPlaceListing = data => post('admin/marketplace/listing-category', data)
 
-
+  // Public listings view
+  const getPublicMarketPlaceListing = () => get('get/featured-listings')
   return {
     getMarketPlaceListing,
-    createMarketPlaceListing
+    createMarketPlaceListing,
+    getPublicMarketPlaceListing
 
   }
 }

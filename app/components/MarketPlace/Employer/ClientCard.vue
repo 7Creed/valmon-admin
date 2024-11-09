@@ -11,7 +11,6 @@ const props = defineProps({
 const { updateContactView, updateProfileView } = useActiveView()
 
 const openProfile = (id) => {
-
   updateProfileView('Raman Ismail')
   store.$patch({
     userIdForProfileCheck: id,
@@ -74,7 +73,7 @@ const openContact = () => {
       <div class="card-actions justify-between gap-4">
         <button
           class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
-          @click="openContact()"
+          @click="openContact(item.user.id, item.primary_service.id)"
         >
           Contact
         </button>

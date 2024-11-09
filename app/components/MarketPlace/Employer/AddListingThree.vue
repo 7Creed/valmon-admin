@@ -1,7 +1,13 @@
 <script setup>
 import { useGlobalStore } from '~/store'
 
+const emit = defineEmits(['BasicProfile'])
+
 const store = useGlobalStore()
+
+const props = defineProps({
+  type: String,
+})
 
 function handleClick(index) {
   const input = document.createElement('input')
@@ -15,12 +21,23 @@ function handleClick(index) {
         Image: file,
         image_url: URL.createObjectURL(file),
       })
-      store.listingData.images.push(file)
+
+      if (props.type === 'BasicProfileSetup') {
+        imageFiles.value.push(file)
+      }
+      else {
+        store.listingData.images.push(file)
+      }
     }
   }
   input.click()
 }
 const ImageContent = ref([])
+const imageFiles = ref([])
+
+watch(imageFiles, (newVal, oldVal) => {
+  emit('BasicProfile', newVal)
+}, { deep: true })
 </script>
 
 <template>

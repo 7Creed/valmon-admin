@@ -14,7 +14,6 @@ export const useStore = defineStore('valmon_app_store', {
     viewSkills: false,
     viewProfileFromDashboard: false,
     serviceCategory: [],
-    User: ref(null),
     UserAccount: null,
     // Services information used under skills page
     usersByServices: ref(null),
@@ -39,6 +38,12 @@ export const useStore = defineStore('valmon_app_store', {
 
     callUserAccount: false,
     profileSetupProcess: false,
+
+    // For Creating new Conversation
+    newConversationDetails: reactive({
+      recipient_id: null,
+      service_id: null,
+    })
   }),
   actions: {
     updateHeader(value) {

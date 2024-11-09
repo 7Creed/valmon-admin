@@ -6,6 +6,6 @@ definePageMeta({
 
 <template>
   <div class="px-16 bg-primary_bg min-h-screen">
-    <MarketPlaceEmployerChatPayment />
+    <MarketPlaceEmployerChatPayment chat-type="services" />
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup>
 import Logo from '@/assets/images/Logo/valmon.svg'
 
-provide('clientSignUp', 'client')
+provide('signUpType', 'employer')
 definePageMeta({
   layout: false,
 })

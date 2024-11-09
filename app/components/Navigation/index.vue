@@ -107,9 +107,12 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
                 In</NuxtLink>
             </div>
           </div>
-          <button class="btn btn-outline bg-inherit text-white">
+          <NuxtLink to="/getstarted">
+            <button class="btn btn-outline bg-inherit text-white">
             Join Now
           </button>
+          </NuxtLink>
+         
         </div>
       </div>
     </div>

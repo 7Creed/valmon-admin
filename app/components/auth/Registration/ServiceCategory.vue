@@ -25,9 +25,9 @@ const fetchCategory = async () => {
     fetchData.value = data.value.data
   }
   if (!fetchData.value.length) refresh(data)
-  // if (status.value) {
-  //   fetchStatus.value = status.value
-  // }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
 }
 
 // Function call
@@ -97,6 +97,7 @@ const saveCategoryFromAccount = async () => {
       store.$patch({
         callUserAccount: true,
       })
+      store.getAccount()
     }
     if (status.value === 'error') {
       handleALert('error', error.value.data.message)
@@ -162,41 +163,46 @@ const emitEvent = (event) => {
       >
         <span class="flex flex-row justify-between w-full">
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ item.name }}</span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{ item.years_of_experience
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{
+            item.years_of_experience
           }}</span>
           <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
           <span
             class="text-darkGold text-base font-bold  hover:text-brightGold"
-            @click="removeServiceCategory "
+            @click="removeServiceCategory"
           >Delete</span>
         </span>
       </button>
       <!-- For rendering the service category -->
-      <button
-        v-for="(item, index) in store.UserAccount.profile.services"
-        :key="index"
-        class="btn btn-block mb-5"
-      >
-        <span class="flex flex-row justify-between w-full">
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ item.service.name }}</span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{ item.years_of_experience
-          }}</span>
-          <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
-          <span
-            class="text-darkGold text-base font-bold  hover:text-brightGold"
-            @click="removeServiceCategory "
-          >Delete</span>
-        </span>
-      </button>
-      <p
-        v-if="categoryData.length === 0 && store.UserAccount.profile.services.length === 0"
-        class="text-[rgba(105, 102, 113, 1)] text-sm font-bold text-pink-700 text-center mb-2"
-      >
-        No Services Available!
-      </p>
+      <div v-if="props.useType === 'account'">
+        <button
+          v-for="(item, index) in store.UserAccount?.profile?.services"
+          :key="index"
+          class="btn btn-block mb-5 "
+        >
+          <span class="flex flex-row justify-between w-full">
+            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ item.service.name }}</span>
+            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{
+              item.years_of_experience
+            }}</span>
+            <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
+            <span
+              class="text-darkGold text-base font-bold  hover:text-brightGold"
+              @click="removeServiceCategory"
+            >Delete</span>
+          </span>
+        </button>
+        <p
+          v-if="store.UserAccount.profile.services?.length === 0"
+          class="text-[rgba(105, 102, 113, 1)] text-sm font-bold text-pink-700 text-center mb-2"
+        >
+          No Services Available!
+        </p>
+      </div>
 
+      <!-- This is for registration -->
       <p
-        v-if="store.UserAccount.profile.services.length === 0"
+        v-if="categoryData.length === 0 && props.useType === 'registration'"
         class="text-[rgba(105, 102, 113, 1)] text-sm font-bold text-pink-700 text-center mb-2"
       >
         No Services Available!
@@ -205,7 +211,7 @@ const emitEvent = (event) => {
       <button
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2"
         :class="{ 'mx-auto': props?.useType !== 'account' }"
-        onclick="my_modal_1.showModal()"
+        onclick="my_modal_9.showModal()"
         @click="fetchCategory"
       >
         <svg
@@ -253,7 +259,7 @@ const emitEvent = (event) => {
     <!-- Open the modal using ID.showModal() method -->
     <!-- Add Category -->
     <dialog
-      id="my_modal_1"
+      id="my_modal_9"
       class="modal"
     >
       <div class="modal-box">

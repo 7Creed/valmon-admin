@@ -354,7 +354,7 @@ onMounted(() => {
                 >
                   <img
                     class="h-8 w-8 rounded-full"
-                    :src="store.UserAccount.profile_pic"
+                    :src="store.UserAccount?.profile_pic"
                     alt=""
                   >
                 </button>

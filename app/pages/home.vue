@@ -2,7 +2,10 @@
 // import { useGlobalStore } from '@/store/index'
 import { useActiveView } from '@/composables/state'
 import { categoryController } from '~/services/modules/category'
-// const store = useGlobalStore()
+import { useGlobalStore } from '~/store';
+
+
+const store = useGlobalStore()
 
 definePageMeta({
   layout: 'market-place',
@@ -36,7 +39,7 @@ const { getCategory_Services } = categoryController()
 const fetchCategoryServices = async () => {
   loading.value = true
   try {
-    const { status, data, error } = await getCategory_Services ()
+    const { status, data, error } = await getCategory_Services()
     if (status.value === 'success') {
       CategoryServices.value = data.value.data
     }
@@ -53,6 +56,10 @@ const fetchCategoryServices = async () => {
 }
 
 fetchCategoryServices()
+
+onMounted(() => {
+  store.getAccount()
+})
 </script>
 
 <template>
