@@ -93,15 +93,19 @@ const GigsObj = reactive({
 })
 
 const GigsLoading = ref(false)
-
+store.getAccount()
 const addGig = reactive({
-  gigs: [],
+  gigs: [...(store.UserAccount.profile.gigs || [])],
 })
-// Object.values(store.UserAccount.profile.gigs).forEach(elem => addGig.gigs.push(elem))
 
-const saveGig = async () => {
+watch(() => store.UserAccount.profile.gigs, (newVal) => {
+  if (newVal) {
+    addGig.gigs = [...newVal]
+  }
+}, { deep: true })
+
+const updateGig = async () => {
   GigsLoading.value = true
-  addGig.gigs.push(GigsObj)
   try {
     const { status, data, error } = await addNewGig(addGig)
     if (status.value === 'success') {
@@ -119,6 +123,67 @@ const saveGig = async () => {
     GigsLoading.value = false
   }
 }
+const saveEditGig = (index) => {
+  addGig.gigs[index].service_id = GigsObj.service_id
+  addGig.gigs[index].title = GigsObj.title
+  addGig.gigs[index].pricing_type = GigsObj.pricing_type
+  addGig.gigs[index].price = GigsObj.price
+  addGig.gigs[index].description = GigsObj.description
+  updateGig()
+}
+const gigIndex = ref(null)
+
+
+const saveGig = async () => {
+  GigsLoading.value = true
+  addGig.gigs.push(GigsObj)
+  console.log(addGig)
+  if (edit.value === true) {
+    saveEditGig(gigIndex.value)
+  }
+  else {
+    try {
+      const { status, data, error } = await addNewGig(addGig)
+      if (status.value === 'success') {
+        handleALert('success', data.value.message)
+        store.getAccount()
+      }
+      if (status.value === 'error') {
+        handleALert('error', error.value.data.message)
+      }
+    }
+    catch (error) {
+      handleError(error)
+    }
+    finally {
+      GigsLoading.value = false
+    }
+  }
+}
+
+
+const deleteGig = (index) => {
+  addGig.gigs.splice(index, 1)
+  updateGig()
+}
+
+/**
+ * Edit a gig. This function is called when the user wants to edit a gig.
+ * The function takes one argument, `index`, which is the index of the gig in the array.
+ * to update the gigs in the store.
+ */
+
+const edit = ref(false)
+const gig = ref(null)
+const editGig = (index) => {
+  edit.value = true
+  gigIndex.value = index
+  if (gig.value && edit.value) {
+    gig.value.click()
+  }
+}
+
+
 </script>
 
 <template>
@@ -173,6 +238,7 @@ const saveGig = async () => {
       </button>
       <button
         v-show="Tab === 'services' && store.UserAccount?.account_type === 'worker'"
+        ref="gig"
         class="btn btn-neutral"
         onclick="my_modal_3.showModal()"
       >
@@ -183,7 +249,11 @@ const saveGig = async () => {
     <LazyMarketPlaceEmployerBasicInfo v-if="Tab === 'profile'" />
     <MarketPlaceEmployerMarketListingOnProfile v-if="Tab === 'listings'" />
     <MarketPlaceEmployerWorkGallery v-if="Tab === 'gallery'" />
-    <MarketPlaceEmployerServices v-if="Tab === 'services'" />
+    <MarketPlaceEmployerServices
+      v-if="Tab === 'services'"
+      @delete-service="deleteGig($event)"
+      @edit-service="editGig($event)"
+    />
   </div>
 
   <!-- Add Gallery -->
@@ -268,7 +338,11 @@ const saveGig = async () => {
   >
     <div class="modal-box">
       <h3 class="text-2xl font-bold center mb-4 text-[rgba(30, 30, 30, 1)]">
-        Add Gig
+        <span v-show="!edit"> Add Gig</span>
+        <span
+          v-show="edit"
+          class="text-red-600"
+        > Edit Gig</span>
       </h3>
 
       <div class="w-full">

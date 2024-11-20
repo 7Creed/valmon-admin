@@ -8,8 +8,16 @@ export const NotificationsController = () => {
   const getNotifications = () => get(`account/notifications/settings`)
   const createNotifications = data => post(`account/notifications/settings`, data)
 
+
+  // topNavNotification
+  const getAllNotifications = () => get(`notifications`)
+  const getUnreadNotifications = () => get(`notifications/unread`)
+  const markAsRead = () => post(`notifications/read`)
   return {
     getNotifications,
-    createNotifications
+    createNotifications,
+    getAllNotifications,
+    getUnreadNotifications,
+    markAsRead
   }
 }

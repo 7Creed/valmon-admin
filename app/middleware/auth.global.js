@@ -5,6 +5,7 @@ const landingPages = [
   '/faq',
   '/getstarted',
   '/forgotpassword',
+  '/resetpassword',
   '/login',
   '/privacy',
   '/verifyOtp',
@@ -14,16 +15,16 @@ const landingPages = [
 ]
 
 export default defineNuxtRouteMiddleware((to, from) => {
-  const authenticated = useCookie('token')
+  const authenticated = useCookie('token').value ? useCookie('token').value : navigateTo('/login')
   let allowedRoutes = landingPages.includes(to.path)
 
-  if (authenticated.value && to.path === '/login') {
+  if (authenticated && authenticated.type === 'User' && to.path === '/login') {
     return navigateTo('/home')
   }
-  if (!authenticated.value && allowedRoutes) {
+  if (!authenticated && authenticated.type !== 'User' && allowedRoutes) {
     return
   }
-  if (!authenticated.value && !allowedRoutes) {
+  if (!authenticated && !allowedRoutes) {
     return navigateTo('/login')
   }
 })

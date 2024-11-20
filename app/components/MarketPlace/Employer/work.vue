@@ -7,8 +7,11 @@ import location from '@/assets/icons/location.svg'
 
 import { accountController } from '~/services/modules/account'
 
+import { useActiveView } from '@/composables/state'
 import { useGlobalStore } from '@/store'
 
+const { handleGeneralHistory } = useActiveView()
+const store = useGlobalStore()
 const workerTab = ref('profile')
 const toggleTab = (tab) => {
   workerTab.value = tab
@@ -19,40 +22,102 @@ const viewAll = (tab) => {
   workerTab.value = tab
 }
 
-const store = useGlobalStore()
-
-const { SingleUserAccount } = accountController()
-
-const loading = ref(false)
-const userInfo = ref({})
-
-const getUserInfo = async (id) => {
-  loading.value = true
-  try {
-    const { status, data } = await SingleUserAccount(id)
-    if (status.value === 'success') {
-      userInfo.value = data.value.data
-    }
-
-    if (status.value === 'error') {
-      handleALert('error', 'Unable to fetch Account Information')
-    }
-  }
-  catch (error) {
-    handleError(error)
-  }
-  finally {
-    loading.value = false
-  }
+const History = () => {
+  handleGeneralHistory()
+  navigateTo('/home')
 }
 
-getUserInfo(store.userIdForProfileCheck)
+const { SingleUserAccount, singleGallery, singleListingCategory } = accountController()
+
+// Account
+const loading = ref(false)
+const userInfo = ref({})
+const gigs = ref([])
+// Listings
+
+const listingLoader = ref(false)
+const allListing = ref([])
+
+// Gallery
+const galleryLoader = ref(false)
+const allGallery = ref([])
+
+/**
+ * Fetches data for a given ID and updates the UI accordingly.
+ *
+ * @param {Function} func - The function to call for fetching data.
+ * @param {String} id - The ID to fetch data for.
+ * @param {Ref} loader - Optional. A reference to a loader state.
+ * @param {Boolean} alert - Optional. Whether to show alerts or not.
+ */
+const FetchID = async (func, id, loader = null, alert = true) => {
+  // Set loader to true if provided
+  if (loader) loader.value = true
+
+  // Call the function with the provided ID and await the result
+  const { status, data, error } = await func(id)
+
+  // Handle success case
+  if (status.value === 'success') {
+    console.log(func.name, data.value.data) // Log the fetched data for debugging purposes
+    if (alert) handleALert('success', data.value.message) // Show success alert if alert is true
+    // Update the individual details to a variable based on the function name
+    switch (func.name) {
+      case 'SingleUserAccount':
+        userInfo.value = data.value.data // Update userInfo with the fetched data
+        gigs.value = data.value.data.profile.gigs
+        break
+      case 'singleGallery':
+        allGallery.value = data.value.data // Update userInfo with the fetched data
+        break
+      default:
+        break // Handle other cases if needed
+    }
+  }
+  // Handle error case
+  if (status.value === 'error') {
+    if (alert) handleALert('error', error.value.data.message) // Show error alert if alert is true
+  }
+  // Reset loader to false after the operation
+  if (loader) loader.value = false
+}
+
+// Fetch single User Account
+FetchID(SingleUserAccount, store.userIdForProfileCheck, loading)
+
+// Handle User Location
+const userLocation = (address) => {
+  if (address === null || address === undefined) return 'NA'
+  const userAddress = JSON.parse(address)
+  return userAddress[0]
+}
+
+// Fetch single User Gallery
+FetchID(singleGallery, store.userIdForProfileCheck, galleryLoader)
+// onMounted(() => {
+//   store.viewProfileFromDashboard = false
+// })
+
+const selectedServiceId = ref(null)
+const selectServices = (id) => {
+  console.log(id)
+  selectedServiceId.value = id
+  console.log(selectedServiceId.value)
+}
+
+const openChat = () => {
+  store.updateNewConversationDetails({
+    recipient_id: store.userIdForProfileCheck,
+    service_id: selectedServiceId,
+  })
+  navigateTo('/chat')
+}
 </script>
 
 <template>
   <div
     class="flex gap-8 pb-20 px-20 relative"
-    :class="{ 'flex-col': store.viewProfileFromDashboard }"
+    :class="{ 'flex-col': store.UserAccount?.role === 'Admin' }"
   >
     <NuxtLink
       v-if="store.viewProfileFromDashboard "
@@ -207,6 +272,7 @@ getUserInfo(store.userIdForProfileCheck)
               <a
                 href="javascript:void(0)"
                 class="w-fit bg-gray-400 p-1 center rounded-full"
+                @click="History"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -245,12 +311,21 @@ getUserInfo(store.userIdForProfileCheck)
                 </div>
               </div>
               <!-- Profile desc -->
-              <div>
-                <h3 class="mb-1 text-[#24242] font-semibold text-sm">
+              <div class="w-full">
+                <h3 class="mb-1 text-[#24242A] font-semibold text-sm">
                   {{ userInfo.first_name }} {{ userInfo.last_name }}
                 </h3>
-                <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
-                  <span class="t#62646Aext-black">Front-End</span>
+                <div class="flex items-center flex-wrap gap-2 my-2">
+                  <div
+                    v-for="(service, index) in userInfo.profile?.services"
+                    :key="index"
+                    class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm  w-fit "
+                  >
+                    <span
+
+                      class=" text-black"
+                    >{{ service.service.name }}</span>
+                  </div>
                 </div>
                 <div class="flex items-center gap-2 ">
                   <div
@@ -299,7 +374,7 @@ getUserInfo(store.userIdForProfileCheck)
                 alt="Location icon"
                 class="h-5"
               >
-              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.city ?? 'Nil' }}, {{ userInfo?.profile?.country ?? 'Nil' }}</span>
+              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation(userInfo?.profile?.addresses).city }}, {{ userLocation(userInfo?.profile?.addresses).country }}</span>
             </div>
             <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
               <img
@@ -311,42 +386,83 @@ getUserInfo(store.userIdForProfileCheck)
             </div>
             <!-- Online Presence -->
             <div class="relative flex gap-2">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  opacity="0.2"
-                  cx="9"
-                  cy="9"
-                  r="9"
-                  fill="#0CA408"
-                />
-              </svg>
-              <svg
-                class="absolute top-[4px] left-[5px]"
-                width="9"
-                height="10"
-                viewBox="0 0 9 10"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  cx="4.5"
-                  cy="5"
-                  r="4.5"
-                  fill="#0CA408"
-                />
-              </svg>
-              <span class="text-sm font-bold text-green-500">Online</span>
+              <span>
+                <span v-if="store.userOnline">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      opacity="0.2"
+                      cx="9"
+                      cy="9"
+                      r="9"
+                      fill="#0CA408"
+                    />
+                  </svg>
+                  <svg
+                    class="absolute top-[4px] left-[5px]"
+                    width="9"
+                    height="10"
+                    viewBox="0 0 9 10"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="4.5"
+                      cy="5"
+                      r="4.5"
+                      fill="#0CA408"
+                    />
+                  </svg>
+                </span>
+                <span v-else>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      opacity="0.2"
+                      cx="9"
+                      cy="9"
+                      r="9"
+                      fill="#FF0000 "
+                    />
+                  </svg>
+                  <svg
+                    class="absolute top-[4px] left-[5px]"
+                    width="9"
+                    height="10"
+                    viewBox="0 0 9 10"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="4.5"
+                      cy="5"
+                      r="4.5"
+                      fill="#FF0000 "
+                    />
+                  </svg>
+                </span>
+              </span>
+              <span
+                class="text-sm font-bold text-green-500"
+                v-text="store.userOnline ? 'Online' : 'Offline'"
+              />
             </div>
+
             <!-- Footer -->
             <div class="card-actions justify-between gap-4">
               <button
                 class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
+                onclick="my_modal_1.showModal()"
               >
                 Contact
               </button>
@@ -395,14 +511,75 @@ getUserInfo(store.userIdForProfileCheck)
       <!-- Content -->
       <MarketPlaceEmployerBriefProfile
         v-if="workerTab === 'profile'"
+        :-user-gallery="allGallery"
+        type="profile"
+        :gigs="gigs"
         @open-tab="viewAll"
       />
-      <MarketPlaceEmployerWorkGallery v-if="workerTab === 'gallery'" />
-      <MarketPlaceEmployerServices v-if="workerTab === 'service'" />
+      <MarketPlaceEmployerWorkGallery
+        v-if="workerTab === 'gallery'"
+        :profile-gallery="allGallery"
+        type="profile"
+      />
+      <MarketPlaceEmployerServices
+        v-if="workerTab === 'service'"
+        type="profile"
+        :gigs="gigs"
+      />
       <MarketPlaceEmployerReviews v-if="workerTab === 'review'" />
       <MarketPlaceEmployerMarketListing v-if="workerTab === 'marketplace'" />
     </section>
   </div>
+
+  <!-- Open the modal using ID.showModal() method -->
+  <!-- Add Category -->
+  <dialog
+    id="my_modal_1"
+    class="modal"
+  >
+    <div class="modal-box">
+      <h3 class="text-3xl font-bold text-[rgba(35, 35, 35, 1)] mb-4">
+        Select Service Type
+      </h3>
+      <p class="mb-8 font-medium text-[rgba(36, 36, 36, 1)]">
+        Select service type to contact this skilled worker for
+      </p>
+      <div
+        v-for="(service, index) in userInfo.profile?.services"
+        :key="index"
+        class="p-3 border rounded-md btn-block mb-5 bg-white border-gray-500"
+      >
+        <span class="flex flex-row justify-between w-full">
+
+          <input
+            type="radio"
+            name="radio-1"
+            class="radio"
+            @change="selectServices(service.service.id)"
+          >
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ service.service.name }}</span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{ service.years_of_experience }}</span>
+
+        </span>
+      </div>
+      <BaseButton
+        title="Continue"
+        color="rgba(33, 31, 31, 1)"
+        text-color="rgba(255, 255, 255, 1)"
+        :outline="false"
+        class="block w-full"
+        @click="openChat()"
+              />
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">
+            Close
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
 </template>
 
 <style>

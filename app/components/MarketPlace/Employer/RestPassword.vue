@@ -1,11 +1,35 @@
 <script setup>
+import { authController } from '~/services/modules/auth'
+
+const { ResetPassword } = authController()
+
 const userData = reactive({
-  email: userInfo.value.email ?? null,
-  token: token.value ?? null,
-  current_password: '',
+  old_password: '',
   new_password: '',
-  confirm_password: '',
+  new_password_confirmation: '',
+
 })
+
+const loader = ref(false)
+
+const resetPassword = async () => {
+  loader.value = true
+  try {
+    const { status, data } = await ResetPassword(userData)
+    if (status.value === 'success') {
+      loader.value = false
+      console.log('notifications', notifications.value)
+      handleALert('success', data.value.message)
+    }
+    if (status.value === 'error') {
+      loader.value = false
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    console.error('Error fetching notifications:', error)
+  }
+}
 </script>
 
 <template>
@@ -15,7 +39,7 @@ const userData = reactive({
         Password Reset
       </h1>
       <BaseInput
-        v-model="userData.current_password"
+        v-model="userData.old_password"
         label="Current Password"
         type="password"
         :icon="true"
@@ -33,7 +57,7 @@ const userData = reactive({
         :required="true"
       />
       <BaseInput
-        v-model="userData.confirm_password"
+        v-model="userData.new_password_confirmation"
         label="Confirm Password"
         type="password"
         :icon="true"
@@ -43,10 +67,10 @@ const userData = reactive({
       />
       <button
         class="btn btn-neutral bg-black text-white"
-        @click="ResetPassword"
+        @click="resetPassword"
       >
         <span
-          v-if="loading"
+          v-if="loader"
           class="loading loading-spinner loading-md"
         />
         <span

@@ -36,6 +36,7 @@ export const accountController = () => {
 
   const resetpassword = data => post('account/reset-password', data)
 
+
   return {
     uploadProfilePicture,
     addServiceCategory,

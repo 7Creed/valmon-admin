@@ -14,48 +14,59 @@ const props = defineProps({
 const { getListings, singleListingCategory } = accountController()
 
 const marketListings = ref([])
-
+const loader = ref(false)
 const fetchListing = async () => {
-  store.globalLoader = true
+  loader.value = true
   const { status, data, error } = await getListings()
   if (status.value === 'success') {
     console.log(data.value.data)
     marketListings.value = data.value.data
-    store.globalLoader = false
+    loader.value = false
   }
   if (status.value === 'error') {
     handleALert('error', error.value.data.message)
-    store.globalLoader = false
+    loader.value = false
   }
 }
 
 const fetchSingleListing = async (id) => {
-  store.globalLoader = true
+  loader.value = true
   const { status, data, error } = await singleListingCategory(id)
   if (status.value === 'success') {
     console.log(data.value.data)
     marketListings.value = data.value.data
-    store.globalLoader = false
+    loader.value = false
   }
   if (status.value === 'error') {
     handleALert('error', error.value.data.message)
-    store.globalLoader = false
+    loader.value = false
   }
 }
-if (props.type === 'employerMarket') {
-  fetchListing()
+
+const callListing = () => {
+  if (props.type === 'profile') {
+    fetchSingleListing(store.userIdForProfileCheck)
+  }
+  else {
+    fetchListing()
+  }
 }
-if (props.type === 'marketListing') {
-  fetchSingleListing(store.userIdForProfileCheck)
-}
+
+onMounted(() => {
+  callListing()
+})
 </script>
 
 <template>
-  <template v-if="store.globalLoader">
-    <SharedLoader />
+  <template v-if="loader">
+    <SharedLoader v-if="loader" />
   </template>
 
   <template v-else>
+    <SharedAvailable
+      v-if="!marketListings || marketListings.length === 0"
+      message="Listing"
+    />
     <div
 
       v-for="(item, index) in marketListings"

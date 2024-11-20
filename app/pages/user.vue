@@ -1,8 +1,12 @@
 <script setup>
 import profile from '@/assets/icons/cardprofile.svg'
 import { useGlobalStore } from '@/store'
+import { UsersController } from '~/services/modules/Admin/users'
+
+const { showAllUsers, deleteUser, users, getUsersSummary } = UsersController()
 
 const store = useGlobalStore()
+
 definePageMeta({
   layout: 'dashboard-layout',
 })
@@ -13,6 +17,42 @@ const viewProfile = () => {
   })
   navigateTo('/profile')
 }
+
+// Loaders
+const allUsersLoader = ref(false)
+const summaryLoader = ref(false)
+const deleteLoader = ref(false)
+const userLoader = ref(false)
+
+const FetchID = async (func, id, loader = null, alert = true) => {
+  if (loader) loader.value = true
+  const { status, data, error } = await func(id)
+  if (status.value === 'success') {
+    console.log(data.value.data)
+    if (alert) handleALert('success', data.value.message)
+    if (loader) loader.value = true
+  }
+  if (status.value === 'error') {
+    if (alert) handleALert('error', error.value.data.message)
+    if (loader) loader.value = true
+  }
+}
+
+const Fetch = async (func, loader = null, alert = true) => {
+  if (loader) loader.value = true
+  const { status, data, error } = await func()
+  if (status.value === 'success') {
+    console.log(data.value.data)
+    if (alert) handleALert('success', data.value.message)
+    if (loader) loader.value = true
+  }
+  if (status.value === 'error') {
+    if (alert) handleALert('error', error.value.data.message)
+    if (loader) loader.value = true
+  }
+}
+
+Fetch(showAllUsers, allUsersLoader)
 </script>
 
 <template>

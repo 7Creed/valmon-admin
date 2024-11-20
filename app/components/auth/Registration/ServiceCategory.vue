@@ -19,12 +19,11 @@ const loading = ref(false)
 // Fetch service category
 const fetchData = ref([])
 const fetchCategory = async () => {
-  const { data, status, refresh } = await getAppServices()
+  const { data, status, error } = await getAppServices()
   if (status.value === 'success' && data.value.data) {
     console.log('account', data.value.data)
     fetchData.value = data.value.data
   }
-  if (!fetchData.value.length) refresh(data)
   if (status.value === 'error') {
     console.log(error.value)
   }
@@ -49,6 +48,8 @@ const addCategoryData = reactive({
   experience: null,
   service_id: null,
 })
+
+// For Category on user profile
 const addCategoryFromAccount = reactive({
   years_of_experience: null,
   service_id: null,
@@ -65,7 +66,7 @@ watch(addCategoryData, (newVal, oldVal) => {
 watch(fetchedServicesData, (newVal, oldVal) => {
   if (newVal) {
     addCategoryData.name = fetchedServicesData.value.name
-    addCategoryData.service_id = fetchedServicesData.value.service_category_id
+    addCategoryData.service_id = fetchedServicesData.value.id
   }
 })
 
@@ -77,15 +78,27 @@ const updateCategoryRegister = () => {
     service_id: addCategoryData.service_id,
     primary: false,
   })
+
   // Update the store;
   store.$patch({
     serviceCategory: categoryData.value,
   })
 }
 
+// This for User Account profile
 const serviceData = {
-  services: [],
+  services: [...(store.UserAccount.profile.services || [])],
 }
+if (props.useType === 'account') {
+  store.getAccount()
+}
+
+watch(() => store.UserAccount.profile.services, (newVal) => {
+  if (newVal) {
+    serviceData.services = [...newVal]
+  }
+}, { deep: true })
+
 const { addServiceCategory } = accountController()
 const saveCategoryFromAccount = async () => {
   loading.value = true
@@ -113,27 +126,79 @@ const saveCategoryFromAccount = async () => {
     })
   }
 }
+
+const saveEditCategory = (index) => {
+  serviceData.services[index].name = addCategoryFromAccount.years_of_experience
+  serviceData.services[index].service_id = addCategoryFromAccount.service_id
+  serviceData.services[index].primary = addCategoryFromAccount.primary
+
+  console.log('before update', serviceData)
+}
+
+const addCategoryBtn = ref(null)
+const edit = ref(false)
+const editIndex = ref(null)
+const EditServiceCategory = (index) => {
+  addCategoryBtn.value.click()
+  console.log('called', index)
+  edit.value = true
+  editIndex.value = index
+}
+// Update service category
+const updateCategoryFromAccount = async () => {
+  console.log('before update 1', serviceData)
+
+  loading.value = true
+  try {
+    if (edit.value) {
+      saveEditCategory(editIndex.value)
+    }
+    console.log('before update 2', serviceData)
+    const { status, data, error } = await addServiceCategory(serviceData)
+    if (status.value === 'success') {
+      handleALert('success', data.value.message)
+      store.getAccount()
+      store.$patch({
+        callUserAccount: true,
+      })
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
   store.$patch({
     callUserAccount: true,
   })
 })
+
 // Updates the CategoryData Object
 const saveCategory = () => {
-  const isFilled = Object.values(addCategoryData).every(e => e !== '')
-  if (isFilled) {
-    if (props.useType === 'registration') {
-      updateCategoryRegister()
-    }
-    if (props.useType === 'account') {
-      saveCategoryFromAccount()
-    }
+  const isDataComplete = Object.values(addCategoryData).every(value => value !== '')
+
+  if (!isDataComplete) return
+
+  if (props.useType === 'registration') {
+    updateCategoryRegister()
+  }
+  else if (props.useType === 'account') {
+    edit.value ? updateCategoryFromAccount() : saveCategoryFromAccount()
   }
 }
 
 // Delete
 const removeServiceCategory = (index) => {
-  categoryData.value.splice(index, 1)
+  console.log('delete', index)
+  serviceData.services.splice(index, 1)
+  updateCategoryFromAccount()
 }
 
 // Emit events
@@ -173,7 +238,7 @@ const emitEvent = (event) => {
           >Delete</span>
         </span>
       </button>
-      <!-- For rendering the service category -->
+      <!-- For rendering the service category on user profile -->
       <div v-if="props.useType === 'account'">
         <button
           v-for="(item, index) in store.UserAccount?.profile?.services"
@@ -185,10 +250,13 @@ const emitEvent = (event) => {
             <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{
               item.years_of_experience
             }}</span>
-            <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
+            <span
+              class="text-red-600 text-base font-bold hover:text-red-400"
+              @click="EditServiceCategory(index)"
+            >Edit</span>
             <span
               class="text-darkGold text-base font-bold  hover:text-brightGold"
-              @click="removeServiceCategory"
+              @click="removeServiceCategory(index)"
             >Delete</span>
           </span>
         </button>
@@ -209,6 +277,7 @@ const emitEvent = (event) => {
       </p>
 
       <button
+        ref="addCategoryBtn"
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2"
         :class="{ 'mx-auto': props?.useType !== 'account' }"
         onclick="my_modal_9.showModal()"
@@ -264,7 +333,11 @@ const emitEvent = (event) => {
     >
       <div class="modal-box">
         <h3 class="text-3xl font-bold text-center text-[rgba(35, 35, 35, 1)] mb-4">
-          Add Service Category
+          <span v-if="!edit">Add Service Category</span>
+          <span
+            v-else
+            class="text-red-600"
+          >Edit Service Category</span>
         </h3>
         <label class="form-control w-full mb-4">
           <div class="label">

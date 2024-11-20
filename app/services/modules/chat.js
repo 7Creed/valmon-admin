@@ -16,6 +16,10 @@ export const chatController = () => {
   const acceptProposal = data => post(`chats/negotiations/accept-proposal`, data)
   const rejectProposal = data => post(`chats/negotiations/reject-proposal`, data)
 
+  // Mark as read
+  const markAsRead = id => put(`chats/conversations/${id}/read`)
+
+
   return {
     getConversation,
     getMessages,
@@ -24,5 +28,6 @@ export const chatController = () => {
     sendProposal,
     acceptProposal,
     rejectProposal,
+    markAsRead
   }
 }

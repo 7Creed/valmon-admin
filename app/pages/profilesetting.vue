@@ -14,8 +14,8 @@ const toggleTab = (tab) => {
 const token = useCookie('token')
 
 const logOut = async () => {
-  console.log('j')
-  token.value = null
+  token.value.token = null
+  token.value.type = null
   store.$patch({
     User: null,
   })

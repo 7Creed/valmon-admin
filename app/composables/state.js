@@ -5,6 +5,7 @@ export const useActiveView = () => {
     isContactEnabled: false,
     isProfileName: '',
     chatId: '',
+    GeneralHistory: false,
   }))
 
   // Function to update the isProfileEnabled  and profileName state
@@ -28,11 +29,16 @@ export const useActiveView = () => {
     console.log(id)
   }
 
+  // Handle General History
+  const handleGeneralHistory = () => {
+    state.value.GeneralHistory = !state.value.GeneralHistory
+  }
   // Return the state and the functions
   return {
     state,
     updateProfileView,
     updateContactView,
     setMarketPlaceChatId,
+    handleGeneralHistory
   }
 }

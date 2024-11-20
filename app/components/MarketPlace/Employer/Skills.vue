@@ -7,11 +7,12 @@ const props = defineProps({
     type: String,
     default: 'employer',
   },
+  skill: String,
 })
-const emit = defineEmits(['back'])
+const emit = defineEmits(['backHome'])
 
 const goBack = () => {
-  emit('back')
+  emit('backHome')
 }
 // Handles tab
 
@@ -130,10 +131,10 @@ handlePagination(store.usersByServiceCP)
             class="skill_header text-white"
           >
             <h2 class="text-lg font-semibold">
-              Tailor
+             {{ props.skill }}
             </h2>
             <p class="text-sm">
-              134 Registered
+             {{ paginationInfo.total }} Registered
             </p>
           </div>
           <div
@@ -326,6 +327,7 @@ handlePagination(store.usersByServiceCP)
       >
         <MarketPlaceEmployerClientCard
           :service-by-users="userByServices"
+          :skill="props.skill"
         />
       </div>
       <div

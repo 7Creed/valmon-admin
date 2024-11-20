@@ -6,6 +6,7 @@ const store = useGlobalStore()
 
 const props = defineProps({
   serviceByUsers: Array,
+  skill: String,
 })
 // use the useActiveView composables
 const { updateContactView, updateProfileView } = useActiveView()
@@ -16,7 +17,11 @@ const openProfile = (id) => {
     userIdForProfileCheck: id,
   })
 }
-const openContact = () => {
+const openContact = (userId, serviceId) => {
+  store.updateNewConversationDetails({
+    recipient_id: userId,
+    service_id: serviceId,
+  })
   updateContactView()
 }
 </script>
@@ -42,7 +47,7 @@ const openContact = () => {
             {{ item.user.first_name }}   {{ item.user.last_name }}
           </h3>
           <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
-            <span class="text-black">{{ item.primary_service.name }}</span>
+            <span class="text-black">{{ props?.skill }}</span>
           </div>
           <div class="flex items-center gap-2">
             <div
@@ -63,9 +68,9 @@ const openContact = () => {
       </div>
       <!-- body -->
 
-      <div class="alert mb-2">
+      <div class="alert mb-2 h-20">
         <p>
-          {{ item.bio }}
+          {{ item.bio ? (item.bio).slice(0, 100) : 'Nil' }}
         </p>
       </div>
 
@@ -75,7 +80,7 @@ const openContact = () => {
           class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
           @click="openContact(item.user.id, item.primary_service.id)"
         >
-          Contact
+          Contact 
         </button>
         <button
           class="btn btn-neutral flex-1 rounded-2xl border-2"

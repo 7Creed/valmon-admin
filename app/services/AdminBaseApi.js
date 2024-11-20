@@ -1,10 +1,10 @@
 import { useFetch } from '#app'
 
-export const useBaseApi = () => {
+export const useAdminBaseApi = () => {
   //  This function retrieves runtime configuration settings defined in your Nuxt application
   const apiFetch = async (url, options = {}) => {
     const defaults = {
-      baseURL: 'https://valmon.techr.me/api/',
+      baseURL: 'https://valmon.techr.me/admin/',
       key: url,
       watch: false,
       timeout: 10000,
@@ -12,7 +12,7 @@ export const useBaseApi = () => {
       onRequest({ request, options }) {
         // Add authorization header
         const token = useCookie('token').value
-        if (token && token.type === 'User') {
+        if (token && token.type === 'Admin') {
           options.headers = {
             ...options.headers,
 
@@ -21,10 +21,9 @@ export const useBaseApi = () => {
         }
       },
       onResponseError({ request, response, options }) {
-        console.log('response', response)
         // Handle errors (e.g., redirect on 401)
         if (response.status === 401) {
-          navigateTo('/login')
+          navigateTo('/admin')
         }
         // Redirect on 404
       },
@@ -32,7 +31,7 @@ export const useBaseApi = () => {
 
     // Call the useFetch function
     const res = useFetch(url, defaults)
-    console.log('This is from BaseApi ->', res)
+    console.log('This is from AdminApi ->', res)
 
     return res
   }

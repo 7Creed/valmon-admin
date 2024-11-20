@@ -4,7 +4,7 @@ import { useGlobalStore } from '@/store'
 
 import { chatController } from '@/services/modules/chat'
 
-const { createConversation } = chatController()
+const { createConversation, getConversation, getMessages, sendMessages, sendProposal, rejectProposal, acceptProposal, markAsRead } = chatController()
 
 const props = defineProps({
   chatType: String,
@@ -38,7 +38,7 @@ const jobStatus = ref('')
 
 // Function to complete the job
 const completed = () => {
-  jobStatus.value = 'Completed'
+  jobStatus.value = ''
 
   // Array of button refs
   const buttons = [selectCardBtn, paymentBtn, otpBtn, paymentSuccessBtn, awaitBtn]
@@ -51,13 +51,80 @@ const completed = () => {
   })
 }
 
-// Handle creating conversation
-const newConversation = async () => {
-  loading.value = true
+/* --------------------------- Chat api management -------------------------- */
+
+// define const
+
+const conversationLoader = ref(false)
+const defaultLoader = ref(false)
+const getMessagesLoader = ref(false)
+const proposalLoader = ref(false)
+const readLoader = ref(false)
+
+const message = ref('')
+const allMessages = ref([])
+const conversations = ref([])
+
+const selectedConversation = ref(null)
+const fetchConversation = async () => {
   try {
-    const { status, data, error } = await createConversation(data)
+    const { status, data, error } = await getConversation()
     if (status.value === 'success') {
-      CategoryServices.value = data.value.data
+      console.log('fetched convorsations->', data.value.data)
+      conversations.value = data.value.data
+      selectedConversation.value = data.value.data[0]
+    }
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+}
+
+const renderConversation = ({ user, recipient, user_id }) => {
+  const realRecipient = user_id == store.UserAccount.id ? recipient : user
+  return realRecipient
+}
+
+const chatApiWithParams = async (func, userData, id, loader) => {
+  loader.value = true
+  try {
+    const { status, data, error } = await func(userData, id)
+    if (status.value === 'success') {
+      console.log('fetched messages->', data.value.data)
+
+      if (func.name === 'sendMessages') {
+        // Get Messages
+        chatApiWithParam(getMessages, selectedConversation.value.id, getMessagesLoader)
+      }
+    }
+
+    if (status.value === 'error') {
+      handleError('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loader.value = false
+  }
+}
+const chatApiWithParam = async (func, userData, loader) => {
+  loader.value = true
+  try {
+    const { status, data, error } = await func(userData)
+    if (status.value === 'success') {
+      console.log(` ${func.name}->`, data.value.data)
+
+      if (func.name === 'createConversation') {
+        fetchConversation()
+      }
+      if (func.name === 'getMessages') {
+        allMessages.value = data.value.data
+      }
     }
     if (status.value === 'error') {
       handleError('error', error.value.data.message)
@@ -67,14 +134,104 @@ const newConversation = async () => {
     handleError(error)
   }
   finally {
-    loading.value = false
+    loader.value = false
   }
+}
+
+// Handle sending Messages
+const sendMessage = () => {
+  const formData = new FormData()
+  formData.append('content', message.value)
+  formData.append('type', 'text')
+  console.log(selectedConversation.value.id)
+
+  chatApiWithParams(sendMessages, formData, selectedConversation.value.id, defaultLoader)
+  message.value = ''
+}
+
+// Creating conversation for Employer and fetch conversation for Worker
+if (store.UserAccount.account_type === 'employer') {
+  chatApiWithParam(createConversation, store.newConversationDetails, conversationLoader)
+}
+
+fetchConversation()
+
+setInterval(() => {
+  fetchConversation()
+}, 300000)
+
+const Chat = (conv) => {
+  selectedConversation.value = conv
+  MarkAsRead()
+}
+
+watch(selectedConversation, (newVal) => {
+  if (newVal) chatApiWithParam(getMessages, newVal.id, getMessagesLoader)
+})
+
+// Last message
+const lastMessages = ref('')
+watch(allMessages, (newVal) => {
+  if (newVal.length === 0) {
+    lastMessages.value = null
+    return
+  }
+
+  // Case 1: When message.user_id is not equal to store.UserAccount.id (real recipient) picks initiator last message
+  const recipientMessages = newVal.filter(message => message.type === 'text' && message.user_id != store.UserAccount.id)
+
+  const recipientObj = recipientMessages[recipientMessages.length - 1]
+
+  // Case 2: When message.user_id is equal to store.UserAccount.id (initiator) -> picks real recipient last message
+  const userMessages = newVal.filter(message => message.type === 'text' && message.user_id == store.UserAccount.id)
+  const userObj = userMessages[userMessages.length - 1]
+
+  // Debugging: Log the last message objects
+  console.log('Recipient Last Message:', recipientMessages)
+  console.log('User Last Message:', userObj)
+
+  // Update lastMessages based on the available messages
+  if (recipientMessages.length && recipientObj) {
+    lastMessages.value = recipientObj.content
+  }
+  else if (userMessages.length && userObj) {
+    lastMessages.value = userObj.content
+  }
+  else {
+    lastMessages.value = null
+  }
+})
+
+/* --------------------------- Handle Negotiations -------------------------- */
+const negotiationPrice = ref('')
+
+const sendNewProposal = () => {
+  chatApiWithParam(sendProposal, {
+    conversation_id: selectedConversation.value.id,
+    price: negotiationPrice.value,
+  }, proposalLoader)
+}
+
+const rejectProposa = () => {
+  chatApiWithParam(rejectProposal, {
+    negotiation_id: 1,
+  }, proposalLoader)
+}
+
+const MarkAsRead = () => {
+  chatApiWithParam(markAsRead, {
+    conversation_id: selectedConversation.value.id,
+
+  }, readLoader)
 }
 </script>
 
 <template>
-  <SharedLoader />
-  <div class="flex gap-10 pt-10">
+  <SharedLoader v-if="conversationLoader" />
+  <div
+    v-else
+    class="flex gap-10 pt-10"
+  >
     <!-- card 1 -->
     <div class="card bg-base-100 w-[400px] shadow-xl flex-2 text-[#93939A]">
       <div class="card-body">
@@ -139,7 +296,9 @@ const newConversation = async () => {
                 d="M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2.25 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM6.31 15.117A6.745 6.745 0 0 1 12 12a6.745 6.745 0 0 1 6.709 7.498.75.75 0 0 1-.372.568A12.696 12.696 0 0 1 12 21.75c-2.305 0-4.47-.612-6.337-1.684a.75.75 0 0 1-.372-.568 6.787 6.787 0 0 1 1.019-4.38Z"
                 clip-rule="evenodd"
               />
-              <path d="M5.082 14.254a8.287 8.287 0 0 0-1.308 5.135 9.687 9.687 0 0 1-1.764-.44l-.115-.04a.563.563 0 0 1-.373-.487l-.01-.121a3.75 3.75 0 0 1 3.57-4.047ZM20.226 19.389a8.287 8.287 0 0 0-1.308-5.135 3.75 3.75 0 0 1 3.57 4.047l-.01.121a.563.563 0 0 1-.373.486l-.115.04c-.567.2-1.156.349-1.764.441Z" />
+              <path
+                d="M5.082 14.254a8.287 8.287 0 0 0-1.308 5.135 9.687 9.687 0 0 1-1.764-.44l-.115-.04a.563.563 0 0 1-.373-.487l-.01-.121a3.75 3.75 0 0 1 3.57-4.047ZM20.226 19.389a8.287 8.287 0 0 0-1.308-5.135 3.75 3.75 0 0 1 3.57 4.047l-.01.121a.563.563 0 0 1-.373.486l-.115.04c-.567.2-1.156.349-1.764.441Z"
+              />
             </svg>
 
             <span class="text-sm">Admin</span>
@@ -172,7 +331,7 @@ const newConversation = async () => {
           <a
             href="javascript:void(0)"
             class="bg-white border text-sm font-semibold w-fit  text-[#909090] satoshiM py-[6px] px-[10px] rounded-md"
-            :class="{ activeTag: activeTag ==='all' }"
+            :class="{ activeTag: activeTag === 'all' }"
             @click="selectTag('all')"
           >
             <span>ALL</span>
@@ -180,7 +339,7 @@ const newConversation = async () => {
           <a
             href="javascript:void(0)"
             class="bg-white border text-sm font-semibold w-fit text-[#909090] satoshiM  py-[6px] px-[10px] rounded-md"
-            :class="{ activeTag: activeTag ==='unread' }"
+            :class="{ activeTag: activeTag === 'unread' }"
             @click="selectTag('unread')"
           >
             <span>Unread</span>
@@ -188,7 +347,7 @@ const newConversation = async () => {
           <a
             href="javascript:void(0)"
             class="text-sm bg-white font-semibold w-fit border text-[#909090] satoshiM  py-[6px] px-[10px] rounded-md"
-            :class="{ activeTag: activeTag ==='read' }"
+            :class="{ activeTag: activeTag === 'read' }"
             @click="selectTag('read')"
           >
             <span>Read</span>
@@ -196,23 +355,39 @@ const newConversation = async () => {
         </div>
 
         <!-- Users -->
-        <MarketPlaceEmployerJobs />
+        <MarketPlaceEmployerJobs
+          v-if="conversations.length > 0"
+          :UserC="conversations"
+          :last-message="lastMessages"
+          @open-chat="Chat($event)"
+        />
       </div>
     </div>
     <!-- card 2 -->
-    <div class="card bg-base-100 w-96 shadow-xl flex-1">
+    <div
+
+      class="card bg-base-100 w-96 shadow-xl flex-1"
+    >
       <div class="card-body">
         <!-- chat Header -->
-        <div class="flex items-center gap-4 border-b pb-5">
+        <div
+          v-if="selectedConversation"
+          class="flex items-center gap-4 border-b pb-5"
+        >
           <!-- avatar -->
           <div class="avatar">
             <div class="w-14 rounded-full">
-              <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp">
+              <img
+
+                :src="renderConversation(selectedConversation).profile_pic"
+                :alt="renderConversation(selectedConversation).first_name"
+              >
             </div>
           </div>
           <div>
             <div class="flex items-center text-[#101011] gap-8 mb-1">
-              <span class="text-sm  satoshiB">John Doe</span>
+              <span class="text-sm  satoshiB">{{ renderConversation(selectedConversation).first_name }} {{
+                renderConversation(selectedConversation).last_name }}</span>
               <div class="flex items-center gap-2">
                 <div class="rating rating-sm">
                   <input
@@ -225,8 +400,11 @@ const newConversation = async () => {
                 <span class="text-sm">(631 Ratings)</span>
               </div>
             </div>
-            <div class="text-sm">
-              Tailor
+            <div
+              v
+              class="text-sm"
+            >
+              {{ selectedConversation?.service.name }}
             </div>
           </div>
         </div>
@@ -237,8 +415,11 @@ const newConversation = async () => {
         >
           <span class="text-center w-full  block">Keep all dealings on valmon to ensure safety</span>
         </div>
-        <p class="text-[#4A4A4E] text-sm text-center mt-5">
-          Your conversation with Daniel starts here
+        <p
+          v-if="selectedConversation"
+          class="text-[#4A4A4E] text-sm text-center mt-5"
+        >
+          Your conversation with {{ renderConversation(selectedConversation).first_name }} starts here
         </p>
 
         <!-- divider -->
@@ -247,30 +428,23 @@ const newConversation = async () => {
         </div>
         <!-- Chat container -->
         <div class="h-96 overflow-auto">
-          <!-- User A -->
-          <div class="chat chat-start ">
-            <div class="chat-bubble bg-[#F0F2F5] text-black chat_adjustment">
-              It's over Anakin,
-              <br>
-              I have the high ground.
-            </div>
-          </div>
-          <!-- User B -->
-          <div class="chat chat-end ">
-            <div class="chat-bubble chat_adjustment bg-[#FEFDDA] text-black">
-              You underestimate my power!
-            </div>
-          </div>
-          <!-- User A -->
-          <div class="chat chat-start ">
-            <div class="chat-bubble bg-[#F0F2F5] text-black chat_adjustment">
-              It's over Anakin,
-              <br>
-              I have the high ground.
-              <div class="text-darkGold text-xs satoshiB mt-2">
+          <!-- User A :chat-start UserB : chat-end -->
+          <div
+            v-for="(mesg, index) in allMessages"
+            :key="mesg.id"
+            class="chat  "
+            :class="mesg.user_id == store.UserAccount.id ? 'chat-start' : 'chat-end'"
+          >
+            <div
+              v-if="mesg.type === 'text'"
+              class="chat-bubble  text-black chat_adjustment"
+              :class="mesg.user_id == store.UserAccount.id ? 'bg-[#F0F2F5]' : 'bg-[#FEFDDA]'"
+            >
+              {{ mesg.content }}
+              <div class="hidden text-darkGold text-xs satoshiB mt-2">
                 3 Replies
               </div>
-              <div class="text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
+              <div class="hidden text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
                 <span class="text-darkGold ">Edited</span>
                 <span class="ms-auto">9:34 AM </span>
                 <!-- Emoji -->
@@ -278,39 +452,21 @@ const newConversation = async () => {
               </div>
             </div>
           </div>
-          <!-- User B -->
-          <div class="chat chat-end">
-            <div class="chat-bubble chat_adjustment bg-[#FEFDDA] text-black">
-              You underestimate my power!
-            </div>
-          </div>
-          <!-- User A -->
-          <div class="chat chat-start">
-            <div class="chat-bubble bg-[#F0F2F5] text-black chat_adjustment">
-              It's over Anakin,
-              <br>
-              I have the high ground.
-              <div class="text-[10px] flex justify-between mt-2 text-[#2D2D30] satoshiM">
-                <span
-                  v-show="false"
-                  class="text-darkGold"
-                >Edited</span>
-                <span class="ms-auto">9:34 AM</span>
-              </div>
-            </div>
-          </div>
-          <!-- User B -->
-          <div class="chat chat-end">
-            <div class="chat-bubble chat_adjustment bg-[#FEFDDA] text-black">
-              You underestimate my power!
-            </div>
-          </div>
           <!-- User A (SERVICE REQUEST) -->
-          <div class="chat chat-start">
-            <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
-              Service Provider is Requesting
-              <div class="mt-2 satoshiB">
-                NGN 45,678
+          <div
+            v-for="(mesg, index) in allMessages"
+            :key="mesg.id"
+          >
+            <div
+              v-if="mesg.type === 'negotiation'"
+              class="chat chat-start"
+              :class="mesg.user_id == store.UserAccount.id ? 'chat-start' : 'chat-end'"
+            >
+              <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
+                Service Provider is Requesting
+                <div class="mt-2 satoshiB">
+                  NGN {{ mesg.negotiation.price_offer }}
+                </div>
               </div>
             </div>
           </div>
@@ -337,9 +493,11 @@ const newConversation = async () => {
               </svg>
             </a>
             <input
+              v-model.trim="message"
               type="text"
               class="grow"
               placeholder="New Message"
+              @keyup.enter="sendMessage"
             >
             <a href="javascript:void(0)">
               <svg
@@ -363,6 +521,7 @@ const newConversation = async () => {
           <a
             href="javascript:void(0)"
             class="w-fit p-2 bg-darkGold rounded-full"
+            @click="sendMessage"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -370,7 +529,9 @@ const newConversation = async () => {
               fill="#ffff"
               class="size-6"
             >
-              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+              <path
+                d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"
+              />
             </svg>
 
           </a>
@@ -389,7 +550,7 @@ const newConversation = async () => {
           class="alert block bg-[#F0F2F5] mb-3"
         >
           <div class="text-3xl text-black satoshiB">
-            NGN  195,799
+            NGN 195,799
           </div>
         </div>
         <label
@@ -402,7 +563,6 @@ const newConversation = async () => {
               class="label-text"
             >Worker is asking for?</span>
             <span
-
               v-show="store.isEmployee"
               class="label-text"
             >Ask Client To Pay?</span>
@@ -430,17 +590,24 @@ const newConversation = async () => {
           Completed
         </button>
         <button
-          v-show="jobStatus ===''"
+          v-show="jobStatus === ''"
           class="btn btn-neutral mb-3"
           onclick="my_modal_6.showModal()"
         >
           Negotiate Cost
         </button>
+        <!-- onclick="my_modal_7.showModal()" -->
         <button
-          onclick="my_modal_7.showModal()"
           class="btn btn-outline btn-error"
-          v-text="jobStatus ==='Completed' ? 'Report Worker' : '  Reject & Close Chat'"
-        />
+          type="button"
+          @click="rejectProposa"
+        >
+          <span
+            v-if="proposalLoader"
+            class="loading loading-spinner loading-md"
+          />
+          <span v-else>{{ jobStatus === 'Completed' ? 'Report Worker' : '  Reject & Close Chat' }}</span>
+        </button>
       </div>
     </div>
   </div>
@@ -463,7 +630,7 @@ const newConversation = async () => {
             Payment Amount.
           </div>
           <div class="text-3xl text-black satoshiB">
-            NGN  195,799
+            NGN 195,799
           </div>
         </div>
         <button
@@ -478,14 +645,12 @@ const newConversation = async () => {
               alt="Master Card"
               class="w-[40px] h-[40px]"
             >
-            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank  xxxx68</span>
+            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank xxxx68</span>
             <span class="text-darkGold text-base font-bold  hover:text-brightGold">Select</span>
           </span>
         </button>
 
-        <button
-          class="btn mb-3 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full mx-auto"
-        >
+        <button class="btn mb-3 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full mx-auto">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -531,19 +696,17 @@ const newConversation = async () => {
             Payment Amount.
           </div>
           <div class="text-3xl text-black satoshiB">
-            NGN  195,799
+            NGN 195,799
           </div>
         </div>
-        <button
-          class="btn btn-block mb-3"
-        >
+        <button class="btn btn-block mb-3">
           <span class="flex flex-row justify-between w-full items-center">
             <img
               :src="masterCard"
               alt="Master Card"
               class="w-[40px] h-[40px]"
             >
-            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank  xxxx68</span>
+            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank xxxx68</span>
             <span class="text-darkGold text-base font-bold  hover:text-brightGold">Select</span>
           </span>
         </button>
@@ -589,7 +752,7 @@ const newConversation = async () => {
             Payment Amount.
           </div>
           <div class="text-3xl text-black satoshiB">
-            NGN  195,799
+            NGN 195,799
           </div>
         </div>
         <p class="text-sm text-black mb-3">
@@ -684,9 +847,7 @@ const newConversation = async () => {
           Awaiting Confirmation
         </h2>
 
-        <p
-          class=" text-black mb-3"
-        >
+        <p class=" text-black mb-3">
           You have marked this job as completed, please wait for client to
           confirm completion so you can be paid
         </p>
@@ -763,9 +924,7 @@ const newConversation = async () => {
           />
 
         </label>
-        <button
-          class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-        >
+        <button class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto">
           Submit Review
         </button>
       </div>
@@ -803,6 +962,7 @@ const newConversation = async () => {
             >Ask Client To Pay</span>
           </div>
           <input
+            v-model="negotiationPrice"
             type="text"
             class="input input-bordered w-full"
           >
@@ -821,8 +981,13 @@ const newConversation = async () => {
 
         <button
           class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+          @click="sendNewProposal"
         >
-          Send Proposal
+          <span
+            v-if="proposalLoader"
+            class="loading loading-spinner loading-md"
+          />
+          <span v-else> Send Proposal</span>
         </button>
       </div>
       <div class="modal-action">
@@ -898,9 +1063,7 @@ const newConversation = async () => {
             </div>
           </div>
         </div>
-        <button
-          class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-        >
+        <button class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto">
           Send Report
         </button>
       </div>
@@ -920,13 +1083,16 @@ const newConversation = async () => {
 .activeClass {
   @apply border-darkGold text-darkGold border-b-4
 }
+
 .activeTag {
   @apply bg-darkGold text-white
 }
+
 .chat_adjustment {
   word-wrap: anywhere;
   max-width: 50%;
 }
+
 .modal-box {
   max-height: fit-content;
 }

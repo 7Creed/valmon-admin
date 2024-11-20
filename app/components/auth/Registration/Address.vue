@@ -1,6 +1,6 @@
 <script setup>
 import { accountController } from '~/services/modules/account'
-
+import { MiscController } from '~/services/modules/misc'
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
 const addresses = {
@@ -16,6 +16,7 @@ const addresses = {
   ],
 }
 
+const { getCountries } = MiscController()
 const buttonNext = ref('Verify')
 const { addAddresses } = accountController()
 const loading = ref(false)
@@ -43,6 +44,16 @@ const emitEvent = (event) => {
     emits(event)
   }
 }
+const CountriesList = ref([])
+
+const fetchCountries = async () => {
+  const { data, error, status } = await getCountries()
+  if (status.value === 'success')
+    CountriesList.value = data.value.data
+  if (status.value === 'error')
+    console.log(error.value.data.message)
+}
+fetchCountries()
 </script>
 
 <template>
@@ -125,7 +136,11 @@ const emitEvent = (event) => {
               v-model="addresses.addresses[0].country"
               class="select select-bordered"
             >
-              <option>Nigeria </option>
+            <option
+              v-for="country in CountriesList"
+              :key="country.id"
+              :value="country.name"
+            >{{ country.name }}</option>
 
             </select>
 

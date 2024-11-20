@@ -9,7 +9,10 @@ export const authController = () => {
   const forgotPassword = data => post('auth/password/forgot', data)
   const resetPassword = data => post('auth/password/reset', data)
   const loginUser = data => post('auth/login', data)
+  const ResetPassword = data => post('account/reset-password', data)
   
+  const ping = () => post('account/ping')
+
 
   return {
     createUser,
@@ -18,5 +21,7 @@ export const authController = () => {
     forgotPassword,
     resetPassword,
     loginUser,
+    ResetPassword,
+    ping
   }
 }

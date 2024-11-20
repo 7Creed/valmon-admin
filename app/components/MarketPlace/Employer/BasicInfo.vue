@@ -5,6 +5,9 @@ import copysuccess from '@/assets/icons/copy-success.svg'
 import { useGlobalStore } from '@/store'
 
 import { accountController } from '~/services/modules/account'
+import { MiscController } from '~/services/modules/misc'
+
+const { getCountries } = MiscController()
 
 const store = useGlobalStore()
 const { UpdateProfile } = accountController()
@@ -77,24 +80,31 @@ const updateBio = async () => {
   }
 }
 
-const addresses = {
+const userAddress = reactive({
+  details: null,
+  street: 'nwaniba',
+  city: 'uyo',
+  state: 'akwa-ibom',
+  country: 'nigeria',
+  postal_code: '520101',
+})
+const address = {
   addresses: [
-    {
-      details: null,
-      street: 'nwaniba',
-      city: 'uyo',
-      state: 'akwa-ibom',
-      country: 'nigeria',
-      postal_code: '520101',
-    },
-  ],
+    ...(store.UserAccount.profile.addresses || [])],
 }
+
+watch(() => store.UserAccount.profile.addresses, (newVal) => {
+  if (newVal) {
+    address.addresses = [...newVal]
+  }
+}, { deep: true })
 
 const { addAddresses } = accountController()
 const addressLoading = ref(false)
 const handleAddAddress = async () => {
   addressLoading.value = true
-  const { status, data, error } = await addAddresses(addresses)
+  address.addresses.push(userAddress)
+  const { status, data, error } = await addAddresses(address)
   if (status.value === 'success') {
     handleALert('success', data.value.message)
     addressLoading.value = false
@@ -114,6 +124,17 @@ const userLocation = computed(() => {
   }
   return 'NA'
 })
+
+const CountriesList = ref([])
+
+const fetchCountries = async () => {
+  const { data, error, status } = await getCountries()
+  if (status.value === 'success')
+    CountriesList.value = data.value.data
+  if (status.value === 'error')
+    console.log(error.value.data.message)
+}
+fetchCountries()
 </script>
 
 <template>
@@ -450,7 +471,7 @@ const userLocation = computed(() => {
 
       <div class="w-full">
         <BaseInput
-          v-model="addresses.addresses[0].postal_code"
+          v-model="userAddress.postal_code"
           label="Postal Code"
           type="text"
           placeholder=""
@@ -461,38 +482,41 @@ const userLocation = computed(() => {
             <span class="label-text-alt text-base text-[#6E7191]">Country</span>
           </div>
           <select
-            v-model="addresses.addresses[0].country"
+            v-model="userAddress.country"
             class="select select-bordered"
           >
-            <option>Nigeria</option>
-            <option>Uk</option>
+            <option
+              v-for="country in CountriesList"
+              :key="country.id"
+              :value="country.name"
+            >{{ country.name }}</option>
 
           </select>
 
         </label>
         <BaseInput
-          v-model="addresses.addresses[0].state"
+          v-model="userAddress.state"
           label="State"
           type="text"
           placeholder=""
           class="mb-4 "
         />
         <BaseInput
-          v-model="addresses.addresses[0].city"
+          v-model="userAddress.city"
           label="City"
           type="text"
           placeholder=""
           class="mb-4 "
         />
         <BaseInput
-          v-model="addresses.addresses[0].street"
+          v-model="userAddress.street"
           label="Address"
           type="text"
           placeholder=""
           class="mb-4 "
         />
         <BaseInput
-          v-model="addresses.addresses[0].details"
+          v-model="userAddress.details"
           label="Floor or apartment details"
           type="text"
           placeholder=""

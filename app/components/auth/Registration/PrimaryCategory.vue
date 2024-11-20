@@ -1,5 +1,8 @@
 <script setup>
 import { accountController } from '~/services/modules/account'
+import { useGlobalStore } from '~/store'
+
+const store = useGlobalStore()
 
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
@@ -13,7 +16,8 @@ const renderServiceData = ref(props.serviceData)
 
 // This function updates the primary properties in renderServiceData
 const selectPrimaryCategory = (index) => {
-  renderServiceData.value[index].primary = !renderServiceData.value[index].primary
+  renderServiceData.value[index].primary
+    = !renderServiceData.value[index].primary
 }
 
 // Provides the api data for posting primary services
@@ -22,13 +26,13 @@ const primaryCategory = reactive({
 })
 
 const updatePrimaryData = () => {
-  renderServiceData.value.map(e => primaryCategory.services.push(
-    {
+  renderServiceData.value.map(e =>
+    primaryCategory.services.push({
       service_id: e.service_id,
       years_of_experience: e.years_of_experience,
       primary: e.primary,
-    },
-  ))
+    }),
+  )
 }
 // Variables
 const buttonOption = ref('Verify')
@@ -41,15 +45,16 @@ const savePrimaryCategory = async () => {
   updatePrimaryData()
   if (primaryCategory.services.length) {
     const { data, error, status } = await addServiceCategory(primaryCategory)
-    console.log(data.value)
     if (status.value === 'success') {
       buttonOption.value = 'Next'
       loading.value = false
       handleALert('success', data.value.message)
+      console.log('Update the store ->', 'Update the store ->')
+      // Reset the service category store property when rendering the service category
+      store.serviceCategory = []
     }
     if (status.value === 'error') {
       loading.value = false
-      console.log(error.value)
       handleALert('error', error.value.data.message)
     }
   }
@@ -89,12 +94,14 @@ const emitEvent = (event) => {
             type="checkbox"
             :checked="category.primary"
             class="checkbox"
-          ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{ category.name }}</span></span>
+          ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{
+            category.name
+          }}</span></span>
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{ category.years_of_experience }}</span>
         </span>
       </button>
 
-      <div class="card-actions justify-between ">
+      <div class="card-actions justify-between">
         <BaseButton
           title="Back"
           color="rgba(255, 255, 255, 1)"
@@ -106,6 +113,7 @@ const emitEvent = (event) => {
         />
         <BaseButton
           :loading="loading"
+          :disabled="store.serviceCategory.length === 0"
           title="Next"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"

@@ -1,8 +1,7 @@
 <script setup>
 import google from '@/assets/icons/google.svg'
-import User from '~/pages/user.vue'
 
-import { authController } from '~/services/modules/auth'
+import { AdminAuthController } from '~/services/modules/Admin/auth'
 import { useGlobalStore } from '~/store'
 
 const store = useGlobalStore()
@@ -12,7 +11,7 @@ const tokenCookies = useCookie('token', {
   // secure: true,
 })
 
-const { loginUser, ping } = authController()
+const { login } = AdminAuthController()
 const loading = ref(false)
 const userData = reactive({
   email: '',
@@ -24,17 +23,17 @@ const signIn = async () => {
   loading.value = true // Set loading to true before making the request
 
   try {
-    const { data, error, status } = await loginUser(userData)
+    const { data, error, status } = await login(userData)
     if (status.value === 'success') {
-      console.log(data)
+      console.log(data.value.data)
       tokenCookies.value = {
         token: data.value.data.token,
-        type: 'User',
+        type: 'Admin',
       }
-      store.UserAccount = data.value.data.user
+      store.UserAccount = data.value.data.admin
 
       handleALert('success', 'Login successful')
-      navigateTo('/home')
+      // navigateTo('/admin/summary')
     }
     if (status.value === 'error') {
       handleALert('error', error.value.data.message)
@@ -50,9 +49,9 @@ const signIn = async () => {
 </script>
 
 <template>
-  <div class="flex justify-items-center flex-row w-[90%] bg-white">
+  <div class="center w-[100%] min-h-screen bg-white">
     <!-- Authentication -->
-    <div class="Login flex-1 center">
+    <div class="Login w-1/2 center">
       <div class="w-1/2">
         <div class="mb-9 ">
           <h1 class="text-3xl font-bold text-[rgba(35, 35, 35, 1)] mb-2">
@@ -86,7 +85,7 @@ const signIn = async () => {
           </label>
           <NuxtLink
             to="/forgotpassword"
-            class=" ms-2 label-text text-base text-darkGold hover:underline"
+            class="hidden ms-2 label-text text-base text-darkGold hover:underline"
           >
             forgot password
           </NuxtLink>
@@ -100,10 +99,10 @@ const signIn = async () => {
           class="block w-full mb-5"
           @click="signIn"
         />
-        <div class="divider mb-5">
+        <div class="hidden divider mb-5">
           OR
         </div>
-        <div>
+        <div class="hidden">
           <BaseButton
             title="Sign in with Google"
             color="rgba(255, 255, 255, 1)"
@@ -115,7 +114,7 @@ const signIn = async () => {
             class=" w-full mb-5"
           />
         </div>
-        <p class="text-lg font-semibold text-center">
+        <p class="hidden text-lg font-semibold text-center">
           Don’t Have account? <NuxtLink
             to="/getstarted"
             class=" text-darkGold"
@@ -124,10 +123,6 @@ const signIn = async () => {
           </NuxtLink>
         </p>
       </div>
-    </div>
-    <!-- Images -->
-    <div class=" flex-1">
-      <authValmon />
     </div>
   </div>
 </template>

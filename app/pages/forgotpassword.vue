@@ -18,7 +18,7 @@ const retrievePassword = async () => {
     if (status.value === 'success') {
       handleALert(status.value, data.value.message)
       userEmail.value = email.value
-      await navigateTo('/restpassword')
+      await navigateTo('/resetpassword')
     }
     if (status.value === 'error') {
       handleALert(status.value, error.value.data?.message)

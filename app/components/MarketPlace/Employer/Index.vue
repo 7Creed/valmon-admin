@@ -16,9 +16,14 @@ const emit = defineEmits(['selectedOption'])
 const props = defineProps({
   categories: Array,
 })
+
+// Manage Selected Option (category and skill)
 const selectSkill = (option, category, serviceId) => {
   selectedOption.category = category
   selectedOption.skill = option
+  // Update selected service on the use state
+  store.updateSelectedService(option)
+
   emit('selectedOption', selectedOption)
   store.$patch({
     usersByServices: serviceId,
@@ -29,7 +34,15 @@ const selectSkill = (option, category, serviceId) => {
 <template>
   <div>
     <Header />
-    <section class="mt-10">
+    <SharedInfo
+      v-if="props.categories.length === 0 && props.categories == null"
+      message="Services"
+      class="mt-3"
+    />
+    <section
+      v-else
+      class="mt-10"
+    >
       <div
         v-for="category in props.categories"
         :key="category.id"
@@ -59,7 +72,8 @@ const selectSkill = (option, category, serviceId) => {
               v-for="(service, index) in category.services"
               :key="index"
               :title="service.name"
-              @click="selectSkill(service.name, category.name, service.service_category_id)"
+              @click="selectSkill(service.name, category.name, service.id)"
+              @back="backHome"
             />
           </div>
         </div>

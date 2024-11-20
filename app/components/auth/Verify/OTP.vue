@@ -7,7 +7,6 @@ const store = useGlobalStore()
 
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
-
 const userEmail = useCookie('email')
 
 const buttonOption = ref('Verify')
@@ -47,7 +46,10 @@ const verifyOTP = async () => {
       if (status.value === 'success') {
         buttonOption.value = 'Next'
 
-        tokenCookies.value = data.value.data.token
+        tokenCookies.value = {
+          token: data.value.data.token,
+          type: 'User',
+        }
         store.UserAccount = data.value.data.user
         handleALert('success', data.value.message)
       }

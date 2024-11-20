@@ -2,10 +2,12 @@
 // import { useGlobalStore } from '@/store/index'
 import { useActiveView } from '@/composables/state'
 import { categoryController } from '~/services/modules/category'
-import { useGlobalStore } from '~/store';
+import { useGlobalStore } from '~/store'
 
+import { authController } from '~/services/modules/auth'
 
 const store = useGlobalStore()
+const { ping } = authController()
 
 definePageMeta({
   layout: 'market-place',
@@ -21,7 +23,9 @@ const selectedOption = reactive({
 })
 
 const History = () => {
-  activeCom.value = 'category'
+  activeComp.value = 'category'
+  selectedOption.category = ''
+  selectedOption.skill = ''
 }
 
 const handleSelectedOption = (option) => {
@@ -59,7 +63,26 @@ fetchCategoryServices()
 
 onMounted(() => {
   store.getAccount()
+
+  // Check if General History is true and set the History from user profile to true
+  if (state.value.GeneralHistory) {
+    activeComp.value = 'skills'
+  }
+  
 })
+
+const PingUser = async () => {
+  console.log('Hello there!')
+  const { data, error, status } = await ping()
+  if (status.value === 'success') {
+    store.userOnline = true
+    console.log(data.value)
+  }
+  if (status.value === 'error') {
+    console.log(error.value.data.message)
+  }
+}
+PingUser()
 </script>
 
 <template>
@@ -71,8 +94,11 @@ onMounted(() => {
     >
       <ul>
         <li><a class="">Home</a></li>
-        <li><a class="">Category</a></li>
-        <li v-if="selectedOption.category">
+        <li><a class="text-decoration-none">Category</a></li>
+        <li
+          v-if="selectedOption.category"
+          @click="History()"
+        >
           <a class="">{{ selectedOption.category }}</a>
         </li>
         <li v-if="selectedOption.skill">
@@ -92,7 +118,8 @@ onMounted(() => {
       />
       <MarketPlaceEmployerSkills
         v-if="activeComp === 'skills' && !loading"
-        @back="History()"
+        :skill="selectedOption.skill"
+        @back-home="History()"
       />
     </main>
   </div>

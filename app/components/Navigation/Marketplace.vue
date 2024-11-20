@@ -8,9 +8,10 @@ import bell from '@/assets/icons/notification-bing.svg'
 import nigeriaFlag from '@/assets/icons/nigeriaflag.svg'
 
 import { useGlobalStore } from '@/store'
-
+import { NotificationsController } from '~/services/modules/notificatons'
 // Initialize Variables
 const store = useGlobalStore()
+const { getUnreadNotifications, markAsRead } = NotificationsController()
 
 /* --------------------- Handles The Currency Drop Down -------------------- */
 
@@ -62,6 +63,47 @@ onMounted(() => {
       popUp.value.click()
     }
   }, 1000)
+})
+
+const UnreadNotifications = ref([])
+
+const fetchNotifications = async () => {
+  try {
+    const { status, data } = await getUnreadNotifications()
+    if (status.value === 'success') {
+      console.log('Unread notifications', data.value.data)
+      UnreadNotifications.value = data.value.data
+    }
+  }
+  catch (error) {
+    console.error('Error fetching notifications:', error)
+  }
+}
+
+const newNotificationAlert = ref(false)
+watch(UnreadNotifications, (newVal, oldVal) => {
+  if (newVal.length > 0) {
+    newNotificationAlert.value = true
+  }
+})
+const OpenNotification = async () => {
+  try {
+    const { status, data } = await markAsRead()
+    if (status.value === 'success') {
+      console.log(data.value.data)
+      await navigateTo('/notifications')
+    }
+  }
+  catch (error) {
+    console.error('Error fetching notifications:', error)
+  }
+}
+
+setInterval(() => {
+  // fetchNotifications()
+}, 20000000)
+onMounted(() => {
+  // fetchNotifications()
 })
 </script>
 
@@ -201,6 +243,11 @@ onMounted(() => {
                 :src="bell"
                 alt="heart icon"
               >
+              <span
+                v-if="newNotificationAlert"
+                class="bg-red-600 absolute top-0 right-0 w-2 h-2 transform translate-x-1/2 -translate-y-1/2 rounded-full"
+                aria-hidden="true"
+              />
             </button>
             <!-- Notification drop down -->
             <div
@@ -217,10 +264,11 @@ onMounted(() => {
                 >Clear</a>
               </div>
               <div
-                v-for="(items, index) in 5"
-                :key="index"
+                v-for="notification in UnreadNotifications"
+                :key="notification.id"
                 role="alert"
                 class="alert mb-3"
+                @click="OpenNotification"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -235,7 +283,11 @@ onMounted(() => {
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span class="text-sm">12 unread messages. Tap to see.</span>
+                <span class="text-sm"> {{ notification.data.title }} </span>
+                <a
+                  href="Javascript:void(0)"
+                  class="text-sm font-semibold text-red-600"
+                ><i>tap to see</i></a>
               </div>
             </div>
           </div>

@@ -14,11 +14,14 @@ export const useStore = defineStore('valmon_app_store', {
     viewSkills: false,
     viewProfileFromDashboard: false,
     serviceCategory: [],
+    userOnline: ref(false),
     UserAccount: null,
     // Services information used under skills page
     usersByServices: ref(null),
     usersByServiceCP: 1,
     userIdForProfileCheck: null,
+    // Hold selected Service
+    selectedService: null,
     // Add Listings
     listingData: reactive({
       listing_category_id: '',
@@ -43,7 +46,7 @@ export const useStore = defineStore('valmon_app_store', {
     newConversationDetails: reactive({
       recipient_id: null,
       service_id: null,
-    })
+    }),
   }),
   actions: {
     updateHeader(value) {
@@ -83,6 +86,17 @@ export const useStore = defineStore('valmon_app_store', {
       //   this.globalLoader = false
       // }
     },
+    // update new conversation details
+    updateNewConversationDetails(value) {
+      this.newConversationDetails.recipient_id = value.recipient_id
+      this.newConversationDetails.service_id = value.service_id
+    },
+
+    // Update the selected service from the Main Marketplace
+
+    updateSelectedService(service) {
+      this.selectedService = service
+    }
   },
 })
 

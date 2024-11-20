@@ -1,7 +1,7 @@
 <script setup>
-import slide_1 from '@/assets/images/UIElements/slide_1.jpg'
 import slide_2 from '@/assets/images/UIElements/slide_2.jpg'
 import { useGlobalStore } from '@/store'
+import User from '~/pages/user.vue'
 import { accountController } from '~/services/modules/account'
 
 const emits = defineEmits(['openTab'])
@@ -18,29 +18,12 @@ const ratings = [
 const viewAll = (tab) => {
   emits('openTab', tab)
 }
-const GalleryLoading = ref(false)
-const Gallery = ref([])
-const { getUserGallery } = accountController()
-const fetchGallery = async (id) => {
-  GalleryLoading.value = true
-  try {
-    const { status, data, error } = await getUserGallery(id)
-    if (status.value === 'success') {
-      GalleryLoading.value = data.value.data
-    }
-    if (status.value === 'error') {
-      handleError('error', error.value.data.message)
-    }
-  }
-  catch (error) {
-    handleError(error)
-  }
-  finally {
-    GalleryLoading.value = false
-  }
-}
 
-fetchGallery(store.userIdForProfileCheck)
+const props = defineProps({
+  type: String, // type is profile if from User dashboard
+  UserGallery: Array,
+  gigs: Array,
+})
 </script>
 
 <template>
@@ -51,11 +34,22 @@ fetchGallery(store.userIdForProfileCheck)
         <!-- header -->
         <div class="text-xl font-semibold flex justify-between mb-4 satoshiM">
           <h3>Images</h3>
-          <a class="link link-hover text-darkGold hover:decoration-darkGold" @click="viewAll('gallery')">View All</a>
+          <a
+            v-if="props.UserGallery && props.UserGallery.length > 0"
+            class="link link-hover text-darkGold hover:decoration-darkGold"
+            @click="viewAll('gallery')"
+          >View All</a>
         </div>
 
+        <SharedAvailable
+          v-if="!props.UserGallery || props.UserGallery.length === 0"
+          message="Gallery"
+        />
         <!-- CAROUSEL -->
-        <div class="relative">
+        <div
+          v-else
+          class="relative"
+        >
           <!-- indicators  -->
           <div class="absolute bg-white w-fit center p-2 z-20 rounded-full top-[40%] left-[-20px] shadow-lg">
             <svg
@@ -87,48 +81,12 @@ fetchGallery(store.userIdForProfileCheck)
           </div>
           <div class="carousel rounded-box min-w-5/6 h-[500px] gap-4 relative">
             <div
-              v-for="(item, index) in Gallery.slice(4)"
+              v-for="(item, index) in props?.UserGallery"
               :key="index"
-              class="carousel-item w-1/2"
+              class="carousel-item"
             >
               <img
                 :src="item.asset_url"
-                class="w-full"
-              >
-            </div>
-            <div class="carousel-item w-1/2">
-              <img
-                :src="slide_2"
-                class="w-full"
-              >
-            </div>
-            <div class="carousel-item w-1/2">
-              <img
-                src="https://img.daisyui.com/images/stock/photo-1572635148818-ef6fd45eb394.webp"
-                class="w-full"
-              >
-            </div>
-            <div class="carousel-item w-1/2">
-              <img
-                src="https://img.daisyui.com/images/stock/photo-1494253109108-2e30c049369b.webp"
-                class="w-full"
-              >
-            </div>
-            <div class="carousel-item w-1/2">
-              <img
-                src="https://img.daisyui.com/images/stock/photo-1550258987-190a2d41a8ba.webp"
-                class="w-full"
-              >
-            </div>
-            <div class="carousel-item w-1/2">
-              <img
-                src="https://img.daisyui.com/images/stock/photo-1559181567-c3190ca9959b.webp"
-                class="w-full"
-              >
-            </div>
-            <div class="carousel-item w-1/2">
-              <img
-                src="https://img.daisyui.com/images/stock/photo-1601004890684-d8cbf643f5f2.webp"
                 class="w-full"
               >
             </div>
@@ -137,41 +95,63 @@ fetchGallery(store.userIdForProfileCheck)
       </div>
     </div>
 
-    <!-- Services -->
+    <!-- GIGS-->
     <section>
       <div class="card card-compact bg-base-100 shadow-xl px-6 py-4 mb-6">
         <!-- header -->
         <div class="text-xl font-semibold flex justify-between mb-4 satoshiM">
-          <h3>Services</h3>
-          <a class="link link-hover text-darkGold hover:decoration-darkGold"  @click="viewAll('service')">View All</a>
+          <h3>Gigs</h3>
+          <a
+            v-if="props.gigs && props.gigs.length > 0"
+            class="link link-hover text-darkGold hover:decoration-darkGold"
+            @click="viewAll('service')"
+          >View All</a>
         </div>
-
-        <div class="card-body">
+        <SharedAvailable
+          v-if="!props.gigs || props.gigs.length === 0"
+          message="Gigs"
+        />
+        <div
+          v-else
+          class="card-body"
+        >
           <!-- row -->
           <div
-            v-for="(items, index) in 3"
+            v-for="(item, index) in props.gigs"
             :key="index"
-            role="alert"
-            class="alert bg-white border-2 text-base text-[rgba(0,0,0,1)] flex justify-between items-center mb-4"
+            className=" rounded-lg overflow-hidden mb-3 border-gray-200 border"
           >
-            <span class="font-bold">Tailoring</span>
-            <span class="">
-              <span>Title</span>
-              <span class="font-bold ms-3">Male Suit Top</span>
-            </span>
+            <div
 
-            <span>
-              <span>Pricing Type</span>
-              <span class="font-bold marker ms-3">Per Unit</span>
-            </span>
-            <span>
-              <span>Price</span>
-              <span class="font-bold ms-3">NGN 14000</span>
-            </span>
-            <a
-              href="javascript:void(0)"
-              class="font-black text-darkGold"
-            >Hire</a>
+              className="px-6 py-4 flex items-center gap-6"
+            >
+              <div className="font-bold text-xl mb-2 w-1/6">
+                {{ item.title }}
+              </div>
+              <div class="flex-1">
+                <div className="px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
+                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    <span>Title</span> <span class="satoshiM inline-block ml-2"> {{ item.title }}</span>
+                  </span>
+                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    <span>Pricing Type</span> <span class="satoshiM inline-block ml-2">{{ item.pricing_type }}</span>
+                  </span>
+                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    <span>Price</span> <span class="satoshiM inline-block ml-2">NGN {{ item.price }}</span>
+                  </span>
+                </div>
+                <p className="text-gray-700 text-base ">
+                  {{ item.description }}
+                </p>
+              </div>
+              <div class="">
+                <a
+                  href="javascript:void(0)"
+                  class="text-darkGold text-base font-semibold block mb-5 satoshiM"
+                  @click="EditService(index)"
+                >Hire</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -183,7 +163,10 @@ fetchGallery(store.userIdForProfileCheck)
         <!-- header -->
         <div class="text-xl font-semibold flex justify-between mb-4 satoshiM">
           <h3>Reviews</h3>
-          <a class="link link-hover text-darkGold hover:decoration-darkGold"  @click="viewAll('review')">View All</a>
+          <a
+            class="link link-hover text-darkGold hover:decoration-darkGold"
+            @click="viewAll('review')"
+          >View All</a>
         </div>
 
         <div class="card-body flex-row gap-5">
