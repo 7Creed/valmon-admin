@@ -22,6 +22,7 @@ const openContact = (userId, serviceId) => {
     recipient_id: userId,
     service_id: serviceId,
   })
+  
   updateContactView()
 }
 </script>
@@ -80,7 +81,7 @@ const openContact = (userId, serviceId) => {
           class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
           @click="openContact(item.user.id, item.primary_service.id)"
         >
-          Contact 
+          Contact
         </button>
         <button
           class="btn btn-neutral flex-1 rounded-2xl border-2"

@@ -2,7 +2,19 @@
 const props = defineProps({
   headerTitle: String,
   type: String,
+  listData: Array,
 })
+
+const viewMore = async (id, name) => {
+  console.log(id, name)
+  await navigateTo({
+    path: 'product',
+    query: {
+      name,
+      id,
+    },
+  })
+}
 </script>
 
 <template>
@@ -12,14 +24,16 @@ const props = defineProps({
         :class="[props.type === 'electronics' ? 'text-white': 'text-black']"
       >{{ props.headerTitle }}</span>
       <a
+        v-show="props?.listData.length !== 0 && props?.listData && props?.headerTitle !== 'Featured Listings'"
         href="javascript:void(0)"
         class="text-darkGold mr-[15rem]"
+        @click="viewMore(props?.listData[0].category.id, props?.listData[0].category.name)"
       >View More</a>
     </h1>
     <div class="flex flex-wrap gap-8">
       <MarketPlaceEmployerMarket
-        v-for="(items, index) in 5"
-        :key="index"
+        :type="props.type"
+        :other-listings="props.listData"
       />
     </div>
   </div>

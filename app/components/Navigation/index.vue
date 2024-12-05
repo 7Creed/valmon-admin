@@ -96,10 +96,10 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
                 aria-current="page"
               >Explore Skills</a>
-              <a
-                href="#"
+              <NuxtLink
+                to="/marketplace"
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
-              >MarketPlace</a>
+              >MarketPlace</NuxtLink>
               <NuxtLink
                 to="/login"
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"

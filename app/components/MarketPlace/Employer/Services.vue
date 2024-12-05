@@ -24,6 +24,15 @@ const displayGigs = computed(() => {
     return store?.UserAccount?.profile?.gigs
   }
 })
+const hire = (item) => {
+  console.log(item)
+  store.updateNewConversationDetails({
+    recipient_id: store.userIdForProfileCheck,
+    service_id: item.service.id,
+  })
+  store.updateGig(item.title, item.price)
+  navigateTo('/chat')
+}
 </script>
 
 <template>
@@ -62,17 +71,29 @@ const displayGigs = computed(() => {
                   {{ item.description }}
                 </p>
               </div>
-              <div v-show="!props.type === 'profile'" class="">
-                <a
-                  href="javascript:void(0)"
-                  class="text-darkGold text-sm font-semibold block mb-5"
-                  @click="EditService(index)"
-                >Edit</a>
-                <a
-                  href="javascript:void(0)"
-                  class="text-red-600 text-sm font-semibold block"
-                  @click="deleteService(index)"
-                >Delete</a>
+              <div class="">
+                <div v-if="!props.type === 'profile'">
+                  <a
+                    href="javascript:void(0)"
+                    class="text-darkGold text-sm font-semibold block mb-5"
+                    @click="EditService(index)"
+                  >Edit</a>
+                  <a
+                    href="javascript:void(0)"
+                    class="text-red-600 text-sm font-semibold block"
+                    @click="deleteService(index)"
+                  >Delete</a>
+                </div>
+                <div
+                  v-else
+                  class=""
+                >
+                  <a
+                    href="javascript:void(0)"
+                    class="text-darkGold text-base font-semibold block mb-5 satoshiM"
+                    @click="hire(item)"
+                  >Hire</a>
+                </div>
               </div>
             </div>
           </div>

@@ -4,11 +4,35 @@ import { accountController } from '~/services/modules/account'
 
 const { userAccount } = accountController()
 
+// Define which state properties should be persisted
+const PERSISTED_KEYS = {
+  // Should persist across sessions
+  session: [
+    'UserAccount',
+    'listingId',
+    'userIdForProfileCheck',
+    'recipientObjNegotiation',
+    'activeHeaderTab',
+    'listingData'
+  ],
+  // Should clear on component unmount
+  component: [
+    'usersByServices',
+    'usersByServiceCP',
+    'recipientObjNegotiation'
+  ],
+  // Should clear on logout
+  auth: [
+    'UserAccount',
+    'userIdForProfileCheck',
+    'listingId',
+  ],
+}
+
 export const useStore = defineStore('valmon_app_store', {
   state: () => ({
     isEmployer: false,
     isEmployee: true,
-    marketPlaceHeaderTab: '',
     activeSideMenu: 'summary',
     viewParentSubCategory: false,
     viewSkills: false,
@@ -46,7 +70,15 @@ export const useStore = defineStore('valmon_app_store', {
     newConversationDetails: reactive({
       recipient_id: null,
       service_id: null,
+      listing_id: null,
+      gig: null,
     }),
+    listingId: null,
+    marketPlaceTab: false,
+    similarListing: false,
+
+    // Add recipientObjNegotiation to state
+    recipientObjNegotiation: null,
   }),
   actions: {
     updateHeader(value) {
@@ -54,15 +86,28 @@ export const useStore = defineStore('valmon_app_store', {
     },
     // function to save the state to the local storage
     saveState() {
-      console.log('save_sate')
-      localStorage.setItem('valmon', JSON.stringify(this.$state))
+      const stateToPersist = {}
+      // Combine all keys from different categories
+      Object.values(PERSISTED_KEYS).flat().forEach((key) => {
+        if (this[key] !== undefined) {
+          stateToPersist[key] = this[key]
+        }
+      })
+      localStorage.setItem('valmon', JSON.stringify(stateToPersist))
     },
-    // Retrieves the state form localStorage and update the state
+    // Retrieves the state from localStorage and update the state
     loadState() {
-      console.log('load_sate')
       const saved = localStorage.getItem('valmon')
       if (saved) {
-        this.$patch(JSON.parse(saved))
+        const parsedState = JSON.parse(saved)
+        // Only patch the properties we want to persist
+        const stateToPatch = {}
+        Object.values(PERSISTED_KEYS).flat().forEach((key) => {
+          if (parsedState[key] !== undefined) {
+            stateToPatch[key] = parsedState[key]
+          }
+        })
+        this.$patch(stateToPatch)
       }
     },
     // Fetch user acc
@@ -87,16 +132,64 @@ export const useStore = defineStore('valmon_app_store', {
       // }
     },
     // update new conversation details
-    updateNewConversationDetails(value) {
-      this.newConversationDetails.recipient_id = value.recipient_id
-      this.newConversationDetails.service_id = value.service_id
+    updateNewConversationDetails(RId, SId, LId) {
+      this.newConversationDetails.recipient_id = RId
+      this.newConversationDetails.service_id = SId
+      this.newConversationDetails.listing_id = LId
     },
 
     // Update the selected service from the Main Marketplace
 
     updateSelectedService(service) {
       this.selectedService = service
-    }
+    },
+    updateGig(title, price) {
+      this.newConversationDetails.gig = {
+        title,
+        price,
+      }
+    },
+    // Add method to clear specific state
+    clearState(key) {
+      if (key) {
+        if (this[key] === undefined) {
+          console.warn(`Attempting to clear non-existent state key: ${key}`)
+          return
+        }
+        const initialState = this.$state
+        this[key] = initialState[key]
+      } else {
+        this.$reset()
+      }
+      this.saveState()
+    },
+
+    // Clear state by category
+    clearStateByCategory(category) {
+      PERSISTED_KEYS[category].forEach((key) => {
+        this.clearState(key)
+      })
+    },
+
+    // Clear all non-persistent state
+    clearTemporaryState() {
+      const persistentKeys = new Set(PERSISTED_KEYS.session)
+      Object.keys(this.$state).forEach((key) => {
+        if (!persistentKeys.has(key)) {
+          this.clearState(key)
+        }
+      })
+    },
+
+    // Add method to clear persisted state
+    clearPersistedState() {
+      localStorage.removeItem('valmon')
+    },
+
+    // Add an action to update recipientObjNegotiation
+    updateRecipientObjNegotiation(data) {
+      this.recipientObjNegotiation = data
+    },
   },
 })
 

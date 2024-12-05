@@ -1,14 +1,156 @@
 <script setup>
 import masterCard from '@/assets/images/UIElements/masterCard.png'
+
+import { useGlobalStore } from '@/store'
+import { WalletController } from '~/services/modules/wallet'
+import { MiscController } from '~/services/modules/misc'
+
+const { withdraw, withdrawOtp } = WalletController()
+const { getBanks } = MiscController()
+
+const store = useGlobalStore()
+
+const Tab = ref('wallet')
+const toggleTab = (tab) => {
+  Tab.value = tab
+}
+
+const banks = ref([])
+
+const fetchBanks = async () => {
+  const { status, data, error } = await getBanks()
+
+  if (status.value === 'success') {
+    console.log('banks', data.value)
+  
+    banks.value = data.value.data
+  }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
+}
+
+fetchBanks()
+
+// Withdrawal Otp
+
+const withdrawalOtp = async () => {
+  const { status, data, error } = await withdrawOtp()
+
+  if (status.value === 'success') {
+    console.log('banks', data.value)
+  }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
+}
+
+const paymentInfo = reactive({
+  otp: '',
+  amount: '',
+  account_number: '',
+  bank: '',
+})
+
+const WithdrawToBank = async () => {
+  const isFilled = (Object.values(paymentInfo).every(e => e !== ''))
+
+  if (!isFilled) return
+
+  const formdata = new FormData()
+  formdata.append('otp', paymentInfo.otp)
+  formdata.append('amount', paymentInfo.amount)
+  formdata.append('account_number', paymentInfo.account_number)
+  formdata.append('bank', paymentInfo.bank)
+
+  console.log(paymentInfo)
+  const { status, data, error } = await withdraw(formdata)
+
+  if (status.value === 'success') {
+    console.log('banks', data.value)
+    handleALert('success', 'Withdrawal success')
+    // banks.value = data.value.data
+  }
+  if (status.value === 'error') {
+    handleALert('error', error.value.data.message)
+    console.log(error.value)
+  }
+}
 </script>
 
 <template>
   <div class="card card-compact bg-base-100 w-2/4 shadow-xl p-5">
     <div class="card-body p-2">
+      <label class="form-control w-full mb-3">
+        <div class="label">
+          <span class="label-text">OTP</span>
+        </div>
+        <input
+          v-model="paymentInfo.otp"
+          type="text"
+          placeholder="Type here"
+          class="input input-bordered w-full "
+        >
+        <button
+          class="label-text underline w-fit ms-auto satoshiM"
+          @click=" withdrawalOtp"
+        >Get OTP</button>
+
+      </label>
+
+      <label class="form-control w-full mb-3">
+        <div class="label">
+          <span class="label-text">Amount</span>
+        </div>
+        <input
+          v-model="paymentInfo.amount"
+          type="text"
+          placeholder="Type here"
+          class="input input-bordered w-full "
+        >
+      </label>
+
+      <label class="form-control w-full mb-3">
+        <div class="label">
+          <span class="label-text">Account Number</span>
+        </div>
+        <input
+          v-model="paymentInfo.account_number"
+
+          type="text"
+          placeholder="Type here"
+          class="input input-bordered w-full "
+        >
+      </label>
+      <label class="form-control w-full mb-3">
+        <div class="label">
+          <span class="label-text">Bank</span>
+        </div>
+
+        <select
+          v-model="paymentInfo.bank"
+          class="select select-bordered w-full "
+        >
+          <option
+            v-for="bank in banks"
+            :key="bank.id"
+            :value="bank.slug"
+          >{{ bank.name }}</option>
+
+        </select>
+      </label>
+      <button
+        class="btn btn-neutral bg-black text-white w-full"
+        @click="WithdrawToBank"
+      >
+        Withdraw
+      </button>
+
+      <!-- Not in use -->
       <button
         v-for="(item, index) in 3"
         :key="index"
-        class="btn btn-block mb-3"
+        class="btn btn-block mb-3 hidden"
         onclick="my_modal_1.showModal()"
       >
         <span class="flex flex-row justify-between w-full items-center">
@@ -22,7 +164,7 @@ import masterCard from '@/assets/images/UIElements/masterCard.png'
         </span>
       </button>
       <button
-        class="btn mb-3 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full mx-auto"
+        class="btn mb-3 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full mx-auto hidden"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -124,7 +266,7 @@ import masterCard from '@/assets/images/UIElements/masterCard.png'
         </button>
       </div>
       <!-- card -->
-       
+
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->

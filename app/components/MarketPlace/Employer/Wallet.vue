@@ -1,77 +1,125 @@
 <script setup>
 import { useGlobalStore } from '@/store'
+import { WalletController } from '~/services/modules/wallet'
 
 const store = useGlobalStore()
+const { getWallet, getWalletSummary, getWalletTxn } = WalletController()
+
+// Wallet Summary
+const WSLoader = ref(false)
+const WalletSummaryData = ref({})
+
+// get Wallet Txns
+const walletTxn = ref([])
+const walletTxnData = ref([])
+const walletTxnLoader = ref(false)
+
+// Wallet api management
+const WalletApi = async (func, loader) => {
+  loader.value = true
+  const { status, data, error } = await func()
+
+  if (status.value === 'success') {
+    console.log(func.name, data.value.data)
+    switch (func.name) {
+      case 'getWalletSummary':
+        WalletSummaryData.value = data.value.data
+        break
+      case 'getWalletTxn':
+        walletTxn.value = data.value.data
+        walletTxnData.value = data.value.data.data
+        break
+      default:
+        break
+    }
+  }
+  if (status.value === 'error') {
+    loader.value = false
+    console.log(error.value)
+  }
+}
+
+// Wallet Summary
+const walletSummary = () => {
+  WalletApi(getWalletSummary, WSLoader)
+}
+walletSummary()
+
+// get Wallet Txn
+const walletTransactions = () => {
+  WalletApi(getWalletTxn, walletTxnLoader)
+}
+walletTransactions()
 </script>
 
 <template>
   <div class="flex gap-10 items-center mb-10">
     <div
-      v-if="store.isEmployee"
-      class="card card-compact bg-base-100 w-64 shadow-xl"
+      v-if="store.UserAccount.account_type ==='worker'"
+      class="card card-compact bg-base-100 w-64  min-h-[9.5rem] shadow-xl"
     >
       <div class="card-body">
         <h2 class="card-title text-sm">
           Balance
         </h2>
         <p class="text-3xl text-darkGold satoshiB">
-          $4,945.55
+          NGN {{ WalletSummaryData.balance }}
         </p>
       </div>
     </div>
 
     <div
-      v-if="store.isEmployee"
-      class="card card-compact bg-base-100 w-64 shadow-xl"
+      v-if="store.UserAccount.account_type ==='worker'"
+      class="card card-compact bg-base-100 w-64 min-h-[9.5rem] shadow-xl"
     >
       <div class="card-body">
         <h2 class="card-title text-sm">
           Income
         </h2>
         <p class="text-3xl text-green-600 satoshiB">
-          $9,945.55
+          NGN {{ WalletSummaryData.income }}
         </p>
       </div>
     </div>
 
     <div
-      v-if="store.isEmployee"
-      class="card card-compact bg-base-100 w-64 shadow-xl"
+      v-if="store.UserAccount.account_type ==='worker'"
+      class="card card-compact bg-base-100 w-64 min-h-[9.5rem] shadow-xl"
     >
       <div class="card-body">
         <h2 class="card-title text-sm">
           Withdrawn
         </h2>
         <p class="text-3xl text-red-600 satoshiB">
-          $4,945.55
+          NGN {{ WalletSummaryData.withdrawals }}
         </p>
       </div>
     </div>
 
     <div
 
-      class="card card-compact bg-base-100 w-64 shadow-xl"
+      class="card card-compact bg-base-100 w-64 min-h-[9.5rem] shadow-xl"
     >
       <div class="card-body">
         <h2 class="card-title text-sm">
           Escrow Held
         </h2>
         <p class="text-3xl text-[#22292F] satoshiB">
-          $3,945.55
+          NGN {{ WalletSummaryData.escrow }}
         </p>
       </div>
     </div>
 
     <div
-      v-if="store.isEmployer"
-      class="card card-compact bg-base-100 w-64 shadow-xl"
+      v-if="store.UserAccount.account_type ==='employer'"
+      class="card card-compact bg-base-100 w-64 min-h-[9.5rem] shadow-xl"
     >
       <div class="card-body">
         <h2 class="card-title text-sm">
           Amount Spent
         </h2>
         <p class="text-3xl text-[#22292F] satoshiB">
-          $9,945.55
+          NGN {{ WalletSummaryData.amount_spent }}
         </p>
       </div>
     </div>
@@ -158,42 +206,20 @@ const store = useGlobalStore()
           </thead>
           <tbody>
             <!-- row 1 -->
-            <tr class="hover">
-              <th>1</th>
-              <td>23/ july/2024</td>
-              <td>NGN 454, 322</td>
-              <td>Payment</td>
-              <td class="text-[#FA3535] font-bold satoshiB">
-                Failed
-              </td>
-              <td>
-                <a href="javascript:void(0)">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    class="size-6"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </a>
-              </td>
-            </tr>
             <tr
-              v-for="(row, index) in 12 "
-              :key="index"
+              v-for="(item, index) in walletTxnData"
+              :key="item?.id"
               class="hover"
             >
               <th>{{ index + 1 }}</th>
-              <td>23/ july/2024</td>
-              <td>NGN 454, 322</td>
-              <td>Payment</td>
-              <td class="text-[#0CA408] font-bold satoshiB">
-                Success
+              <td>{{ item?.create_at }}</td>
+              <td>NGN {{ item?.amount }}</td>
+              <td>{{ item?.type }}</td>
+              <td
+                class="text-darkGold font-bold satoshiB"
+                :class="{ 'text-red-600': item?.status === 'success', 'text-green-600': item?.status === 'failed' }"
+              >
+                {{ item?.status }}
               </td>
               <td>
                 <a href="javascript:void(0)">

@@ -10,7 +10,7 @@ import { accountController } from '~/services/modules/account'
 import { useActiveView } from '@/composables/state'
 import { useGlobalStore } from '@/store'
 
-const { handleGeneralHistory } = useActiveView()
+const { handleGeneralHistory, state } = useActiveView()
 const store = useGlobalStore()
 const workerTab = ref('profile')
 const toggleTab = (tab) => {
@@ -22,21 +22,23 @@ const viewAll = (tab) => {
   workerTab.value = tab
 }
 
+onMounted(() => {
+  if (store.marketPlaceTab) {
+    workerTab.value = 'marketplace'
+  }
+})
 const History = () => {
   handleGeneralHistory()
   navigateTo('/home')
 }
 
-const { SingleUserAccount, singleGallery, singleListingCategory } = accountController()
+const { SingleUserAccount, singleGallery } = accountController()
 
 // Account
 const loading = ref(false)
 const userInfo = ref({})
 const gigs = ref([])
 // Listings
-
-const listingLoader = ref(false)
-const allListing = ref([])
 
 // Gallery
 const galleryLoader = ref(false)
@@ -99,10 +101,10 @@ FetchID(singleGallery, store.userIdForProfileCheck, galleryLoader)
 // })
 
 const selectedServiceId = ref(null)
-const selectServices = (id) => {
-  console.log(id)
+const selectedService = ref('')
+const selectServices = (id, name) => {
   selectedServiceId.value = id
-  console.log(selectedServiceId.value)
+  selectedService.value = name
 }
 
 const openChat = () => {
@@ -112,6 +114,48 @@ const openChat = () => {
   })
   navigateTo('/chat')
 }
+
+const openChatForListing = () => {
+  store.updateNewConversationDetails(store.userIdForProfileCheck, null, store.listingId)
+  navigateTo('/chat')
+}
+
+const isOnline = ref(false)
+
+const checkOnlineStatus = () => {
+  const lastSeen = new Date(lastSeenAt)
+  const now = new Date()
+  const diffInMinutes = (now - lastSeen) / (1000 * 60)
+  isOnline.value = diffInMinutes <= 30
+}
+// User Online Presence
+
+const userStatus = ref('') // Holds the user's status
+
+const PingUser = async () => {
+  console.log('Pinging user...')
+  const { data, error, status } = await ping()
+
+  if (status.value === 'success') {
+    userStatus.value = 'Online' // Update status to online
+    console.log('Ping successful:', data.value)
+  }
+  else if (status.value === 'error') {
+    userStatus.value = 'Offline' // Update status to offline
+    console.error('Ping failed:', error.value.data.message)
+  }
+}
+
+let interval
+
+onMounted(() => {
+  PingUser() // Initial call
+  interval = setInterval(PingUser, 30000) // Ping every 30 seconds
+})
+
+onUnmounted(() => {
+  clearInterval(interval) // Clean up
+})
 </script>
 
 <template>
@@ -387,7 +431,7 @@ const openChat = () => {
             <!-- Online Presence -->
             <div class="relative flex gap-2">
               <span>
-                <span v-if="store.userOnline">
+                <span class="hidden">
                   <svg
                     width="18"
                     height="18"
@@ -419,7 +463,7 @@ const openChat = () => {
                     />
                   </svg>
                 </span>
-                <span v-else>
+                <span>
                   <svg
                     width="18"
                     height="18"
@@ -454,15 +498,24 @@ const openChat = () => {
               </span>
               <span
                 class="text-sm font-bold text-green-500"
-                v-text="store.userOnline ? 'Online' : 'Offline'"
+                v-text="!store.userOnline ? 'Online' : 'Offline'"
               />
             </div>
 
             <!-- Footer -->
             <div class="card-actions justify-between gap-4">
               <button
+                v-if="!store.marketPlaceTab"
                 class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
-                onclick="my_modal_1.showModal()"
+              >
+                Contact
+              </button>
+
+              <!-- for listings -->
+              <button
+                v-else
+                class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
+                @click="openChatForListing"
               >
                 Contact
               </button>
@@ -555,7 +608,7 @@ const openChat = () => {
             type="radio"
             name="radio-1"
             class="radio"
-            @change="selectServices(service.service.id)"
+            @change="selectServices(service.service.id, service.service.name)"
           >
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ service.service.name }}</span>
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{ service.years_of_experience }}</span>
@@ -569,7 +622,7 @@ const openChat = () => {
         :outline="false"
         class="block w-full"
         @click="openChat()"
-              />
+      />
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->

@@ -4,7 +4,7 @@ import { useGlobalStore } from '@/store'
 
 import { chatController } from '@/services/modules/chat'
 
-const { createConversation, getConversation, getMessages, sendMessages, sendProposal, rejectProposal, acceptProposal, markAsRead } = chatController()
+const { createConversation, getConversation, getMessages, sendMessages, sendProposal, rejectProposal, acceptProposal, markAsRead, initiatePayment } = chatController()
 
 const props = defineProps({
   chatType: String,
@@ -18,12 +18,14 @@ const activeTab = ref('job')
 // Function to toggle  the tag
 const toggleTab = (tab) => {
   activeTab.value = tab
+  fetchConversation()
 }
 
 // Tag
 const activeTag = ref('all')
 const selectTag = (tag) => {
   activeTag.value = tag
+  conservationTab()
 }
 
 // Refs for buttons
@@ -59,11 +61,31 @@ const conversationLoader = ref(false)
 const defaultLoader = ref(false)
 const getMessagesLoader = ref(false)
 const proposalLoader = ref(false)
+const RejectProposalLoader = ref(false)
 const readLoader = ref(false)
-
+const initiatePaymentLoader = ref(false)
 const message = ref('')
 const allMessages = ref([])
 const conversations = ref([])
+const activeConversation = ref(null)
+
+/* ---------------------------- Get conversations --------------------------- */
+const conservationTab = () => {
+  if (conversations.value.length > 0) {
+    if (activeTag.value === 'all') {
+      activeConversation.value = conversations.value
+    }
+    else if (activeTag.value === 'unread') {
+      activeConversation.value = conversations.value.filter(conv => conv.unread_count > 0)
+    }
+    else {
+      activeConversation.value = conversations.value.filter(conv => conv.unread_count == 0)
+    }
+  }
+  else {
+    activeConversation.value = []
+  }
+}
 
 const selectedConversation = ref(null)
 const fetchConversation = async () => {
@@ -71,8 +93,19 @@ const fetchConversation = async () => {
     const { status, data, error } = await getConversation()
     if (status.value === 'success') {
       console.log('fetched convorsations->', data.value.data)
-      conversations.value = data.value.data
-      selectedConversation.value = data.value.data[0]
+      // Check if conversation falls under Job or marketplace or admin
+      const marketplace = data.value.data.filter(conv => conv.listing_id != null)
+      const job = data.value.data.filter(conv => conv.service_id != null)
+      // Set conversations
+      if (activeTab.value === 'job') {
+        console.log('job')
+        conversations.value = job
+      }
+      if (activeTab.value === 'marketPlace') {
+        console.log('marketplace')
+        conversations.value = marketplace
+      }
+      conservationTab()
     }
     if (status.value === 'error') {
       handleError('error', error.value.data.message)
@@ -82,7 +115,7 @@ const fetchConversation = async () => {
     handleError(error)
   }
 }
-
+// Render conversations
 const renderConversation = ({ user, recipient, user_id }) => {
   const realRecipient = user_id == store.UserAccount.id ? recipient : user
   return realRecipient
@@ -112,6 +145,9 @@ const chatApiWithParams = async (func, userData, id, loader) => {
     loader.value = false
   }
 }
+
+const proposalResponse = ref(null)
+
 const chatApiWithParam = async (func, userData, loader) => {
   loader.value = true
   try {
@@ -119,11 +155,35 @@ const chatApiWithParam = async (func, userData, loader) => {
     if (status.value === 'success') {
       console.log(` ${func.name}->`, data.value.data)
 
-      if (func.name === 'createConversation') {
-        fetchConversation()
-      }
-      if (func.name === 'getMessages') {
-        allMessages.value = data.value.data
+      switch (func.name) {
+        case 'createConversation':
+          fetchConversation()
+          break
+        case 'getMessages':
+          allMessages.value = data.value.data
+          fetchConversation()
+          break
+        case 'markAsRead':
+          fetchConversation()
+          break
+        case 'sendProposal':
+          // Get Messages
+          chatApiWithParam(getMessages, selectedConversation.value.id, getMessagesLoader)
+          break
+        case 'acceptProposal':
+          proposalResponse.value = data.value.data
+          console.log('DoneWorker', data.value.data)
+          if (store.UserAccount.account_type === 'employer') {
+            const paymentUrl = data.value.data.payment.data.authorization_url
+            reloadNuxtApp({
+              path: paymentUrl,
+              force: true,
+            })
+          }
+          else {
+            return
+          }
+          break
       }
     }
     if (status.value === 'error') {
@@ -140,8 +200,13 @@ const chatApiWithParam = async (func, userData, loader) => {
 
 // Handle sending Messages
 const sendMessage = () => {
+  if (message.value.trim() === '') {
+    console.error('Message cannot be empty or contain only whitespace characters.')
+    return
+  }
+
   const formData = new FormData()
-  formData.append('content', message.value)
+  formData.append('content', message.value.trim())
   formData.append('type', 'text')
   console.log(selectedConversation.value.id)
 
@@ -169,41 +234,44 @@ watch(selectedConversation, (newVal) => {
   if (newVal) chatApiWithParam(getMessages, newVal.id, getMessagesLoader)
 })
 
-// Last message
-const lastMessages = ref('')
+/* ---------------------------- FOR  NEGOTIATIONS --------------------------- */
+// Define reactive variables
+const latestOffer = ref(null)
+
+const latestOfferNegotiationId = ref(null)
 watch(allMessages, (newVal) => {
   if (newVal.length === 0) {
-    lastMessages.value = null
+    latestOffer.value = null
     return
   }
 
-  // Case 1: When message.user_id is not equal to store.UserAccount.id (real recipient) picks initiator last message
-  const recipientMessages = newVal.filter(message => message.type === 'text' && message.user_id != store.UserAccount.id)
+  // Filter negotiation messages
+  const recipientMessages = newVal.filter(message => message.type === 'negotiation' && message.user_id != store.UserAccount.id)
 
-  const recipientObj = recipientMessages[recipientMessages.length - 1]
+  // Get the latest negotiation messages
+  const recipientLatest = recipientMessages[recipientMessages.length - 1] || null
+  latestOfferNegotiationId.value = recipientLatest.negotiation_id || null
 
-  // Case 2: When message.user_id is equal to store.UserAccount.id (initiator) -> picks real recipient last message
-  const userMessages = newVal.filter(message => message.type === 'text' && message.user_id == store.UserAccount.id)
-  const userObj = userMessages[userMessages.length - 1]
+  // Debugging: Log latest negotiation messages
+  console.log('Recipient Last Negotiation Message:', recipientLatest, recipientMessages, recipientLatest.negotiation_id)
 
-  // Debugging: Log the last message objects
-  console.log('Recipient Last Message:', recipientMessages)
-  console.log('User Last Message:', userObj)
-
-  // Update lastMessages based on the available messages
-  if (recipientMessages.length && recipientObj) {
-    lastMessages.value = recipientObj.content
-  }
-  else if (userMessages.length && userObj) {
-    lastMessages.value = userObj.content
-  }
-  else {
-    lastMessages.value = null
-  }
+  // Update offers based on account type
+  latestOffer.value = recipientLatest?.negotiation?.price_offer || null
 })
 
 /* --------------------------- Handle Negotiations -------------------------- */
+
 const negotiationPrice = ref('')
+
+// calculate client charge
+const clientCharge = ref(0)
+watch(negotiationPrice, (newVal) => {
+  if (newVal) {
+    const serviceChargePercentage = 0.07
+    const serviceCharge = negotiationPrice.value - (newVal * serviceChargePercentage)
+    clientCharge.value = parseFloat(serviceCharge.toFixed(2))
+  }
+})
 
 const sendNewProposal = () => {
   chatApiWithParam(sendProposal, {
@@ -214,15 +282,29 @@ const sendNewProposal = () => {
 
 const rejectProposa = () => {
   chatApiWithParam(rejectProposal, {
-    negotiation_id: 1,
-  }, proposalLoader)
+    negotiation_id: latestOfferNegotiationId.value,
+  }, RejectProposalLoader)
 }
 
 const MarkAsRead = () => {
-  chatApiWithParam(markAsRead, {
-    conversation_id: selectedConversation.value.id,
+  console.log(selectedConversation.value.id)
+  chatApiWithParam(markAsRead, selectedConversation.value.id, readLoader)
+}
 
-  }, readLoader)
+// render chat time
+const getTimeDifference = timestamp => getTimeDiff(timestamp)
+
+const acceptNewProposal = () => {
+  chatApiWithParam(acceptProposal, {
+    negotiation_id: latestOfferNegotiationId.value,
+  }, proposalLoader)
+}
+
+// Initiate payment
+const InitiatePayment = () => {
+  chatApiWithParam(initiatePayment, {
+    negotiation_id: latestOfferNegotiationId.value,
+  }, initiatePaymentLoader)
 }
 </script>
 
@@ -357,7 +439,7 @@ const MarkAsRead = () => {
         <!-- Users -->
         <MarketPlaceEmployerJobs
           v-if="conversations.length > 0"
-          :UserC="conversations"
+          :UserC="activeConversation"
           :last-message="lastMessages"
           @open-chat="Chat($event)"
         />
@@ -404,7 +486,7 @@ const MarkAsRead = () => {
               v
               class="text-sm"
             >
-              {{ selectedConversation?.service.name }}
+              {{ selectedConversation?.service ? selectedConversation.service.name : selectedConversation?.listing.title }}
             </div>
           </div>
         </div>
@@ -429,11 +511,17 @@ const MarkAsRead = () => {
         <!-- Chat container -->
         <div class="h-96 overflow-auto">
           <!-- User A :chat-start UserB : chat-end -->
+          <p
+            v-if="allMessages.length === 0"
+            class="text-[#4A4A4E] text-sm text-center mt-5"
+          >
+            Start A Conversation
+          </p>
           <div
             v-for="(mesg, index) in allMessages"
             :key="mesg.id"
             class="chat  "
-            :class="mesg.user_id == store.UserAccount.id ? 'chat-start' : 'chat-end'"
+            :class="mesg.user_id == store.UserAccount.id ? 'chat-start flex' : 'chat-end'"
           >
             <div
               v-if="mesg.type === 'text'"
@@ -444,26 +532,21 @@ const MarkAsRead = () => {
               <div class="hidden text-darkGold text-xs satoshiB mt-2">
                 3 Replies
               </div>
-              <div class="hidden text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
-                <span class="text-darkGold ">Edited</span>
-                <span class="ms-auto">9:34 AM </span>
+              <div class=" text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
+                <span class="text-darkGold hidden">Edited</span>
+                <span class="ms-auto"> {{ getTimeDifference(mesg.created_at).time }} {{ getTimeDifference(mesg.created_at).amPm }}  </span>
                 <!-- Emoji -->
-                <span class="text-sm ml-2">😄</span>
+                <span class="text-sm ml-2 hidden">😄</span>
               </div>
             </div>
-          </div>
-          <!-- User A (SERVICE REQUEST) -->
-          <div
-            v-for="(mesg, index) in allMessages"
-            :key="mesg.id"
-          >
+            <!-- User A (SERVICE REQUEST) -->
             <div
               v-if="mesg.type === 'negotiation'"
-              class="chat chat-start"
+              class="chat chat-start w-full"
               :class="mesg.user_id == store.UserAccount.id ? 'chat-start' : 'chat-end'"
             >
               <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
-                Service Provider is Requesting
+                {{ mesg.user_id == store.UserAccount.id ? 'Client' : 'Service Provider' }} is Requesting
                 <div class="mt-2 satoshiB">
                   NGN {{ mesg.negotiation.price_offer }}
                 </div>
@@ -541,8 +624,23 @@ const MarkAsRead = () => {
     <!-- card 3 -->
     <div class="card bg-base-100 w-96 shadow-xl flex-2 h-fit pb-10">
       <div class="card-body">
-        <h2 class="card-title ">
-          Service Cost
+        <div v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">
+          <figure class="rounded-lg">
+            <img
+              :src="selectedConversation.listing.images[0]"
+              :alt="selectedConversation.listing.title"
+            >
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title">
+              {{ selectedConversation.listing.title }}
+            </h2>
+          </div>
+        </div>
+        <h2
+          class="card-title "
+        >
+          <span v-if="selectedConversation?.service_id"> Service Cost NGN {{ latestOffer }}</span>
         </h2>
         <div
           v-show="jobStatus === 'Completed'"
@@ -557,29 +655,33 @@ const MarkAsRead = () => {
           v-show="jobStatus === ''"
           class="form-control w-full max-w-xs mb-3"
         >
-          <div class="label">
-            <span
-              v-show="store.isEmployer"
-              class="label-text"
-            >Worker is asking for?</span>
-            <span
-              v-show="store.isEmployee"
-              class="label-text"
-            >Ask Client To Pay?</span>
-          </div>
-          <input
-            type="text"
-            placeholder="Type here"
-            class="input input-bordered w-full max-w-xs"
+          <div
+            class="label"
           >
+            <span
+              class="label-text"
+              v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is asking for?'"
+            />
+          </div>
+          <!-- Add for Gigs here -->
+          <div
+            v-if="selectedConversation?.listing_id"
+            class="input input-bordered w-full max-w-xs center"
+          >NGN {{ latestOffer ? latestOffer: selectedConversation.listing.price }}</div>
 
         </label>
+        <!-- accept proposal  -->
         <button
           v-if="jobStatus === ''"
-          class="btn bg-darkGold mb-3 text-white"
-          onclick="my_modal_1.showModal()"
+          id="start-payment-button"
+          :disabled="allMessages.length === 0"
+          type="button"
+          class="btn bg-darkGold mb-3 text-white w-full"
+          @click="acceptNewProposal"
         >
-          Accept & Hire
+          <span v-if="selectedConversation?.service_id">Accept & Hire</span>
+          <span v-if="selectedConversation?.listing_id">Accept & Buy</span>
+          <span v-if="allMessages.length === 0"> Accept & Hire</span>
         </button>
         <!-- Completed Button -->
         <button
@@ -589,10 +691,12 @@ const MarkAsRead = () => {
         >
           Completed
         </button>
+
         <button
-          v-show="jobStatus === ''"
+          v-if="jobStatus === '' "
           class="btn btn-neutral mb-3"
           onclick="my_modal_6.showModal()"
+          :disabled="allMessages.length === 0"
         >
           Negotiate Cost
         </button>
@@ -603,10 +707,10 @@ const MarkAsRead = () => {
           @click="rejectProposa"
         >
           <span
-            v-if="proposalLoader"
+            v-if="RejectProposalLoader"
             class="loading loading-spinner loading-md"
           />
-          <span v-else>{{ jobStatus === 'Completed' ? 'Report Worker' : '  Reject & Close Chat' }}</span>
+          <span v-else>{{ jobStatus === 'Completed' ? 'Report Worker' : '  Reject Offer' }}</span>
         </button>
       </div>
     </div>
@@ -672,7 +776,12 @@ const MarkAsRead = () => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button ref="selectCardBtn" />
+          <button
+            ref="selectCardBtn"
+            class="btn"
+          >
+            Close
+          </button>
         </form>
       </div>
     </div>
@@ -699,7 +808,7 @@ const MarkAsRead = () => {
             NGN 195,799
           </div>
         </div>
-        <button class="btn btn-block mb-3">
+        <button clasinitiatePaymentLoaders="btn btn-block mb-3">
           <span class="flex flex-row justify-between w-full items-center">
             <img
               :src="masterCard"
@@ -778,58 +887,6 @@ const MarkAsRead = () => {
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
           <button ref="otpBtn" />
-        </form>
-      </div>
-    </div>
-  </dialog>
-  <!-- Payment successful -->
-  <dialog
-    id="my_modal_4"
-    class="modal"
-  >
-    <div class="modal-box">
-      <div class="card-body p-2">
-        <h2 class="card-title text-black font-bold text-2xl text-center center">
-          Payment Success
-        </h2>
-
-        <p
-          v-show="store.isEmployer"
-          class=" text-black mb-3"
-        >
-          Payment was successful, worker would be paid
-          once you mark job as completed
-        </p>
-        <p
-          v-show="store.isEmployee"
-          class=" text-black mb-3"
-        >
-          Client has paid for this service, mark job as completed when done
-          to receive payment
-        </p>
-      </div>
-      <button
-        v-show="store.isEmployer"
-        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-        @click="completed"
-      >
-        Done
-      </button>
-      <button
-        v-show="store.isEmployee"
-        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-        onclick="my_modal_8.showModal()"
-      >
-        Done
-      </button>
-      <div class="modal-action w-full">
-        <form
-          method="dialog"
-          class="w-full"
-        >
-          <!-- if there is a button in form, it will close the modal -->
-
-          <button ref="paymentSuccessBtn" />
         </form>
       </div>
     </div>
@@ -962,7 +1019,7 @@ const MarkAsRead = () => {
             >Ask Client To Pay</span>
           </div>
           <input
-            v-model="negotiationPrice"
+            v-model.number="negotiationPrice"
             type="text"
             class="input input-bordered w-full"
           >
@@ -972,10 +1029,10 @@ const MarkAsRead = () => {
           class="text-center"
         >
           <p class="mb-3">
-            Valmon Service charge: 8%
+            Valmon Service charge: 7%
           </p>
           <p class="mb-3">
-            You Get <span class="font-extrabold"> NGN 47,000</span>
+            You Get <span class="font-extrabold"> NGN {{ clientCharge }}</span>
           </p>
         </div>
 

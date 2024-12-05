@@ -4,7 +4,6 @@ export const useActiveView = () => {
     isProfileEnabled: false,
     isContactEnabled: false,
     isProfileName: '',
-    chatId: '',
     GeneralHistory: false,
   }))
 
@@ -22,13 +21,6 @@ export const useActiveView = () => {
     // navigate to contact/chat page
     navigateTo('/chat')
   }
-
-  // Open Chat from marketPlace
-  const setMarketPlaceChatId = (id) => {
-    state.value.chatId = id
-    console.log(id)
-  }
-
   // Handle General History
   const handleGeneralHistory = () => {
     state.value.GeneralHistory = !state.value.GeneralHistory
@@ -38,7 +30,6 @@ export const useActiveView = () => {
     state,
     updateProfileView,
     updateContactView,
-    setMarketPlaceChatId,
-    handleGeneralHistory
+    handleGeneralHistory,
   }
 }

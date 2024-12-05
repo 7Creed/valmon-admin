@@ -1,6 +1,7 @@
 <script setup>
 import { accountController } from '~/services/modules/account'
 import { MiscController } from '~/services/modules/misc'
+
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
 const addresses = {
@@ -99,7 +100,7 @@ fetchCountries()
         />
         <BaseButton
           :disabled="buttonNext === 'Verify'"
-     
+
           title="Next"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
@@ -136,11 +137,11 @@ fetchCountries()
               v-model="addresses.addresses[0].country"
               class="select select-bordered"
             >
-            <option
-              v-for="country in CountriesList"
-              :key="country.id"
-              :value="country.name"
-            >{{ country.name }}</option>
+              <option
+                v-for="country in CountriesList"
+                :key="country.id"
+                :value="country.name"
+              >{{ country.name }}</option>
 
             </select>
 
@@ -180,8 +181,8 @@ fetchCountries()
             text-color="rgba(255, 255, 255, 1)"
             :outline="false"
             class="block w-full mb-5 mt-4"
+            :loading="loading"
             @click="emitEvent('nextEvent')"
-                 :loading="loading"
           />
 
           <div class="modal-action h-0">

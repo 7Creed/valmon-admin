@@ -253,6 +253,7 @@ const editGig = (index) => {
       v-if="Tab === 'services'"
       @delete-service="deleteGig($event)"
       @edit-service="editGig($event)"
+      type="profile"
     />
   </div>
 

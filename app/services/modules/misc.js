@@ -7,7 +7,13 @@ export const MiscController = () => {
   // Users
   const getCountries = () => get(`/get/countries`)
 
+  const getBanks = () => get(`/get/banks`)
+  const getCurrencies = () => get(`/get/currencies`)
+
+
   return {
-    getCountries
+    getCountries,
+    getBanks,
+    getCurrencies,
   }
 }

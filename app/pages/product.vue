@@ -1,6 +1,5 @@
 <script setup>
-// import { useActiveView } from '@/composables/state'
-
+import { MarketplaceController } from '~/services/modules/marketplace'
 import { useGlobalStore } from '@/store'
 
 // const { state } = useActiveView()
@@ -8,13 +7,92 @@ import { useGlobalStore } from '@/store'
 definePageMeta({
   layout: 'market-place',
 })
+
 const store = useGlobalStore()
 
-// Handles the product information view
+// access product query param via route
 const view = ref('viewProduct')
+const route = useRoute()
+const selectedListingsCategoryId = ref(route.query.id)
+
+if (selectedListingsCategoryId.value) {
+  view.value = ''
+}
+else {
+  view.value = 'viewProduct'
+}
+// Handles the product information view
 function viewProduct(product) {
   view.value = product
 }
+
+const { getListingById, getAppListing } = MarketplaceController()
+// Handles the product information view
+const marketListings = ref([])
+const loader = ref(false)
+const fetchMPListingById = async (id) => {
+  loader.value = true
+  const { status, data, error } = await getListingById(id)
+  if (status.value === 'success') {
+    // console.log('product', data.value.data)
+    marketListings.value = data.value.data
+    loader.value = false
+  }
+  if (status.value === 'error') {
+    handleALert('error', error.value.data.message)
+    loader.value = false
+  }
+}
+
+fetchMPListingById(store.listingId)
+
+watch(() => store.listingId, (newVal) => {
+  if (newVal) {
+    console.log(newVal)
+    view.value = 'viewProduct'
+    fetchMPListingById(store.listingId)
+  }
+})
+// Get app listings
+const MPAppListings = ref([])
+const fetchAppListings = async (category) => {
+  const { status, data, error } = await getAppListing({ category })
+  if (status.value === 'success') {
+    console.log('MFLC', data.value.data)
+    if (data.value.data.length === 0 || !data.value.data) {
+      MFLCloader.value = false
+      return
+    }
+    else {
+      console.log('HereApp', data.value.data.data)
+      MPAppListings.value = data.value.data.data
+    }
+  }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
+}
+
+if (selectedListingsCategoryId.value) {
+  fetchAppListings(selectedListingsCategoryId.value)
+}
+
+// watch for route query changes and recall the api function
+watch(() => route.query.id, (newVal) => {
+  if (newVal) {
+    fetchAppListings(newVal)
+    view.value = ''
+  }
+  else {
+    view.value = 'viewProduct'
+  }
+})
+
+// filter 
+
+const filterOption = ref('')
+
+
 </script>
 
 <template>
@@ -55,9 +133,9 @@ function viewProduct(product) {
           <div class="flex flex-col justify-between  bg-white shadow-sm p-5">
             <input
               type="range"
-              min="0"
-              max="100"
-              value="40"
+              min="50000"
+              max="150000"
+              value=""
               class="range range-xs mb-3"
             >
             <p class="text-sm">
@@ -227,22 +305,24 @@ function viewProduct(product) {
         <!-- Component -->
         <div>
           <h1 class="mb-4 text-xl font-extrabold">
-            Cars
+            {{ route.query.name }}
           </h1>
           <div
-            v-if="store.marketPlaceHeaderTab === 'car'"
             class="flex flex-row flex-wrap gap-6"
           >
             <MarketPlaceEmployerMarket
-              v-for="(items, index) in 16"
-              :key="index"
+              type="featuredListings"
+              :other-listings="MPAppListings"
               @click="viewProduct('viewProduct')"
             />
           </div>
         </div>
       </div>
       <!-- PRODUCT VIEW -->
-      <MarketPlaceMarketProductInformation v-if="view === 'viewProduct'" />
+      <MarketPlaceMarketProductInformation
+        v-if="view === 'viewProduct'"
+        :products="marketListings"
+      />
     </div>
   </div>
 </template>

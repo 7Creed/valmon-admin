@@ -68,21 +68,22 @@ onMounted(() => {
   if (state.value.GeneralHistory) {
     activeComp.value = 'skills'
   }
-  
 })
 
 const PingUser = async () => {
   console.log('Hello there!')
   const { data, error, status } = await ping()
   if (status.value === 'success') {
-    store.userOnline = true
     console.log(data.value)
   }
   if (status.value === 'error') {
     console.log(error.value.data.message)
   }
 }
+
 PingUser()
+// Ping user at every 30secs
+setInterval(ping(), 30000)
 </script>
 
 <template>

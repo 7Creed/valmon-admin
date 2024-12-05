@@ -1,7 +1,7 @@
 <script setup>
 import archivedTick from '@/assets/icons/archive-tick.svg'
 import { accountController } from '~/services/modules/account'
-
+import { MarketplaceController } from '~/services/modules/marketplace'
 import { useGlobalStore } from '@/store'
 
 const store = useGlobalStore()
@@ -9,17 +9,18 @@ const store = useGlobalStore()
 const props = defineProps({
   listings: Boolean,
   type: String,
+  otherListings: Array, // similar Listings | selected Listings from main marketplace and product page
 })
-
 const { getListings, singleListingCategory } = accountController()
 
+// For Profile
 const marketListings = ref([])
 const loader = ref(false)
 const fetchListing = async () => {
   loader.value = true
   const { status, data, error } = await getListings()
   if (status.value === 'success') {
-    console.log(data.value.data)
+    // console.log(data.value.data)
     marketListings.value = data.value.data
     loader.value = false
   }
@@ -33,7 +34,7 @@ const fetchSingleListing = async (id) => {
   loader.value = true
   const { status, data, error } = await singleListingCategory(id)
   if (status.value === 'success') {
-    console.log(data.value.data)
+    // console.log(data.value.data)
     marketListings.value = data.value.data
     loader.value = false
   }
@@ -43,18 +44,47 @@ const fetchSingleListing = async (id) => {
   }
 }
 
-const callListing = () => {
-  if (props.type === 'profile') {
-    fetchSingleListing(store.userIdForProfileCheck)
-  }
-  else {
-    fetchListing()
+const callListing = async () => {
+  switch (props?.type) {
+    case 'profile':
+      fetchSingleListing(store.userIdForProfileCheck)
+      break
+    case 'featuredListings':
+      marketListings.value = props.otherListings
+      break
+    default:
+      fetchListing()
+      break
   }
 }
-
-onMounted(() => {
-  callListing()
+callListing()
+watch(props, (newVal) => {
+  if (newVal) callListing()
+}, {
+  deep: true,
 })
+
+// manage  product function
+
+const productCardFunction = (id) => {
+  // for opening chat for listing
+  if (store.marketPlaceTab) {
+    openChatForListing(id)
+  }
+  else {
+    openProduct(id)
+  }
+}
+const openChatForListing = (listingId) => {
+  store.updateNewConversationDetails(store.userIdForProfileCheck, null, listingId)
+  navigateTo('/chat')
+}
+const openProduct = (id) => {
+  navigateTo(`/product`)
+  store.$patch({
+    listingId: id,
+  })
+}
 </script>
 
 <template>
@@ -68,10 +98,10 @@ onMounted(() => {
       message="Listing"
     />
     <div
-
       v-for="(item, index) in marketListings"
       :key="item.id"
       class="card card-compact bg-base-100 w-80 shadow-xl"
+      @click="productCardFunction(item.id)"
     >
       <div class="absolute right-0 flex items-center gap-2">
         <a
@@ -165,7 +195,7 @@ onMounted(() => {
               <span class="text-black">{{ item.title }}</span>
             </div>
             <p class="mb-2 text-[#24242] font-semibold text-sm">
-              {{ item.description }}
+              {{ item.category.name }}
             </p>
 
             <div class="text-lg text-[#242424] satoshiM">
@@ -179,7 +209,8 @@ onMounted(() => {
 </template>
 
 <style>
-.tag, .archived {
+.tag,
+.archived {
   width: fit-content;
 }
 </style>

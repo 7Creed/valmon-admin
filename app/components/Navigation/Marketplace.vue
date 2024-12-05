@@ -9,8 +9,11 @@ import nigeriaFlag from '@/assets/icons/nigeriaflag.svg'
 
 import { useGlobalStore } from '@/store'
 import { NotificationsController } from '~/services/modules/notificatons'
+import { MiscController } from '~/services/modules/misc'
+
 // Initialize Variables
 const store = useGlobalStore()
+const { getCurrencies } = MiscController()
 const { getUnreadNotifications, markAsRead } = NotificationsController()
 
 /* --------------------- Handles The Currency Drop Down -------------------- */
@@ -26,28 +29,41 @@ const showDropDown = () => {
 
 // selecting currency
 // data;
-const currencies = [
-  { id: 1, name: 'NGN', img: nigeriaFlag },
-  { id: 2, name: 'EUR', img: nigeriaFlag },
-]
+const currencies = ref([])
 
 // Currency Selection
 const selectedCurrency = reactive({
-  id: 1,
-  name: 'NGN',
-  img: nigeriaFlag,
+  code: '',
+  id: null,
 })
 
 const selectCurrency = (id) => {
-  const selectedCurrencyData = currencies.find(currency => currency.id === id)
+  const selectedCurrencyData = currencies.value.find(currency => currency.id === id)
   // update the selectedCurrency Object
   selectedCurrency.id = selectedCurrencyData.id
-  selectedCurrency.name = selectedCurrencyData.name
-  selectedCurrency.img = selectedCurrencyData.img
+  selectedCurrency.code = selectedCurrencyData.code
   // call the toggle helper function
   toggle(dropDown)
 }
 
+const fetchCurrencies = async () => {
+  const { data, status, error } = await getCurrencies()
+  if (status.value === 'success') {
+    data.value.data.forEach((element) => {
+      const { id, code } = element
+      currencies.value.push({
+        id,
+        code,
+      })
+    })
+    selectedCurrency.code = data.value.data[0].code
+    selectedCurrency.id = data.value.data[0].id
+  }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
+}
+fetchCurrencies()
 // Handles Notification
 const notification = ref(false)
 const toggleNotification = () => {
@@ -299,7 +315,7 @@ onMounted(() => {
             >
               <button
                 type="button"
-                class="relative w-[7.2rem] cursor-default rounded-md bg-inherit py-1.5 pl-1.5 pr-5 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold sm:text-sm sm:leading-6"
+                class=" relative w-[5rem] cursor-default rounded-md bg-inherit py-1.5 pl-1.5 pr-5 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold sm:text-sm sm:leading-6"
                 aria-haspopup="listbox"
                 aria-expanded="true"
                 aria-labelledby="listbox-label"
@@ -309,9 +325,9 @@ onMounted(() => {
                   <img
                     :src="selectedCurrency.img"
                     alt=""
-                    class="h-6 w-6 flex-shrink-0 rounded-full"
+                    class="h-6 w-6 flex-shrink-0 rounded-full hidden"
                   >
-                  <span class="ml-2 block truncate text-brightGold">{{ selectedCurrency.name }}</span>
+                  <span class="ml-2 block truncate text-brightGold">{{ selectedCurrency.code }}</span>
                 </span>
                 <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
                   <svg
@@ -330,7 +346,6 @@ onMounted(() => {
                 </span>
               </button>
 
-              <!-- Select popover, show/hide based on select state.   -->
               <ul
                 v-show="dropDown"
                 class=" absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
@@ -345,21 +360,21 @@ onMounted(() => {
         Highlighted: "bg-indigo-600 text-white", Not Highlighted: "text-gray-900"
       -->
                 <li
-                  v-for="value in currencies"
+                  v-for="value in currencies "
                   id="listbox-option-0"
                   :key="value.id"
-                  class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900"
+                  class="relative cursor-default select-none py-2 pl-3 text-gray-900"
                   role="option"
                   @click="selectCurrency(value.id)"
                 >
-                  <div class="flex items-center">
+                  <div class="flex items-center w-full">
                     <img
                       :src="value.img"
                       alt=""
-                      class="h-5 w-5 flex-shrink-0 rounded-full"
+                      class="h-5 w-5 flex-shrink-0 rounded-full hidden"
                     >
                     <!-- Selected: "font-semibold", Not Selected: "font-normal" -->
-                    <span class="ml-3 block truncate font-normal">{{ value.name }}</span>
+                    <span class="ml-3 block truncate font-normal text-black w-full">{{ value.code }}</span>
                   </div>
 
                   <!--
@@ -369,7 +384,7 @@ onMounted(() => {
         -->
                   <span
                     v-if="value.id === selectedCurrency.id"
-                    class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600"
+                    class="absolute inset-y-0 right-[0px] flex items-center  text-indigo-600"
                   >
                     <svg
                       class="h-5 w-5"

@@ -3,11 +3,6 @@ import { useGlobalStore } from '@/store'
 import { accountController } from '~/services/modules/account'
 
 const store = useGlobalStore()
-const emits = defineEmits(['nextEvent1'])
-const addListingDataOne = reactive({
-  listing_category_id: '',
-  location: '',
-})
 
 const { getListingCategories } = accountController()
 const ListingCategories = ref([])
@@ -37,7 +32,7 @@ console.log(store.UserAccount.profile.addresses)
         <span class="text-xl text-red-600 satoshiB">*</span>
       </div>
       <select
-        v-model="addListingDataOne.listing_category_id"
+        v-model="store.listingData.listing_category_id"
         class="select select-bordered bg-[#EFEFEF]"
         required
       >
@@ -58,7 +53,7 @@ console.log(store.UserAccount.profile.addresses)
         <span class="text-xl text-red-600 satoshiB">*</span>
       </div>
       <select
-        v-model="addListingDataOne.location"
+        v-model="store.listingData.location"
 
         class="select select-bordered bg-[#EFEFEF]"
         required

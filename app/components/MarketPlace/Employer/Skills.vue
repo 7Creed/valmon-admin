@@ -1,6 +1,8 @@
 <script setup>
 import { servicesController } from '~/services/modules/services'
 import { useGlobalStore } from '~/store'
+import { MiscController } from '~/services/modules/misc'
+import { onUnmounted } from 'vue'
 
 const props = defineProps({
   page: {
@@ -12,19 +14,42 @@ const props = defineProps({
 const emit = defineEmits(['backHome'])
 
 const goBack = () => {
-  emit('backHome')
+  if (filter.value === true) {
+    filter.value = false
+  }
+  else {
+    emit('backHome')
+  }
 }
+
 // Handles tab
 
 const activeTab = ref('job')
 const toggleTab = (tab) => {
   activeTab.value = tab
 }
+
+// Handles Countries
+const { getCountries } = MiscController()
+
+const CountriesList = ref([])
+
+const fetchCountries = async () => {
+  const { data, error, status } = await getCountries()
+  if (status.value === 'success')
+    CountriesList.value = data.value.data
+  if (status.value === 'error')
+    console.log(error.value.data.message)
+}
+fetchCountries()
+
 // Handles Filter
 const filter = ref(false)
-const toggleFilter = () => {
-  filter.value = !filter.value
-}
+
+const filterOptions = reactive({
+  country: '',
+  rating: '',
+})
 
 const store = useGlobalStore()
 
@@ -33,10 +58,10 @@ const paginationInfo = ref({})
 const { getUserByService } = servicesController()
 
 const userByServices = ref([])
-const getUsersByServices = async (id, query) => {
+const getUsersByServices = async (id, query, location = '', rating = '') => {
   loading.value = true
   try {
-    const { status, data, error } = await getUserByService(id, query)
+    const { status, data, error } = await getUserByService(id, query, location, rating)
     if (status.value === 'success') {
       console.log(data.value.data)
       userByServices.value = data.value.data.results
@@ -53,6 +78,16 @@ const getUsersByServices = async (id, query) => {
   }
   finally {
     loading.value = false
+  }
+}
+
+const toggleFilter = () => {
+  if (!filter.value) {
+    filter.value = true
+  }
+  else {
+    // Calls the Api for the filtered data
+    getUsersByServices(store.usersByServices, store.usersByServiceCP, filterOptions.country, filterOptions.rating)
   }
 }
 
@@ -114,6 +149,13 @@ const handlePagination = (value) => {
 }
 
 handlePagination(store.usersByServiceCP)
+
+// Clear relevant state when component unmounts
+onUnmounted(() => {
+  store.clearState('usersByServices')
+  store.clearState('usersByServiceCP')
+  store.clearState('recipientObjNegotiation')
+})
 </script>
 
 <template>
@@ -131,10 +173,10 @@ handlePagination(store.usersByServiceCP)
             class="skill_header text-white"
           >
             <h2 class="text-lg font-semibold">
-             {{ props.skill }}
+              {{ props.skill }}
             </h2>
             <p class="text-sm">
-             {{ paginationInfo.total }} Registered
+              {{ paginationInfo.total }} Registered
             </p>
           </div>
           <div
@@ -257,7 +299,7 @@ handlePagination(store.usersByServiceCP)
             </div>
           </div>
           <!-- second column -->
-          <div class="">
+          <div class="hidden">
             <h3 class="text-white text-base font-semibold mb-2">
               Language
             </h3>
@@ -283,9 +325,10 @@ handlePagination(store.usersByServiceCP)
           </div>
           <!-- Third column -->
           <div class="">
+            <h3 class="text-white text-base font-semibold mb-2">
+              Country
+            </h3>
             <div
-              v-for="(items, index) in 2"
-              :key="index"
               class="flex items-center gap-6"
             >
               <div
@@ -298,8 +341,15 @@ handlePagination(store.usersByServiceCP)
                     checked="checked"
                     class="checkbox border-white"
                   >
-                  <select class="select select-bordered w-full max-w-xs">
-                    <option>Uyo</option>
+                  <select
+                    v-model="filterOptions.country"
+                    class="select select-bordered w-full max-w-xs "
+                  >
+                    <option
+                      v-for="country in CountriesList"
+                      :key="country.id"
+                      :value="country.name"
+                    >{{ country.name }}</option>
                   </select>
                 </label>
               </div>
