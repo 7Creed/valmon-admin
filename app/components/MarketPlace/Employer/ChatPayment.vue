@@ -1,10 +1,13 @@
 <script setup>
 import masterCard from '@/assets/images/UIElements/masterCard.png'
 import { useGlobalStore } from '@/store'
-
+import { accountController } from '~/services/modules/account'
 import { chatController } from '@/services/modules/chat'
+import { TicketController } from '~/services/modules/Admin/Tickets'
 
-const { createConversation, getConversation, getMessages, sendMessages, sendProposal, rejectProposal, acceptProposal, markAsRead, initiatePayment } = chatController()
+const { createConversation, getConversation, getMessages, sendMessages, sendProposal, rejectProposal, acceptProposal, markAsRead, initiatePayment, markAsDelivered, orderCompleted } = chatController()
+const { createReview, getReviews } = accountController()
+const { createTicket } = TicketController()
 
 const props = defineProps({
   chatType: String,
@@ -234,9 +237,35 @@ watch(selectedConversation, (newVal) => {
   if (newVal) chatApiWithParam(getMessages, newVal.id, getMessagesLoader)
 })
 
+// after payment successful redirect should open the active chat
+const route = useRoute()
+
+onMounted(() => {
+  if (route.query.id && conversations.value.length > 0) {
+    selectedConversation.value = conversations.value.find(conv => conv.id == route.query.id)
+    Chat(selectedConversation.value)
+  }
+})
+
+const conversationType = computed(() => {
+  if (selectedConversation.value?.service_id && store.UserAccount.account_type === 'employer') {
+    return 'employerService'
+  }
+  if (selectedConversation.value?.listing_id && store.UserAccount.account_type === 'employer') {
+    return 'employerListing'
+  }
+  if (selectedConversation.value?.service_id && store.UserAccount.account_type === 'worker') {
+    return 'workerService'
+  }
+  if (selectedConversation.value?.listing_id && store.UserAccount.account_type === 'worker') {
+    return 'workerListing'
+  }
+  return '' // Add default return value
+})
 /* ---------------------------- FOR  NEGOTIATIONS --------------------------- */
 // Define reactive variables
 const latestOffer = ref(null)
+const latestOfferUserId = ref(null)
 
 const latestOfferNegotiationId = ref(null)
 watch(allMessages, (newVal) => {
@@ -250,13 +279,15 @@ watch(allMessages, (newVal) => {
 
   // Get the latest negotiation messages
   const recipientLatest = recipientMessages[recipientMessages.length - 1] || null
-  latestOfferNegotiationId.value = recipientLatest.negotiation_id || null
+  latestOfferNegotiationId.value = recipientLatest ? recipientLatest.negotiation_id : null
 
   // Debugging: Log latest negotiation messages
-  console.log('Recipient Last Negotiation Message:', recipientLatest, recipientMessages, recipientLatest.negotiation_id)
+  console.log('Recipient Last Negotiation Message:', recipientLatest, recipientMessages, recipientLatest ? recipientLatest.negotiation_id : null)
 
   // Update offers based on account type
-  latestOffer.value = recipientLatest?.negotiation?.price_offer || null
+  latestOffer.value = recipientLatest ? recipientLatest.negotiation?.price_offer : null
+
+  latestOfferUserId.value = recipientLatest ? recipientLatest.user.id : null
 })
 
 /* --------------------------- Handle Negotiations -------------------------- */
@@ -305,6 +336,152 @@ const InitiatePayment = () => {
   chatApiWithParam(initiatePayment, {
     negotiation_id: latestOfferNegotiationId.value,
   }, initiatePaymentLoader)
+}
+
+const latestOrder = ref(null)
+watch(selectedConversation, (newVal) => {
+  if (newVal.orders && newVal.orders.length > 0) {
+    jobStatus.value = 'Completed'
+    latestOrder.value = newVal.orders[newVal.orders.length - 1]
+  }
+  else {
+    jobStatus.value = ''
+  }
+}, {
+  deep: true,
+})
+
+const _shippingStatus = computed(() => {
+  if (conversationType.value === 'employerListing') {
+    return latestOrder.value.shipping_status === 'delivered' ? 'Product Received' : 'Product Pending Shipping'
+  }
+  return conversationType.value === 'workerListing' && latestOrder.value.shipping_status === 'pending' ? 'Product Delivered' : 'Completed'
+})
+
+const review = ref(false)
+
+const submitReview = () => {
+  toggle(review)
+}
+
+const modal5 = ref(null)
+// mark as as delivered
+const orderLoading = ref(false)
+// v-if="_shippingStatus === 'Product Received' || _shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered'"
+
+const productDelivered = async (id) => {
+  review.value = true
+  orderLoading.value = true
+  try {
+    const { status, error } = await markAsDelivered(id)
+    if (status.value === 'success') {
+      modal5.value.click()
+      await fetchConversation()
+      return
+    }
+    handleError('error', error.value.data.message)
+  }
+  catch (err) {
+    handleError('error', err.message)
+  }
+  finally {
+    orderLoading.value = false
+  }
+}
+
+const ordersCompleted = async (id) => {
+  orderLoading.value = true
+  try {
+    const { status, error } = await orderCompleted(id)
+    if (status.value === 'success') {
+      await fetchConversation()
+      submitReview()
+      return
+    }
+    handleError('error', error.value.data.message)
+  }
+  catch (err) {
+    handleError('error', err.message)
+  }
+  finally {
+    orderLoading.value = false
+  }
+}
+
+const reviewData = reactive({
+  rating: 5,
+  content: '',
+})
+
+const reviewLoader = ref(false)
+const sendReviews = () => {
+  chatApiWithParams(createReview,
+    reviewData, latestOfferUserId.value, reviewLoader)
+}
+
+// selected Image url
+const draggedFile = ref(null)
+const Image = ref(null)
+
+function handleClick() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = ''
+  input.onchange = (e) => {
+    const file = (e.target).files?.[0]
+    if (file) {
+      Image.value = file
+      const imgUrl = URL.createObjectURL(file)
+      draggedFile.value = imgUrl
+    }
+  }
+  input.click()
+}
+
+const reportData = reactive({
+  user_id: store.UserAccount.id || null,
+  reported_id: latestOfferUserId.value || null,
+  reason: '',
+  order_id: null,
+  job_id: null,
+  description: '',
+})
+
+// Watch for changes in relevant values and update reportData accordingly
+watch([activeTab, selectedConversation], ([newTab, newConversation]) => {
+  if (newTab === 'marketPlace' && newConversation?.orders?.[0]) {
+    reportData.order_id = newConversation.orders[0].id
+    reportData.job_id = null
+  }
+  else if (newConversation?.job_id) {
+    reportData.job_id = newConversation.job_id
+    reportData.order_id = null
+  }
+})
+
+// Also watch latestOfferUserId to keep reported_id in sync
+watch(latestOfferUserId, (newUserId) => {
+  reportData.reported_id = newUserId || null
+})
+
+if (activeTab.value === 'marketPlace') {
+  reportData.order_id = selectedConversation.value?.orders[0].id
+}
+else {
+  reportData.job_id = selectedConversation.value?.job_id
+}
+
+const reportLoader = ref(false)
+const report = () => {
+  const formdata = new FormData()
+  formdata.append('image', Image.value)
+  formdata.append('user_id', reportData.user_id)
+  formdata.append('reported_id', reportData.reported_id)
+  formdata.append('reason', reportData.reason)
+  reportData.order_id ? formdata.append('order_id', reportData.order_id) : formdata.append('job_id', reportData.job_id)
+  formdata.append('description', reportData.description)
+
+  chatApiWithParam(createTicket, formdata, reportLoader)
 }
 </script>
 
@@ -446,10 +623,7 @@ const InitiatePayment = () => {
       </div>
     </div>
     <!-- card 2 -->
-    <div
-
-      class="card bg-base-100 w-96 shadow-xl flex-1"
-    >
+    <div class="card bg-base-100 w-96 shadow-xl flex-1">
       <div class="card-body">
         <!-- chat Header -->
         <div
@@ -460,7 +634,6 @@ const InitiatePayment = () => {
           <div class="avatar">
             <div class="w-14 rounded-full">
               <img
-
                 :src="renderConversation(selectedConversation).profile_pic"
                 :alt="renderConversation(selectedConversation).first_name"
               >
@@ -486,7 +659,8 @@ const InitiatePayment = () => {
               v
               class="text-sm"
             >
-              {{ selectedConversation?.service ? selectedConversation.service.name : selectedConversation?.listing.title }}
+              {{ selectedConversation?.service ? selectedConversation.service.name : selectedConversation?.listing.title
+              }}
             </div>
           </div>
         </div>
@@ -534,7 +708,8 @@ const InitiatePayment = () => {
               </div>
               <div class=" text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
                 <span class="text-darkGold hidden">Edited</span>
-                <span class="ms-auto"> {{ getTimeDifference(mesg.created_at).time }} {{ getTimeDifference(mesg.created_at).amPm }}  </span>
+                <span class="ms-auto"> {{ getTimeDifference(mesg.created_at).time }} {{
+                  getTimeDifference(mesg.created_at).amPm }} </span>
                 <!-- Emoji -->
                 <span class="text-sm ml-2 hidden">😄</span>
               </div>
@@ -542,7 +717,7 @@ const InitiatePayment = () => {
             <!-- User A (SERVICE REQUEST) -->
             <div
               v-if="mesg.type === 'negotiation'"
-              class="chat chat-start w-full"
+              class="chat chat-start w-full "
               :class="mesg.user_id == store.UserAccount.id ? 'chat-start' : 'chat-end'"
             >
               <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
@@ -637,9 +812,7 @@ const InitiatePayment = () => {
             </h2>
           </div>
         </div>
-        <h2
-          class="card-title "
-        >
+        <h2 class="card-title ">
           <span v-if="selectedConversation?.service_id"> Service Cost NGN {{ latestOffer }}</span>
         </h2>
         <div
@@ -648,16 +821,14 @@ const InitiatePayment = () => {
           class="alert block bg-[#F0F2F5] mb-3"
         >
           <div class="text-3xl text-black satoshiB">
-            NGN 195,799
+            NGN {{ latestOrder?.amount ?? 'N/A' }}
           </div>
         </div>
         <label
           v-show="jobStatus === ''"
           class="form-control w-full max-w-xs mb-3"
         >
-          <div
-            class="label"
-          >
+          <div class="label">
             <span
               class="label-text"
               v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is asking for?'"
@@ -667,7 +838,8 @@ const InitiatePayment = () => {
           <div
             v-if="selectedConversation?.listing_id"
             class="input input-bordered w-full max-w-xs center"
-          >NGN {{ latestOffer ? latestOffer: selectedConversation.listing.price }}</div>
+          >NGN {{
+            latestOffer ? latestOffer : selectedConversation.listing.price }}</div>
 
         </label>
         <!-- accept proposal  -->
@@ -679,311 +851,177 @@ const InitiatePayment = () => {
           class="btn bg-darkGold mb-3 text-white w-full"
           @click="acceptNewProposal"
         >
-          <span v-if="selectedConversation?.service_id">Accept & Hire</span>
-          <span v-if="selectedConversation?.listing_id">Accept & Buy</span>
-          <span v-if="allMessages.length === 0"> Accept & Hire</span>
+          <span>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
+            ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
+              === 'workerService' ? 'Accept & Hire' : 'Accept ' }}</span>
         </button>
-        <!-- Completed Button -->
-        <button
-          v-if="jobStatus === 'Completed'"
-          class="btn bg-darkGold mb-3 text-white"
-          onclick="my_modal_5.showModal()"
-        >
-          Completed
-        </button>
+        <!-- Completed Button for seller view -->
+        <div class="w-full center">
+          <button
+            v-if="jobStatus === 'Completed' && (_shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered')"
+            class="btn bg-darkGold mb-3 text-white w-full"
+            @click="productDelivered(latestOrder.id)"
+          >
+            <span
+              v-if="orderLoading"
+              class="loading loading-spinner loading-sm"
+            />
+            <span v-else>{{ _shippingStatus }}</span>
+          </button>
+          <!-- Modal trigger for when marked as delivered is successful  -->
+          <span
+            ref="modal5"
+            onclick="my_modal_5.showModal()"
+          />
+
+          <!-- For buyer view -->
+          <button
+            v-if="jobStatus === 'Completed' && (_shippingStatus === 'Product Received')"
+            class="btn bg-darkGold mb-3 text-white w-full"
+            onclick="my_modal_5.showModal()"
+            :disabled="_shippingStatus === 'Product Pending Shipping'"
+          >
+            <span
+              v-if="orderLoading && _shippingStatus !== 'Completed'"
+              class="loading loading-spinner loading-sm"
+            />
+            <span v-else>{{ _shippingStatus }}</span>
+          </button>
+        </div>
 
         <button
-          v-if="jobStatus === '' "
+          v-if="jobStatus === ''"
           class="btn btn-neutral mb-3"
           onclick="my_modal_6.showModal()"
           :disabled="allMessages.length === 0"
         >
           Negotiate Cost
         </button>
-        <!-- onclick="my_modal_7.showModal()" -->
-        <button
-          class="btn btn-outline btn-error"
-          type="button"
-          @click="rejectProposa"
-        >
-          <span
-            v-if="RejectProposalLoader"
-            class="loading loading-spinner loading-md"
-          />
-          <span v-else>{{ jobStatus === 'Completed' ? 'Report Worker' : '  Reject Offer' }}</span>
-        </button>
+
+        <!-- Reject offer or report -->
+        <div class="w-full">
+          <!-- Report -->
+          <button
+            v-if="jobStatus === 'Completed' || jobStatus === 'Rejected'"
+
+            class="btn btn-outline btn-error w-full"
+            type="button"
+            onclick="my_modal_7.showModal()"
+          >
+            <span v-if="activeTab === 'job'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Client' : 'Report Worker' }}</span>
+            <span v-if="activeTab === 'marketPlace'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Buyer' : 'Report Seller' }}</span>
+          </button>
+          <button
+            v-else
+            class="btn btn-outline btn-error w-full"
+            type="button"
+            @click="rejectProposa()"
+          >
+            <span
+              v-if="RejectProposalLoader"
+              class="loading loading-spinner loading-md"
+            />
+            <span v-else>Reject Offer</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
   <!-- Modal -->
-  <!-- Open the modal using ID.showModal() method -->
-  <dialog
-    id="my_modal_1"
-    class="modal"
-  >
-    <div class="modal-box">
-      <div class="card-body p-2">
-        <h2 class="card-title text-black font-bold text-2xl text-center center">
-          Select Card
-        </h2>
-        <div
-          role="alert"
-          class="alert block bg-[#F0F2F5] mb-3"
-        >
-          <div class="text-sm text-black mb-2">
-            Payment Amount.
-          </div>
-          <div class="text-3xl text-black satoshiB">
-            NGN 195,799
-          </div>
-        </div>
-        <button
-          v-for="(item, index) in 3"
-          :key="index"
-          class="btn btn-block mb-3"
-          onclick="my_modal_2.showModal()"
-        >
-          <span class="flex flex-row justify-between w-full items-center">
-            <img
-              :src="masterCard"
-              alt="Master Card"
-              class="w-[40px] h-[40px]"
-            >
-            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank xxxx68</span>
-            <span class="text-darkGold text-base font-bold  hover:text-brightGold">Select</span>
-          </span>
-        </button>
-
-        <button class="btn mb-3 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full mx-auto">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="rgba(118, 127, 140, 1)"
-            class="size-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-          </svg>
-
-          Add Payment Method
-        </button>
-      </div>
-      <div class="modal-action">
-        <form method="dialog">
-          <!-- if there is a button in form, it will close the modal -->
-          <button
-            ref="selectCardBtn"
-            class="btn"
-          >
-            Close
-          </button>
-        </form>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- Payment -->
-  <dialog
-    id="my_modal_2"
-    class="modal"
-  >
-    <div class="modal-box">
-      <div class="card-body p-2">
-        <h2 class="card-title text-black font-bold text-2xl text-center center">
-          Payment
-        </h2>
-        <div
-          role="alert"
-          class="alert block bg-[#F0F2F5] mb-3"
-        >
-          <div class="text-sm text-black mb-2">
-            Payment Amount.
-          </div>
-          <div class="text-3xl text-black satoshiB">
-            NGN 195,799
-          </div>
-        </div>
-        <button clasinitiatePaymentLoaders="btn btn-block mb-3">
-          <span class="flex flex-row justify-between w-full items-center">
-            <img
-              :src="masterCard"
-              alt="Master Card"
-              class="w-[40px] h-[40px]"
-            >
-            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank xxxx68</span>
-            <span class="text-darkGold text-base font-bold  hover:text-brightGold">Select</span>
-          </span>
-        </button>
-        <label class="form-control w-full mb-2">
-          <div class="label">
-            <span class="label-text">Password</span>
-          </div>
-          <input
-            type="password"
-            class="input input-bordered w-full"
-          >
-        </label>
-        <button
-          class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-          onclick="my_modal_3.showModal()"
-        >
-          Confirm
-        </button>
-      </div>
-      <div class="modal-action">
-        <form method="dialog">
-          <button ref="paymentBtn" />
-        </form>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- OTP -->
-  <dialog
-    id="my_modal_3"
-    class="modal"
-  >
-    <div class="modal-box">
-      <div class="card-body p-2">
-        <h2 class="card-title text-black font-bold text-2xl text-center center">
-          OTP
-        </h2>
-        <div
-          role="alert"
-          class="alert block bg-[#F0F2F5] mb-3"
-        >
-          <div class="text-sm text-black mb-2">
-            Payment Amount.
-          </div>
-          <div class="text-3xl text-black satoshiB">
-            NGN 195,799
-          </div>
-        </div>
-        <p class="text-sm text-black mb-3">
-          Enter OTP Sent To Favo****@gmail.com
-        </p>
-        <label class="form-control w-full mb-2">
-          <div class="label">
-            <span class="label-text">OTP</span>
-          </div>
-          <input
-            type="text"
-            class="input input-bordered w-full"
-          >
-        </label>
-        <button
-          class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-          onclick="my_modal_4.showModal()"
-        >
-          Complete Payment
-        </button>
-      </div>
-      <div class="modal-action">
-        <form method="dialog">
-          <!-- if there is a button in form, it will close the modal -->
-          <button ref="otpBtn" />
-        </form>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- Await Confirmation  for worker flow -->
-  <dialog
-    v-show="store.isEmployee"
-    id="my_modal_8"
-    class="modal"
-  >
-    <div class="modal-box">
-      <div class="card-body p-2">
-        <h2 class="card-title text-black font-bold text-2xl text-center center">
-          Awaiting Confirmation
-        </h2>
-
-        <p class=" text-black mb-3">
-          You have marked this job as completed, please wait for client to
-          confirm completion so you can be paid
-        </p>
-      </div>
-      <button
-        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-        @click="completed"
-      >
-        Close
-      </button>
-      <div class="modal-action w-full">
-        <form
-          method="dialog"
-          class="w-full"
-        >
-          <!-- if there is a button in form, it will close the modal -->
-
-          <button ref="awaitBtn" />
-        </form>
-      </div>
-    </div>
-  </dialog>
 
   <!-- Success and Rating -->
   <dialog
     id="my_modal_5"
+
     class="modal"
   >
     <div class="modal-box">
       <div class="card-body p-2">
-        <h2 class="card-title text-black font-bold text-2xl text-center center">
-          Success
-        </h2>
-
-        <p class="text-sm text-black mb-3">
-          You have marked this job as completed, Please Rate Worker Below
-        </p>
-        <!-- Rating -->
-        <div class="rating rating-lg mb-3">
-          <input
-            type="radio"
-            name="rating-1"
-            class="mask mask-star"
-            checked=""
-          >
-          <input
-            type="radio"
-            name="rating-1"
-            class="mask mask-star"
-          >
-          <input
-            type="radio"
-            name="rating-1"
-            class="mask mask-star"
-          >
-          <input
-            type="radio"
-            name="rating-1"
-            class="mask mask-star"
-          >
-          <input
-            type="radio"
-            name="rating-1"
-            class="mask mask-star"
-          >
-        </div>
-        <label class="form-control">
-          <div class="label">
-            <span class="label-text">Comment On The Service Received</span>
+        <!-- Product delivered -->
+        <div
+          v-if="!review"
+          class=""
+        >
+          <h1 class="text-2xl font-bold mb-4">
+            Confirm Delivery
+          </h1>
+          <p class="text-black mb-4">
+            Seller has marked this product as delivered, have you received this?
+          </p>
+          <p class="text-gray-600 mb-6">
+            Seller Proof Of Delivery
+          </p>
+          <div class="w-full center">
+            <img
+              :src="selectedConversation?.listing?.images[0]"
+              :alt="selectedConversation?.listing?.title"
+              class="rounded-xl mb-6 w-full h-80 object-fit"
+            >
           </div>
-          <textarea
-            class="textarea textarea-bordered h-24"
-            placeholder="Comment"
-          />
+          <div class="center gap-4">
+            <button class="btn bg-red-600 btn-lg text-white">
+              Not Received
+            </button>
+            <button
+              class="btn bg-darkGold btn-lg text-white"
+              @click="ordersCompleted(latestOrder.id)"
+            >
+              <span
+                v-if="orderLoading"
+                class="loading loading-spinner loading-xs"
+              />
+              <span v-else> Received</span>
+            </button>
+          </div>
+        </div>
 
-        </label>
-        <button class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto">
-          Submit Review
-        </button>
+        <!-- if Job is success -->
+        <div
+          v-if="review"
+          class="success"
+        >
+          <h2 class="card-title text-black font-bold text-2xl text-center center">
+            Success
+          </h2>
+
+          <p class="text-sm text-black mb-3">
+            You have marked this job as completed, Please Rate Worker Below
+          </p>
+          <!-- Rating -->
+          <div class="rating rating-lg mb-3">
+            <input
+              v-for="rating in 5"
+              :key="rating"
+              v-model="reviewData.rating"
+              type="radio"
+              :name="'rating'"
+              class="mask mask-star"
+              :value="rating"
+            >
+          </div>
+          <label class="form-control mb-4">
+            <div class="label">
+              <span class="label-text">Comment On The Service Received</span>
+            </div>
+            <textarea
+              v-model="reviewData.content"
+              class="textarea textarea-bordered h-24"
+              placeholder="Comment"
+            />
+
+          </label>
+          <button
+            class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+            @click="sendReviews "
+          >
+            <span
+              v-if="reviewLoading"
+              class="loading loading-spinner loading-xs"
+            />
+            <span v-else>  Submit Review</span>
+          </button>
+        </div>
       </div>
       <div class="modal-action">
         <form method="dialog">
@@ -1066,7 +1104,7 @@ const InitiatePayment = () => {
     <div class="modal-box">
       <div class="card-body p-2">
         <h2 class="card-title text-black font-bold text-2xl text-center center">
-          Report Worker
+          Report {{ store.UserAccount.account_type === 'employer' ? 'Client' : 'Worker' }}
         </h2>
         <p class="text-sm text-black">
           Report an issue you might have experienced, and our admin
@@ -1076,8 +1114,11 @@ const InitiatePayment = () => {
           <div class="label">
             <span class="label-text">Compliant type</span>
           </div>
-          <select class="select select-bordered">
-            <option>Star Wars</option>
+          <select
+            v-model="reportData.reason"
+            class="select select-bordered"
+          >
+            <option>Terrible services</option>
 
           </select>
 
@@ -1087,6 +1128,7 @@ const InitiatePayment = () => {
             <span class="label-text">Details</span>
           </div>
           <textarea
+            v-model="reportData.description"
             class="textarea textarea-bordered h-24"
             placeholder="Comment"
           />
@@ -1097,31 +1139,52 @@ const InitiatePayment = () => {
           <h1 class="mb-2">
             Upload Attachment
           </h1>
-          <div class="border-dashed border-2 flex flex-col items-center justify-between p-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="size-20 mb-3"
+          <div
+            class="border-dashed border-2 flex flex-col items-center justify-between p-4"
+            @click="handleClick"
+          >
+            <div
+              v-if="!draggedFile"
+              class="flex flex-col items-center justify-between"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
-              />
-            </svg>
-            <div class="text-sm text-[#5B5B5B] mb-1">
-              <span class="text-[#030359]">Select</span> Image you want to upload
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-20 mb-3"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                />
+              </svg>
+              <div class="text-sm text-[#5B5B5B] mb-1">
+                <span class="text-[#030359]">Select</span> Image you want to upload
+              </div>
+              <div class="text-[#949CA9]">
+                Png and Jpg Allowed
+              </div>
             </div>
-            <div class="text-[#949CA9]">
-              Png and Jpg Allowed
-            </div>
+            <!-- image uploaded -->
+            <img
+              v-if="draggedFile"
+              :src="draggedFile"
+              alt=""
+            >
           </div>
         </div>
-        <button class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto">
-          Send Report
+        <button
+          class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+          @click="report"
+        >
+          <span
+            v-if="reportLoader"
+            class="loading loading-spinner loading-md"
+          />
+          <span else> Send Report</span>
         </button>
       </div>
       <div class="modal-action">
@@ -1130,6 +1193,219 @@ const InitiatePayment = () => {
           <button class="btn">
             Close
           </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- The Modals below are not in use -->
+
+  <!-- Open the modal using ID.showModal() method -->
+  <!-- Await Confirmation  for worker flow -->
+  <dialog
+    v-show="store.isEmployee"
+    id="my_modal_8"
+    class="modal hidden"
+  >
+    <div class="modal-box">
+      <div class="card-body p-2">
+        <h2 class="card-title text-black font-bold text-2xl text-center center">
+          Awaiting Confirmation
+        </h2>
+
+        <p class=" text-black mb-3">
+          You have marked this job as completed, please wait for client to
+          confirm completion so you can be paid
+        </p>
+      </div>
+      <button
+        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+        @click="completed"
+      >
+        Close
+      </button>
+      <div class="modal-action w-full">
+        <form
+          method="dialog"
+          class="w-full"
+        >
+          <!-- if there is a button in form, it will close the modal -->
+
+          <button ref="awaitBtn" />
+        </form>
+      </div>
+    </div>
+  </dialog>
+  <dialog
+    id="my_modal_1"
+    class="modal hidden"
+  >
+    <div class="modal-box">
+      <div class="card-body p-2">
+        <h2 class="card-title text-black font-bold text-2xl text-center center">
+          Select Card
+        </h2>
+        <div
+          role="alert"
+          class="alert block bg-[#F0F2F5] mb-3"
+        >
+          <div class="text-sm text-black mb-2">
+            Payment Amount.
+          </div>
+          <div class="text-3xl text-black satoshiB">
+            NGN 195,799
+          </div>
+        </div>
+        <button
+          v-for="(item, index) in 3"
+          :key="index"
+          class="btn btn-block mb-3"
+          onclick="my_modal_2.showModal()"
+        >
+          <span class="flex flex-row justify-between w-full items-center">
+            <img
+              :src="masterCard"
+              alt="Master Card"
+              class="w-[40px] h-[40px]"
+            >
+            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank xxxx68</span>
+            <span class="text-darkGold text-base font-bold  hover:text-brightGold">Select</span>
+          </span>
+        </button>
+
+        <button class="btn mb-3 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full mx-auto">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="rgba(118, 127, 140, 1)"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+
+          Add Payment Method
+        </button>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button
+            ref="selectCardBtn"
+            class="btn"
+          >
+            Close
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Payment -->
+  <dialog
+    id="my_modal_2"
+    class="modal hidden"
+  >
+    <div class="modal-box">
+      <div class="card-body p-2">
+        <h2 class="card-title text-black font-bold text-2xl text-center center">
+          Payment
+        </h2>
+        <div
+          role="alert"
+          class="alert block bg-[#F0F2F5] mb-3"
+        >
+          <div class="text-sm text-black mb-2">
+            Payment Amount.
+          </div>
+          <div class="text-3xl text-black satoshiB">
+            NGN 195,799
+          </div>
+        </div>
+        <button clasinitiatePaymentLoaders="btn btn-block mb-3">
+          <span class="flex flex-row justify-between w-full items-center">
+            <img
+              :src="masterCard"
+              alt="Master Card"
+              class="w-[40px] h-[40px]"
+            >
+            <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank xxxx68</span>
+            <span class="text-darkGold text-base font-bold  hover:text-brightGold">Select</span>
+          </span>
+        </button>
+        <label class="form-control w-full mb-2">
+          <div class="label">
+            <span class="label-text">Password</span>
+          </div>
+          <input
+            type="password"
+            class="input input-bordered w-full"
+          >
+        </label>
+        <button
+          class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+          onclick="my_modal_3.showModal()"
+        >
+          Confirm
+        </button>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button ref="paymentBtn" />
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- OTP -->
+  <dialog
+    id="my_modal_3"
+    class="modal hidden"
+  >
+    <div class="modal-box">
+      <div class="card-body p-2">
+        <h2 class="card-title text-black font-bold text-2xl text-center center">
+          OTP
+        </h2>
+        <div
+          role="alert"
+          class="alert block bg-[#F0F2F5] mb-3"
+        >
+          <div class="text-sm text-black mb-2">
+            Payment Amount.
+          </div>
+          <div class="text-3xl text-black satoshiB">
+            NGN 195,799
+          </div>
+        </div>
+        <p class="text-sm text-black mb-3">
+          Enter OTP Sent To Favo****@gmail.com
+        </p>
+        <label class="form-control w-full mb-2">
+          <div class="label">
+            <span class="label-text">OTP</span>
+          </div>
+          <input
+            type="text"
+            class="input input-bordered w-full"
+          >
+        </label>
+        <button
+          class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+          onclick="my_modal_4.showModal()"
+        >
+          Complete Payment
+        </button>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button ref="otpBtn" />
         </form>
       </div>
     </div>

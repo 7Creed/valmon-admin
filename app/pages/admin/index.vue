@@ -33,7 +33,7 @@ const signIn = async () => {
       store.UserAccount = data.value.data.admin
 
       handleALert('success', 'Login successful')
-      // navigateTo('/admin/summary')
+      navigateTo('/admin/summary')
     }
     if (status.value === 'error') {
       handleALert('error', error.value.data.message)

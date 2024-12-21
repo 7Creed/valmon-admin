@@ -78,7 +78,41 @@ export function getTimeDiff(timestamp) {
   }
 }
 
-export const formatDate = (data) => {
-  const date = new Date(data)
-  return date.toLocaleDateString()
+export const formatDate = (data, lastSeen = false) => {
+  let processedData = data
+
+  if (lastSeen) {
+    const splitData = data.split(',')
+    processedData = splitData[0] // Assuming you want the first part after splitting
+    console.log(processedData)
+  }
+
+  const date = new Date(processedData)
+  return isNaN(date) ? 'Invalid Date' : date.toLocaleDateString()
+}
+
+export const formatDateTime = (datetime) => {
+  const date = new Date(datetime)
+
+  // Format the date as YYYY-MM-DD
+  const formattedDate = date.toISOString().split('T')[0]
+
+  // Format the time as HH:mm
+  const formattedTime = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false, // 24-hour format
+  })
+
+  return {
+    date: formattedDate,
+    time: formattedTime,
+  }
+}
+
+export const getHours = (startTime, endTime) => {
+  const start = new Date(startTime)
+  const end = new Date(endTime)
+  const diff = end.getTime() - start.getTime()
+  return Math.ceil(diff / (1000 * 60 * 60))
 }

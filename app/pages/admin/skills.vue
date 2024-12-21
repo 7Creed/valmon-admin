@@ -1,6 +1,10 @@
 <script setup>
 import { useGlobalStore } from '@/store'
 
+import { SKillsController } from '~/services/modules/Admin/skills'
+
+const { skillSummary } = SKillsController()
+
 const store = useGlobalStore()
 
 definePageMeta({
@@ -11,6 +15,26 @@ const Tab = ref('transaction')
 const toggleTab = (tab) => {
   Tab.value = tab
 }
+
+const SkillTransactions = ref({})
+const getSkillsTxn = async () => {
+  try {
+    const { data, status, error } = await skillSummary()
+
+    if (status.value === 'success') {
+      console.log(data.value.data)
+      SkillTransactions.value = data.value.data
+    }
+    if (status.value === 'error') {
+      console.log(error.value)
+    }
+  }
+  catch (error) {
+    console.error(error)
+  }
+}
+
+getSkillsTxn()
 </script>
 
 <template>
@@ -34,7 +58,11 @@ const toggleTab = (tab) => {
       >Skill Parent Category</a>
     </div>
     <!-- Transaction  -->
-    <DashboardTransaction v-if="Tab === 'transaction'" />
+    <DashboardTransaction
+      v-if="Tab === 'transaction'"
+      type="skill"
+      :transactions="SkillTransactions"
+    />
     <!--
       1. Renders parent category
     -->

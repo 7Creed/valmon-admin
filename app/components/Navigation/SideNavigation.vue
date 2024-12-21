@@ -7,6 +7,17 @@ const pathColor = ref('#A3A3A8')
 const activePathColor = ref('#232222')
 const activeMenu = computed(() => store.activeSideMenu)
 
+const token = useCookie('token')
+
+const logOut = async () => {
+  token.value.token = null
+  token.value.type = null
+  store.$patch({
+    Admin: null,
+  })
+
+  await navigateTo('/admin')
+}
 // Updating the store with the active menu
 function changeActiveMenu(menu) {
   store.$patch({
@@ -14,6 +25,9 @@ function changeActiveMenu(menu) {
     // Rerender the skill tab
     viewParentSubCategory: false,
   })
+  if (menu === 'logout') {
+    logOut()
+  }
 }
 </script>
 
@@ -22,7 +36,7 @@ function changeActiveMenu(menu) {
     <div>
       <!-- Summary -->
       <nuxt-link
-        to="dashboard"
+        to="/admin/summary"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'summary' }"
         @click="changeActiveMenu('summary')"
@@ -58,12 +72,12 @@ function changeActiveMenu(menu) {
             stroke-width="1.25"
           />
         </svg>
-        <span>    Summary</span>
+        <span>Summary</span>
       </nuxt-link>
 
       <!-- Manage User -->
       <nuxt-link
-        to="user"
+        to="/admin/user"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'user' }"
         @click="changeActiveMenu('user')"
@@ -95,7 +109,7 @@ function changeActiveMenu(menu) {
 
       <!-- Skills -->
       <nuxt-link
-        to="skills"
+        to="/admin/skills"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'skills' }"
         @click="changeActiveMenu('skills')"
@@ -149,7 +163,7 @@ function changeActiveMenu(menu) {
 
       <!-- MarketPlace -->
       <nuxt-link
-        to="market"
+        to="/admin/market"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'marketplace' }"
         @click="changeActiveMenu('marketplace')"
@@ -188,7 +202,7 @@ function changeActiveMenu(menu) {
       <!-- Valmon Wallet -->
 
       <nuxt-link
-        to="wallet"
+        to="/admin/wallet"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'wallet' }"
         @click="changeActiveMenu('wallet')"
@@ -246,7 +260,7 @@ function changeActiveMenu(menu) {
       <!-- Conflict Resolution -->
 
       <nuxt-link
-        to="resolution"
+        to="/admin/resolution"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'resolution' }"
         @click="changeActiveMenu('resolution')"
@@ -293,7 +307,7 @@ function changeActiveMenu(menu) {
       <!-- Settings -->
 
       <nuxt-link
-        to="settings"
+        to="/admin/settings"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'settings' }"
         @click="changeActiveMenu('settings')"
@@ -327,7 +341,7 @@ function changeActiveMenu(menu) {
 
       <!-- Account Managers -->
       <nuxt-link
-        to="account"
+        to="/admin/account"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'account' }"
         @click="changeActiveMenu('account')"
@@ -364,7 +378,7 @@ function changeActiveMenu(menu) {
 
       <!-- Logout -->
       <nuxt-link
-        to="logout"
+        to="/admin/logout"
         class="flex items-center gap-4 font-medium p-4 mb-6"
         :class="{ activeMenu: activeMenu === 'logout' }"
         @click="changeActiveMenu('logout')"

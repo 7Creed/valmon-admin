@@ -36,21 +36,6 @@ const fetchGallery = async () => {
     loading.value = false
   }
 }
-fetchGallery()
-
-if (props.refreshV === true) {
-  fetchGallery()
-}
-
-// Display Gallery based on type
-const displayGallery = computed(() => {
-  if (props.type === 'profile') {
-    return props.profileGallery
-  }
-  else {
-    return Gallery.value
-  }
-})
 
 // Delete Gallery
 const { deleteGallery } = accountController()
@@ -73,6 +58,29 @@ const delGallery = async (id) => {
     loading.value = false
   }
 }
+
+// Fetch single User Gallery
+if (store.UserAccount?.role == 'Admin' || store.UserAccount?.role == 'super_admin') {
+  console.log('dashbord profile')
+}
+else {
+  // Fetch single User Account and gallery
+  fetchGallery()
+
+  if (props.refreshV === true) {
+    fetchGallery()
+  }
+}
+
+// Display Gallery based on type
+const displayGallery = computed(() => {
+  if (props.type === 'profile') {
+    return props.profileGallery
+  }
+  else {
+    return Gallery.value
+  }
+})
 </script>
 
 <template>

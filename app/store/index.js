@@ -13,13 +13,18 @@ const PERSISTED_KEYS = {
     'userIdForProfileCheck',
     'recipientObjNegotiation',
     'activeHeaderTab',
-    'listingData'
+    'listingData',
+    'adminUserId',
+    'viewAdminChatId',
   ],
   // Should clear on component unmount
   component: [
     'usersByServices',
     'usersByServiceCP',
-    'recipientObjNegotiation'
+    'recipientObjNegotiation',
+    'adminUserId',
+    'viewAdminChatId',
+
   ],
   // Should clear on logout
   auth: [
@@ -36,7 +41,7 @@ export const useStore = defineStore('valmon_app_store', {
     activeSideMenu: 'summary',
     viewParentSubCategory: false,
     viewSkills: false,
-    viewProfileFromDashboard: false,
+    adminUserId: null,
     serviceCategory: [],
     userOnline: ref(false),
     UserAccount: null,
@@ -76,9 +81,12 @@ export const useStore = defineStore('valmon_app_store', {
     listingId: null,
     marketPlaceTab: false,
     similarListing: false,
-
     // Add recipientObjNegotiation to state
     recipientObjNegotiation: null,
+
+    // Admin
+    adminListingId: null,
+    viewAdminChatId: null,
   }),
   actions: {
     updateHeader(value) {
@@ -132,7 +140,7 @@ export const useStore = defineStore('valmon_app_store', {
       // }
     },
     // update new conversation details
-    updateNewConversationDetails(RId, SId, LId) {
+    updateNewConversationDetails(RId, SId = null, LId = null) {
       this.newConversationDetails.recipient_id = RId
       this.newConversationDetails.service_id = SId
       this.newConversationDetails.listing_id = LId
@@ -158,7 +166,8 @@ export const useStore = defineStore('valmon_app_store', {
         }
         const initialState = this.$state
         this[key] = initialState[key]
-      } else {
+      }
+      else {
         this.$reset()
       }
       this.saveState()

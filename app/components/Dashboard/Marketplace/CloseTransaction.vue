@@ -2,34 +2,69 @@
 import profile from '@/assets/icons/cardprofile.svg'
 import trash from '@/assets/icons/trash.svg'
 import poscard from '@/assets/icons/card-pos-black.svg'
+
+import { ListingsController } from '~/services/modules/Admin/listing'
+import { useGlobalStore } from '~/store'
+
+const store = useGlobalStore()
+const emit = defineEmits('products')
+
+const emitEvent = (id) => {
+  store.$patch({
+    adminListingId: id,
+  })
+
+  emit('products')
+}
+const { getCloseListing } = ListingsController()
+
+const closeList = ref([])
+const loading = ref(false)
+const closeListing = async () => {
+  loading.value = true
+  const { data, error, status } = await getCloseListing()
+  if (status.value === 'success') {
+    closeList.value = data.value.data
+    loading.value = false
+  }
+  if (status.value === 'error') {
+    handleError('error', error.value.data.message)
+    loading.value = false
+  }
+}
+closeListing()
 </script>
 
 <template>
-  <div class="text-card w-full">
+  <SharedLoader v-if="loading" />
+  <div v-else class="text-card w-full">
     <!-- Stats card -->
     <div class=" flex flex-wrap gap-6 mb-10">
       <DashboardStatsCard
         title="Total Transactions"
-        value="10,000"
-        percentage="8.5"
+        :value="closeList.total_transactions"
+        :percentage="closeList.percentage.total_transactions"
         :icon="profile"
         icon-bg="bg-[#F45E5E1A]"
       />
       <DashboardStatsCard
         title="Transaction Value"
-        value="440,500,000"
-        percentage="8.5"
+        :value="closeList.transactions_value"
+        :percentage="closeList.percentage.transactions_value"
         :icon="poscard"
         icon-bg="bg-[#5EF4881A]"
       />
       <DashboardStatsCard
         title="Deleting Listings"
-        value="500"
+        :value="closeList.deleted_count"
         :icon="trash"
         icon-bg="bg-[#F45E5E1A]"
       />
 
-      <DashboardCardCategory title="Top Marketplace Categories" />
+      <DashboardCardCategory
+        title="Top Marketplace Categories"
+        :top-categories="closeList?.top_categoryies"
+      />
     </div>
     <!-- Table -->
     <div class="card card-compact bg-base-100 w-full shadow-xl">
@@ -40,9 +75,9 @@ import poscard from '@/assets/icons/card-pos-black.svg'
           <div class="text-sm">
             <div class="mb-2">
               <span class="text-valmon_menu font-medium">Marketplace Transactions</span>
-              <span class="inline-block text-valmon_Gold text-xs ms-3">10,000 listed</span>
+              <span class="inline-block text-valmon_Gold text-xs ms-3">{{ closeList.total_transactions }} listed</span>
             </div>
-            <p>List Of All Customers on The Platform</p>
+            <p>All Transactions on The Marketplace Platform</p>
           </div>
           <!-- Content 2 -->
           <div class="flex items-center w-1/3 gap-8 justify-between">
@@ -297,8 +332,8 @@ import poscard from '@/assets/icons/card-pos-black.svg'
             <tbody>
               <!-- Use this -->
               <tr
-                v-for="(item, index) in 12"
-                :key="index"
+                v-for="(item, index) in closeList.all_listings"
+                :key="item.id"
               >
                 <th>
                   {{ index + 1 }}
@@ -308,31 +343,31 @@ import poscard from '@/assets/icons/card-pos-black.svg'
                     <div class="avatar">
                       <div class="mask mask-squircle h-9 w-9">
                         <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
+                          :src="item.image ?? 'N/A'"
+                          :alt=" item.image ?? 'N/A'"
                         >
                       </div>
                     </div>
                   </div>
                 </td>
                 <td class="font-medium text-valmon_menu">
-                  Iphone 12
+                  {{ item.name }}
                 </td>
-                <td>Used</td>
-                <td>Phone</td>
-                <td>N437099GN </td>
-                <td>N437099GN </td>
-                <td>Raman Isamil</td>
+                <td>{{ item.condition }}</td>
+                <td>{{ item.category }}</td>
+                <td>NGN {{ item.price_listed }} </td>
+                <td>NGN {{ item.price_sold }}</td>
+                <td>{{ item.seller_name }}</td>
                 <td
                   :class="{ 'text-red-600': index == 5 }"
-                  v-text="index == 5 ?'Deleted': 'Raman Isamil'"
-                />
+                >
+                  {{ item.buyer_name }}
+                </td>
 
-                <td
-                  v-text="index == 5 ?'-': '13 Hours'"
-                />
-                <td>8/9/2022</td>
-                <td>8/9/2022</td>
+                <td v-text="item.delivered_at ? formatDate(item.close_date) : 'N/A'" />
+
+                <td>{{ formatDate(item.listing_date) }}</td>
+                <td v-text="item.close_date ? formatDate(item.close_date) : 'N/A'" />
                 <td
                   class="dropdown dropdown-end"
                   tabindex="0"
@@ -355,7 +390,7 @@ import poscard from '@/assets/icons/card-pos-black.svg'
                     tabindex="0"
                     class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow"
                   >
-                    <li>
+                    <li  @click="emitEvent(item.id)">
                       <a>View</a>
                     </li>
                     <li><a>Delete</a></li>

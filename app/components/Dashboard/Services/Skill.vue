@@ -1,14 +1,38 @@
 <script setup>
 import { useGlobalStore } from '@/store'
 
+import { SKillsController } from '~/services/modules/Admin/skills'
+
 // Initialize Variable
 const store = useGlobalStore()
-
+const { customer } = SKillsController()
+const props = defineProps({
+  customerId: String,
+})
 function goBackward() {
   store.$patch({
     viewSkills: false,
   })
 }
+
+const customers = ref([])
+
+const fetchCustomer = async (id) => {
+  try {
+    const { data, error, status } = await customer(id)
+    if (status.value === 'success') {
+      customers.value = data.value.data
+    }
+    if (status.value === 'error') {
+      console.error(error.value)
+    }
+  }
+  catch (error) {
+    console.error(error)
+  }
+}
+
+fetchCustomer(props?.customerId)
 </script>
 
 <template>
@@ -24,7 +48,7 @@ function goBackward() {
         <div class="text-sm">
           <div class="mb-2">
             <span class="text-valmon_menu font-medium">Customers</span>
-            <span class="inline-block text-valmon_Gold text-xs ms-3">10,000 Registered</span>
+            <span class="inline-block text-valmon_Gold text-xs ms-3">{{ customers?.length }} Registered</span>
           </div>
           <p>List Of All Customers on The Platform</p>
         </div>
@@ -71,10 +95,7 @@ function goBackward() {
               />
             </svg>
             <span class="text-base text-[#344054]">Filters</span>
-            <BaseAddButton
-              title="Add New"
-              class=""
-            />
+
           </span>
         </div>
       </div>
@@ -244,89 +265,40 @@ function goBackward() {
             </tr>
           </thead>
           <tbody>
-            <!-- row 1 -->
-            <tr>
-              <th>
-                1
-              </th>
-              <td>
-                <div class="flex items-center gap-3">
-                  <div class="avatar">
-                    <div class="mask mask-squircle h-9 w-9">
-                      <img
-                        src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                        alt="Avatar Tailwind CSS Component"
-                      >
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="font-medium text-valmon_menu">
-                Zemlak, Daniel and Leannon
-              </td>
-              <td>Pedro@gmail.com</td>
-              <td>225</td>
-              <td>11/6/2022</td>
-              <td>6</td>
-              <td>Services Provider</td>
-              <td>8/9/2022</td>
-              <th>
-                <button class="btn text-[#AD7A22]  btn-xs ">
-                  <span class="inline-block p-1 bg-[#E79E1F] rounded-full" />
-                  <span>Active</span>
-                </button>
-              </th>
-              <td>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="size-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
-                  />
-                </svg>
-              </td>
-            </tr>
             <!-- row 2 -->
             <!-- Use this -->
             <tr
-              v-for="(item, index) in 12"
+              v-for="(item, index) in customers"
               :key="index"
             >
               <th>
-                {{ index + 2 }}
+                {{ index + 1 }}
               </th>
               <td>
                 <div class="flex items-center gap-3">
                   <div class="avatar">
                     <div class="mask mask-squircle h-9 w-9">
                       <img
-                        src="https://img.daisyui.com/images/profile/demo/3@94.webp"
-                        alt="Avatar Tailwind CSS Component"
+                        :src="item.image ?? 'N/A'"
+                        :alt=" item.image ?? 'N/A'"
                       >
                     </div>
                   </div>
                 </div>
               </td>
               <td class="font-medium text-valmon_menu">
-                Zemlak, Daniel and Leannon
+                {{ item.name }}
               </td>
-              <td>Pedro@gmail.com</td>
-              <td>225</td>
-              <td>11/6/2022</td>
-              <td>6</td>
-              <td>Services Provider</td>
-              <td>8/9/2022</td>
+              <td>{{ item.email }}</td>
+              <td>{{ item.listings_count }}</td>
+              <td>{{ formatDate(item.join_date) }}</td>
+              <td>{{ item.reported_count }}</td>
+              <td>{{ item.type }}</td>
+              <td>{{ formatDate(item.last_seen_at) == 'Invalid date' ? 'Never' : formatDate(item.last_seen_at) }}</td>
               <th>
                 <button class="btn text-[#364254]  btn-xs ">
                   <span class="inline-block p-1 bg-[#6C778B] rounded-full" />
-                  <span>Inactive</span>
+                  <span>{{ (item.status).toLowerCase() }}</span>
                 </button>
               </th>
               <td

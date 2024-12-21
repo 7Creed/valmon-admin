@@ -59,7 +59,7 @@ const upload = async () => {
       emit('setupProcess')
     }
   }
-  if (success.value === 'error') {
+  if (status.value === 'error') {
     loading.value = false
     handleALert('error', error.value.data.message)
   }

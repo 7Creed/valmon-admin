@@ -3,7 +3,7 @@ import profile from '@/assets/icons/cardprofile.svg'
 import { useGlobalStore } from '@/store'
 import { UsersController } from '~/services/modules/Admin/users'
 
-const { showAllUsers, deleteUser, users, getUsersSummary } = UsersController()
+const { showAllUsers, deleteUser, getUsersSummary,  } = UsersController()
 
 const store = useGlobalStore()
 
@@ -11,9 +11,9 @@ definePageMeta({
   layout: 'dashboard-layout',
 })
 
-const viewProfile = () => {
+const viewProfile = (id) => {
   store.$patch({
-    viewProfileFromDashboard: true,
+    adminUserId: id,
   })
   navigateTo('/profile')
 }
@@ -24,6 +24,8 @@ const summaryLoader = ref(false)
 const deleteLoader = ref(false)
 const userLoader = ref(false)
 
+const allUsers = ref({})
+const summary = ref({})
 const FetchID = async (func, id, loader = null, alert = true) => {
   if (loader) loader.value = true
   const { status, data, error } = await func(id)
@@ -45,6 +47,11 @@ const Fetch = async (func, loader = null, alert = true) => {
     console.log(data.value.data)
     if (alert) handleALert('success', data.value.message)
     if (loader) loader.value = true
+    switch (func) {
+      case getUsersSummary:
+        summary.value = data.value.data
+        break
+    }
   }
   if (status.value === 'error') {
     if (alert) handleALert('error', error.value.data.message)
@@ -52,7 +59,40 @@ const Fetch = async (func, loader = null, alert = true) => {
   }
 }
 
-Fetch(showAllUsers, allUsersLoader)
+const fetchAllUsers = async (page = 3, search = '') => {
+  try {
+    allUsersLoader.value = true
+    const { status, data, error } = await showAllUsers(page, search)
+    if (status.value === 'success') {
+      allUsersLoader.value = true
+      console.log(data.value.data)
+      allUsers.value = data.value.data
+      handleALert('success', data.value.message)
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.message)
+      allUsersLoader.value = true
+    }
+  }
+  catch (error) {
+    console.error(error)
+  }
+}
+const removeUser = async (id) => {
+  const { data, error, status } = await deleteUser(id)
+
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+    fetchAllUsers()
+  }
+  else if (status.value === 'error') {
+    console.error('Delete User failed:', error.value.data.message)
+  }
+}
+
+
+fetchAllUsers()
+Fetch(getUsersSummary)
 </script>
 
 <template>
@@ -61,22 +101,22 @@ Fetch(showAllUsers, allUsersLoader)
     <div class=" flex flex-wrap gap-6 mb-10">
       <DashboardStatsCard
         title="All Users"
-        value="10,000"
-        percentage="8.5"
+        :value="summary?.total_users"
+        :percentage="summary?.weekly_growth?.total_users"
         :icon="profile"
         icon-bg="bg-[#F45E5E1A]"
       />
       <DashboardStatsCard
         title="Service Providers"
-        value="5,000"
-        percentage="8.5"
+        :value="summary?.service_providers"
+        :percentage="summary?.weekly_growth?.service_providers"
         :icon="profile"
         icon-bg="bg-[#5E6DF41A]"
       />
       <DashboardStatsCard
         title="Normal Users"
-        value="5,000"
-        percentage="8.5"
+        :value="summary?.employers"
+        :percentage="summary?.weekly_growth?.employers"
         :icon="profile"
         icon-bg="bg-[#5EF4901A]"
       />
@@ -90,7 +130,7 @@ Fetch(showAllUsers, allUsersLoader)
           <div class="text-sm">
             <div class="mb-2">
               <span class="text-valmon_menu font-medium">Customers</span>
-              <span class="inline-block text-valmon_Gold text-xs ms-3">10,000 Registered</span>
+              <span class="inline-block text-valmon_Gold text-xs ms-3">{{ allUsers?.pagination?.total }} Registered</span>
             </div>
             <p>List Of All Customers on The Platform</p>
           </div>
@@ -306,70 +346,20 @@ Fetch(showAllUsers, allUsersLoader)
               </tr>
             </thead>
             <tbody>
-              <!-- row 1 -->
-              <tr>
-                <th>
-                  1
-                </th>
-                <td>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar">
-                      <div class="mask mask-squircle h-9 w-9">
-                        <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="font-medium text-valmon_menu">
-                  Zemlak, Daniel and Leannon
-                </td>
-                <td>Pedro@gmail.com</td>
-                <td>225</td>
-                <td>11/6/2022</td>
-                <td>6</td>
-                <td>Services Provider</td>
-                <td>8/9/2022</td>
-                <th>
-                  <button class="btn text-[#AD7A22]  btn-xs ">
-                    <span class="inline-block p-1 bg-[#E79E1F] rounded-full" />
-                    <span>Active</span>
-                  </button>
-                </th>
-                <td>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-6"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
-                    />
-                  </svg>
-                </td>
-              </tr>
-              <!-- row 2 -->
               <!-- Use this -->
               <tr
-                v-for="(item, index) in 12"
-                :key="index"
+                v-for="(item, index) in allUsers?.users"
+                :key="item.id"
               >
                 <th>
-                  {{ index + 2 }}
+                  {{ index + 1 }}
                 </th>
                 <td>
                   <div class="flex items-center gap-3">
                     <div class="avatar">
                       <div class="mask mask-squircle h-9 w-9">
                         <img
-                          src="https://img.daisyui.com/images/profile/demo/3@94.webp"
+                          :src="item.image"
                           alt="Avatar Tailwind CSS Component"
                         >
                       </div>
@@ -377,18 +367,29 @@ Fetch(showAllUsers, allUsersLoader)
                   </div>
                 </td>
                 <td class="font-medium text-valmon_menu">
-                  Zemlak, Daniel and Leannon
+                  {{ item.name }}
                 </td>
-                <td>Pedro@gmail.com</td>
-                <td>225</td>
-                <td>11/6/2022</td>
-                <td>6</td>
-                <td>Services Provider</td>
-                <td>8/9/2022</td>
+                <td>{{ item.email }}</td>
+                <td>{{ item.listings_count }}</td>
+                <td>{{ formatDate(item.join_date) }}</td>
+                <td>{{ item.reported_count ?? 0 }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.last_seen_at === 'Never' ? 'Never' : formatDate(item.last_seen_at) }}</td>
                 <th>
-                  <button class="btn text-[#364254]  btn-xs ">
+                  <button
+                    v-if="item.status === 'ACTIVE'"
+                    class="btn text-[#364254]  btn-xs "
+                  >
                     <span class="inline-block p-1 bg-[#6C778B] rounded-full" />
-                    <span>Inactive</span>
+                    <span>{{ item.status }}</span>
+                  </button>
+
+                  <button
+                    v-else
+                    class="btn text-[#AD7A22]  btn-xs "
+                  >
+                    <span class="inline-block p-1 bg-[#E79E1F] rounded-full" />
+                    <span>{{ item.status }}</span>
                   </button>
                 </th>
                 <td
@@ -413,13 +414,13 @@ Fetch(showAllUsers, allUsersLoader)
                     tabindex="0"
                     class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow"
                   >
-                    <li @click="viewProfile">
+                    <li @click="viewProfile(item.id)">
                       <a
 
                         href="javascript:void(0)"
                       >View</a>
                     </li>
-                    <li><a>Delete</a></li>
+                    <li @click="removeUser(item.id)"><a>Delete</a></li>
                   </ul>
                 </td>
               </tr>

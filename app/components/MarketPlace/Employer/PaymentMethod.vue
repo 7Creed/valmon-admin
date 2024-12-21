@@ -45,12 +45,21 @@ const withdrawalOtp = async () => {
   }
 }
 
+const selectedBank = ref(null)
 const paymentInfo = reactive({
   otp: '',
   amount: '',
   account_number: '',
   bank: '',
+  code: '',
 })
+
+watch(selectedBank, (newBank) => {
+  paymentInfo.bank = newBank?.slug || ''
+  paymentInfo.code = newBank?.code || ''
+})
+
+
 
 const WithdrawToBank = async () => {
   const isFilled = (Object.values(paymentInfo).every(e => e !== ''))
@@ -128,13 +137,13 @@ const WithdrawToBank = async () => {
         </div>
 
         <select
-          v-model="paymentInfo.bank"
+          v-model="selectedBank"
           class="select select-bordered w-full "
         >
           <option
             v-for="bank in banks"
             :key="bank.id"
-            :value="bank.slug"
+            :value="bank"
           >{{ bank.name }}</option>
 
         </select>

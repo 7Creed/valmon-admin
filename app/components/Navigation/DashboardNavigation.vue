@@ -2,10 +2,11 @@
 // Images and Icons
 import brandLogo from '@/assets/images/Logo/valmon.svg'
 import bell from '@/assets/icons/notification-bing.svg'
-
+import { NotificationController } from '~/services/modules/Admin/notification';
 import { useGlobalStore } from '@/store'
 
 // Initialize Variables
+const { getUnreadNotifications } = NotificationController()
 const store = useGlobalStore()
 
 // Handles Notification
@@ -15,15 +16,19 @@ const toggleNotification = () => {
   toggle(notification)
 }
 
-// Show New Job Offer Modal
-// const popUp = ref(null)
-// onMounted(() => {
-//   setTimeout(() => {
-//     if (popUp.value && store.isEmployee) {
-//       popUp.value.click()
-//     }
-//   }, 1000)
-// })
+// Fetch Unread Notifications
+const unreadNotifications = ref([])
+const fetchUnreadNotifications = async () => {
+  const { data, error, status } = await getUnreadNotifications()
+  if (status.value === 'success') {
+    unreadNotifications.value = data.value.data
+  }
+  if (status.value === 'error') {
+    console.error('fetch User rate failed:', error.value.data.message)
+  }
+}
+fetchUnreadNotifications()
+
 </script>
 
 <template>
@@ -126,7 +131,7 @@ const toggleNotification = () => {
                 >
                   <img
                     class="h-8 w-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    :src="store.UserAccount.profile_pic"
                     alt=""
                   >
                 </button>
@@ -139,8 +144,8 @@ const toggleNotification = () => {
               <span
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
                 aria-current="page"
-              >Favour Udoh</span>
-              <span class="font-normal rounded-3xl bg-[#E1CD7182] pt-2 px-4 text-white">Super Admin</span>
+              >{{store.UserAccount.name}}</span>
+              <span class="font-normal rounded-3xl bg-[#E1CD7182] pt-2 px-4 text-white">{{ store.UserAccount.role === 'super_admin' ? 'Super Admin' : 'admin' }}</span>
             </div>
           </div>
         </div>

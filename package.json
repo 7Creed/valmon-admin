@@ -17,12 +17,14 @@
     "@nuxtjs/leaflet": "^1.2.3",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@pinia/nuxt": "^0.5.4",
+    "apexcharts": "^4.3.0",
     "nuxt": "^3.12.4",
     "nuxt-echarts": "^0.2.3",
     "nuxt-swiper": "^1.2.2",
     "pinia": "^2.2.2",
     "sweetalert": "^2.1.2",
-    "vue": "latest"
+    "vue": "latest",
+    "vue3-apexcharts": "^1.8.0"
   },
   "devDependencies": {
     "@pinia-plugin-persistedstate/nuxt": "^1.2.1",

@@ -3,6 +3,13 @@ import shop from '@/assets/icons/shop.svg'
 import cardpos from '@/assets/icons/card-pos-black.svg'
 import nigeriaFlag from '@/assets/icons/nigeriaflag.svg'
 
+import { WalletController } from '~/services/modules/Admin/wallet'
+import { MiscController } from '~/services/modules/misc'
+
+const { getCurrencies, getBanks } = MiscController()
+const { getWalletSummary, withdraw, withdrawOtp } = WalletController()
+
+
 definePageMeta({
   layout: 'dashboard-layout',
 })
@@ -18,28 +25,131 @@ const showDropDown = () => {
   toggle(dropDown)
 }
 
+const walletSummary = ref([])
+
+const WSLoader = ref(false)
+const getWSummary = async () => {
+  const { status, data, error } = await getWalletSummary()
+
+  if (status.value === 'success') {
+    walletSummary.value = data.value.data
+  }
+  if (status.value === 'error') {
+    console.log(error.value.data.message)
+  }
+}
+getWSummary()
+
 // selecting currency
-// data;
-const currencies = [
-  { id: 1, name: 'NGN', img: nigeriaFlag },
-  { id: 2, name: 'EUR', img: nigeriaFlag },
-]
+const currencies = ref([])
 
 // Currency Selection
 const selectedCurrency = reactive({
-  id: 1,
-  name: 'NGN',
-  img: nigeriaFlag,
+  code: '',
+  id: null,
 })
 
 const selectCurrency = (id) => {
-  const selectedCurrencyData = currencies.find(currency => currency.id === id)
+  const selectedCurrencyData = currencies.value.find(currency => currency.id === id)
   // update the selectedCurrency Object
   selectedCurrency.id = selectedCurrencyData.id
-  selectedCurrency.name = selectedCurrencyData.name
-  selectedCurrency.img = selectedCurrencyData.img
+  selectedCurrency.code = selectedCurrencyData.code
   // call the toggle helper function
   toggle(dropDown)
+}
+const fetchCurrencies = async () => {
+  const { data, status, error } = await getCurrencies()
+  if (status.value === 'success') {
+    data.value.data.forEach((element) => {
+      const { id, code } = element
+      currencies.value.push({
+        id,
+        code,
+      })
+    })
+    selectedCurrency.code = data.value.data[0].code
+    selectedCurrency.id = data.value.data[0].id
+  }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
+}
+fetchCurrencies()
+
+
+
+const Tab = ref('wallet')
+const toggleTab = (tab) => {
+  Tab.value = tab
+}
+
+const banks = ref([])
+
+const fetchBanks = async () => {
+  const { status, data, error } = await getBanks()
+
+  if (status.value === 'success') {
+    console.log('banks', data.value)
+
+    banks.value = data.value.data
+  }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
+}
+
+fetchBanks()
+
+// Withdrawal Otp
+
+const withdrawalOtp = async () => {
+  const { status, data, error } = await withdrawOtp()
+
+  if (status.value === 'success') {
+    console.log('banks', data.value)
+  }
+  if (status.value === 'error') {
+    console.log(error.value)
+  }
+}
+
+const selectedBank = ref(null)
+const paymentInfo = reactive({
+  otp: '',
+  amount: '',
+  account_number: '',
+  bank: '',
+  code: '',
+})
+
+watch(selectedBank, (newBank) => {
+  paymentInfo.bank = newBank?.slug || ''
+  paymentInfo.code = newBank?.code || ''
+})
+
+const WithdrawToBank = async () => {
+  const isFilled = (Object.values(paymentInfo).every(e => e !== ''))
+
+  if (!isFilled) return
+
+  const formdata = new FormData()
+  formdata.append('otp', paymentInfo.otp)
+  formdata.append('amount', paymentInfo.amount)
+  formdata.append('account_number', paymentInfo.account_number)
+  formdata.append('bank', paymentInfo.bank)
+
+  console.log(paymentInfo)
+  const { status, data, error } = await withdraw(formdata)
+
+  if (status.value === 'success') {
+    console.log('banks', data.value)
+    handleALert('success', 'Withdrawal success')
+    // banks.value = data.value.data
+  }
+  if (status.value === 'error') {
+    handleALert('error', error.value.data.message)
+    console.log(error.value)
+  }
 }
 </script>
 
@@ -53,7 +163,7 @@ const selectCurrency = (id) => {
             Wallet Balance
           </h2>
           <div class="flex gap-4 items-center">
-            <span class="text-black text-4xl font-extrabold satoshiM">NGN 47,150,000</span>
+            <span class="text-black text-4xl font-extrabold satoshiM">NGN {{ walletSummary?.wallet_balance }}</span>
             <span><svg
               width="25"
               height="25"
@@ -70,7 +180,7 @@ const selectCurrency = (id) => {
           <div class="card-actions justify-start">
             <button
               class="btn btn-neutral "
-              onclick="my_modal_1.showModal()"
+              onclick="my_modal_2.showModal()"
             >
               <span>Withdraw</span>
               <span><svg
@@ -97,8 +207,8 @@ const selectCurrency = (id) => {
       <div class="w-1/3">
         <DashboardStatsCard
           title="Total Income"
-          value="NGN 10,000"
-          percentage="8.5"
+          :value="walletSummary?.total_income"
+          :percentage="walletSummary?.percentage_increase?.income"
           :icon="shop"
           icon-bg="bg-[#5EA6F41A]"
           :second-card="true"
@@ -106,8 +216,8 @@ const selectCurrency = (id) => {
         />
         <DashboardStatsCard
           title="Awaiting Value"
-          value="99,500,000"
-          percentage="8.5"
+          :value="walletSummary?.total_withdrawal"
+          :percentage="walletSummary?.percentage_increase?.withdrawal"
           :icon="cardpos"
           :second-card="true"
           icon-bg="bg-[#5EF4881A]"
@@ -116,10 +226,7 @@ const selectCurrency = (id) => {
 
       <div class="w-[20%] bg-black flex flex-col items-center justify-center gap-5 rounded-2xl">
         <label class="text-white text-lg">Select Currency</label>
-        <div
-
-          class="relative"
-        >
+        <div class="relative">
           <button
             type="button"
             class="relative w-[7.2rem] cursor-default rounded-md bg-inherit py-1.5 pl-1.5 pr-5 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-white focus:outline-none focus:ring-2 focus:ring-white sm:text-sm sm:leading-6"
@@ -129,12 +236,8 @@ const selectCurrency = (id) => {
             @click="showDropDown()"
           >
             <span class="flex items-center">
-              <img
-                :src="selectedCurrency.img"
-                alt=""
-                class="h-6 w-6 flex-shrink-0 rounded-full"
-              >
-              <span class="ml-2 block truncate text-brightGold">{{ selectedCurrency.name }}</span>
+
+              <span class="ml-2 block truncate text-brightGold">{{ selectedCurrency.code }}</span>
             </span>
             <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
               <svg
@@ -176,13 +279,8 @@ const selectCurrency = (id) => {
               @click="selectCurrency(value.id)"
             >
               <div class="flex items-center">
-                <img
-                  :src="value.img"
-                  alt=""
-                  class="h-5 w-5 flex-shrink-0 rounded-full"
-                >
                 <!-- Selected: "font-semibold", Not Selected: "font-normal" -->
-                <span class="ml-3 block truncate font-normal">{{ value.name }}</span>
+                <span class="ml-3 block truncate font-normal">{{ value.code }}</span>
               </div>
 
               <!--
@@ -282,9 +380,8 @@ const selectCurrency = (id) => {
                 <th>
                   Serial Number
                 </th>
-                <th>Image</th>
                 <th>
-                  <span>Product Name</span>
+                  <span>Date</span>
                   <svg
                     class="inline"
                     width="15"
@@ -303,7 +400,7 @@ const selectCurrency = (id) => {
                   </svg>
                 </th>
                 <th>
-                  <span>Condition</span>
+                  <span>Amount</span>
                   <svg
                     class="inline"
                     width="15"
@@ -322,7 +419,7 @@ const selectCurrency = (id) => {
                   </svg>
                 </th>
                 <th>
-                  <span>Color</span>
+                  <span>Time</span>
                   <svg
                     class="inline"
                     width="15"
@@ -341,7 +438,7 @@ const selectCurrency = (id) => {
                   </svg>
                 </th>
                 <th>
-                  <span>Category</span>
+                  <span>To</span>
                   <svg
                     class="inline"
                     width="15"
@@ -360,83 +457,7 @@ const selectCurrency = (id) => {
                   </svg>
                 </th>
                 <th>
-                  <span>Price</span>
-                  <svg
-                    class="inline"
-                    width="15"
-                    height="14"
-                    viewBox="0 0 15 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.57922 3.10291V10.8536M7.57922 10.8536L11.4546 6.97827M7.57922 10.8536L3.70386 6.97827"
-                      stroke="#667085"
-                      stroke-width="1.10725"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </th>
-                <th>
-                  <span>Seller Name</span>
-                  <svg
-                    class="inline"
-                    width="15"
-                    height="14"
-                    viewBox="0 0 15 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.57922 3.10291V10.8536M7.57922 10.8536L11.4546 6.97827M7.57922 10.8536L3.70386 6.97827"
-                      stroke="#667085"
-                      stroke-width="1.10725"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </th>
-                <th>
-                  <span>Seller Image</span>
-                  <svg
-                    class="inline"
-                    width="15"
-                    height="14"
-                    viewBox="0 0 15 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.57922 3.10291V10.8536M7.57922 10.8536L11.4546 6.97827M7.57922 10.8536L3.70386 6.97827"
-                      stroke="#667085"
-                      stroke-width="1.10725"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </th>
-                <th>
-                  <span>Listing Date</span>
-                  <svg
-                    class="inline"
-                    width="15"
-                    height="14"
-                    viewBox="0 0 15 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.57922 3.10291V10.8536M7.57922 10.8536L11.4546 6.97827M7.57922 10.8536L3.70386 6.97827"
-                      stroke="#667085"
-                      stroke-width="1.10725"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </th>
-                <th>
-                  <span>Status</span>
+                  <span>Type</span>
                   <svg
                     class="inline"
                     width="15"
@@ -459,56 +480,56 @@ const selectCurrency = (id) => {
             <tbody>
               <!-- Use this -->
               <tr
-                v-for="(item, index) in 12"
+                v-for="(item, index) in walletSummary.transactions"
                 :key="index"
               >
                 <th>
-                  {{ index + 2 }}
+                  {{ index + 1 }}
                 </th>
-                <td>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar">
-                      <div class="mask mask-squircle h-9 w-9">
-                        <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </td>
+
                 <td class="font-medium text-valmon_menu">
-                  Iphone 12
+                  {{ formatDate(item.created_at) }}
                 </td>
-                <td>Used</td>
-                <td>Black</td>
-                <td>Phone</td>
-                <td>N437099GN </td>
-                <td>Raman Isamil</td>
+                <td>{{ item.amount }}</td>
+                <td>{{ formatDateTime(item.created_at).time }}</td>
                 <td>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar">
-                      <div class="mask mask-squircle h-9 w-9">
-                        <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
-                        >
-                      </div>
-                    </div>
-                  </div>
+                  {{ item.type === 'withdrawal' ? item.bank_name : '' }} - {{ item.type === 'withdrawal'
+                    ? item.account_number : '' }}
                 </td>
-                <td>8/9/2022</td>
-                <th>
-                  <button class="btn btn-outline text-green-600  btn-xs mr-2 ">
-                    Approval
-                  </button>
-                  <button class="btn btn-outline text-red-600  btn-xs mr-2 ">
-                    Deny
-                  </button>
-                  <button class="btn bg-brightGold text-black btn-xs ">
-                    View
-                  </button>
-                </th>
+                <td>
+                  <span :class="`text-${item.type === 'funding' ? '#E79E1F' : '#364254'}`">
+                    <span :class="`bg-${item.type === 'funding' ? '#FDFAEC' : '#364254'}`">
+                      {{ item.type }}
+                    </span>
+                  </span>
+                </td>
+                <td
+                  class="dropdown dropdown-end hidden"
+                  tabindex="0"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+                    />
+                  </svg>
+                  <ul
+                    tabindex="0"
+                    class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow"
+                  >
+                    <li onclick="my_modal_2.showModal()">
+                      <a>Withdraw</a>
+                    </li>
+                  </ul>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -539,9 +560,7 @@ const selectCurrency = (id) => {
                   <button class="join-item btn  btn-sm">
                     4
                   </button>
-                  <span
-                    class="join-item btn  btn-sm"
-                  >
+                  <span class="join-item btn  btn-sm">
                     ...
                   </span>
                   <button class="join-item btn  btn-sm">
@@ -559,82 +578,119 @@ const selectCurrency = (id) => {
     </div>
 
     <dialog
-      id="my_modal_1"
+      id="my_modal_2"
       class="modal"
     >
       <div class="modal-box">
         <h1 class="text-center text-[#232323] text-3xl font-bold mb-5">
-          Add Payment Method
+            Withdraw Fund
         </h1>
         <!-- card -->
-        <div class="border-brightGold border-2 p-2 rounded-lg">
-          <div
-            role="alert"
-            class="alert border-[#0000007A] p-2 mb-4 rounded-md"
-          >
-            <div class="form-control">
-              <label class="label cursor-pointer flex gap-4">
+        <div class=" p-5">
+          <div class="card-body p-2">
+            <label class="form-control w-full mb-3">
+              <div class="label">
+                <span class="label-text">OTP</span>
+              </div>
+              <input
+                v-model="paymentInfo.otp"
+                type="text"
+                placeholder="Type here"
+                class="input input-bordered w-full "
+              >
+              <button
+                class="label-text underline w-fit ms-auto satoshiM"
+                @click=" withdrawalOtp"
+              >Get OTP</button>
 
-                <input
-                  type="radio"
-                  name="radio-1"
-                  class="radio"
+            </label>
+
+            <label class="form-control w-full mb-3">
+              <div class="label">
+                <span class="label-text">Amount</span>
+              </div>
+              <input
+                v-model="paymentInfo.amount"
+                type="text"
+                placeholder="Type here"
+                class="input input-bordered w-full "
+              >
+            </label>
+
+            <label class="form-control w-full mb-3">
+              <div class="label">
+                <span class="label-text">Account Number</span>
+              </div>
+              <input
+                v-model="paymentInfo.account_number"
+
+                type="text"
+                placeholder="Type here"
+                class="input input-bordered w-full "
+              >
+            </label>
+            <label class="form-control w-full mb-3">
+              <div class="label">
+                <span class="label-text">Bank</span>
+              </div>
+
+              <select
+                v-model="selectedBank"
+                class="select select-bordered w-full "
+              >
+                <option
+                  v-for="bank in banks"
+                  :key="bank.id"
+                  :value="bank"
+                >{{ bank.name }}</option>
+
+              </select>
+            </label>
+            <button
+              class="btn btn-neutral bg-black text-white w-full"
+              @click="WithdrawToBank"
+            >
+              Withdraw
+            </button>
+
+            <!-- Not in use -->
+            <button
+              v-for="(item, index) in 3"
+              :key="index"
+              class="btn btn-block mb-3 hidden"
+              onclick="my_modal_1.showModal()"
+            >
+              <span class="flex flex-row justify-between w-full items-center">
+                <img
+                  :src="masterCard"
+                  alt="Master Card"
+                  class="w-[40px] h-[40px]"
                 >
+                <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Axis Bank  xxxx68</span>
+                <span class="text-darkGold text-base font-bold  hover:text-brightGold">Select</span>
+              </span>
+            </button>
+            <button
+              class="btn mb-3 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full mx-auto hidden"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="rgba(118, 127, 140, 1)"
+                class="size-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
 
-                <span class="label-text text-lg font-bold text-[#232323]">Card Payment</span>
-              </label>
-            </div>
+              Add Payment Method
+            </button>
           </div>
-          <div
-            role="alert"
-            class="alert border-[#0000007A] p-2 mb-4 rounded-md"
-          >
-            <div class="form-control">
-              <label class="label cursor-pointer flex gap-4">
-
-                <input
-                  type="radio"
-                  name="radio-1"
-                  class="radio"
-                >
-
-                <span class="label-text text-lg font-bold text-[#232323]">Paypal</span>
-              </label>
-            </div>
-          </div>
-          <label class="form-control w-full mb-3">
-            <div class="label">
-              <span class="label-text">Card Number</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Type here"
-              class="input input-bordered w-full "
-            >
-          </label>
-          <label class="form-control w-full mb-3">
-            <div class="label">
-              <span class="label-text">Expiry Number</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Type here"
-              class="input input-bordered w-full "
-            >
-          </label>
-          <label class="form-control w-full mb-3">
-            <div class="label">
-              <span class="label-text">Cvv</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Type here"
-              class="input input-bordered w-full "
-            >
-          </label>
-          <button class="btn btn-neutral bg-black text-white w-full">
-            Save Card
-          </button>
         </div>
         <!-- card -->
 

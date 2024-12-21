@@ -1,18 +1,28 @@
 <script setup>
 import { useGlobalStore } from '@/store'
-import { categoryController } from '~/services/modules/category'
+
+import { SKillsController } from '~/services/modules/Admin/skills'
+
 // Initialize Variable
 const store = useGlobalStore()
+const { parentCategory, createCategory } = SKillsController()
 
 provide('services', 'services')
 
 const loading = ref(false)
 const savedBtn = ref('Save Category')
 // Handle Views
-function viewSubCategory() {
+const PCategoryId = ref(null)
+function viewSubCategory(id) {
+  PCategoryId.value = id
   store.$patch({
     viewParentSubCategory: true,
   })
+}
+
+const customerId = ref(null)
+const setViewSkill = (id) => {
+  customerId.value = id
 }
 
 const fileData = ref(null)
@@ -26,8 +36,26 @@ const parentCategoryData = reactive({
   description: '',
 })
 
+const PCData = ref([])
+
+const fetchParentCategory = async () => {
+  try {
+    const { status, data, error } = await parentCategory()
+    if (status.value === 'success') {
+      PCData.value = data.value.data
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+}
+
+fetchParentCategory()
+
 // Api call
-const { createCategory } = categoryController()
 
 const saveCategory = async () => {
   loading.value = true
@@ -257,32 +285,32 @@ const saveCategory = async () => {
           <tbody>
             <!-- row 1 -->
             <tr
-              v-for="(item, index) in 6"
+              v-for="(item, index) in PCData"
               :key="index"
             >
               <th>
-                1
+                {{ index + 1 }}
               </th>
               <td>
                 <div class="flex items-center justify-center">
                   <div class="avatar">
                     <div class="mask mask-squircle h-9 w-9">
                       <img
-                        src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                        alt="Avatar Tailwind CSS Component"
+                        :src="item.image"
+                        alt=" image"
                       >
                     </div>
                   </div>
                 </div>
               </td>
               <td class="font-medium text-valmon_menu">
-                Services  Skills
+                {{ item.name }}
               </td>
-              <td>44</td>
-              <td>13,000</td>
-              <td>13,000</td>
-              <td>NGN 76,000</td>
-              <td>NGN 7,600</td>
+              <td>{{ item.sub_categories_count }}</td>
+              <td>{{ item.total_users }}</td>
+              <td>{{ item.total_transactions }}</td>
+              <td>NGN {{ item.transacted_value }}</td>
+              <td>NGN {{ item.valmon_earning }}</td>
 
               <td
                 class="dropdown dropdown-end"
@@ -306,7 +334,7 @@ const saveCategory = async () => {
                   tabindex="0"
                   class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow"
                 >
-                  <li @click="viewSubCategory()">
+                  <li @click="viewSubCategory(item.id)">
                     <a>View</a>
                   </li>
                   <li><a>Delete</a></li>
@@ -362,8 +390,16 @@ const saveCategory = async () => {
   </div>
 
   <!-- Sub-Category -->
-  <DashboardServicesSubCategory v-if="store.viewParentSubCategory && store.viewSkills === false" />
-  <DashboardServicesSkill v-if="store.viewSkills" />
+  <DashboardServicesSubCategory
+    v-if="store.viewParentSubCategory && store.viewSkills === false"
+    :category-id="PCategoryId"
+    @customer-events="setViewSkill"
+  />
+
+  <DashboardServicesSkill
+    v-if="store.viewSkills"
+    :customer-id="customerId"
+  />
 
   <!-- Open the modal using ID.showModal() method -->
   <!-- Add Category -->

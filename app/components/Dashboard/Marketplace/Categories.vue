@@ -1,9 +1,9 @@
 <script setup>
-import { MarketplaceController } from '@/services/modules/Admin/marketplace'
+import { ListingsController } from '~/services/modules/Admin/listing'
 
 const categoryName = ref('')
 const loading = ref(false)
-const { createMarketPlaceListing } = MarketplaceController()
+const { createMarketPlaceListing } = ListingsController()
 const Save = async () => {
   loading.value = true // Set loading to true before making the request
 
@@ -12,14 +12,14 @@ const Save = async () => {
     loading.value = false
     handleALert('success', data.value.message)
   }
-  if (success.value === 'error') {
+  if (status.value === 'error') {
     loading.value = false
-    handleALert('error', error.value.data.message)
+    handleALert('error', error.value)
   }
 }
 
 const listingCategory = ref([])
-const { getMarketPlaceListing } = MarketplaceController()
+const { getMarketPlaceListing } = ListingsController()
 const fetchLoading = ref(false)
 const fetchListingCategory = async () => {
   fetchLoading.value = true // Set loading to true before making the request
@@ -29,9 +29,9 @@ const fetchListingCategory = async () => {
     fetchLoading.value = false
     listingCategory.value = data.value.data
   }
-  if (success.value === 'error') {
+  if (status.value === 'error') {
     fetchLoading.value = false
-    handleALert('error', error.value.data.message)
+    handleALert('error', error.value)
   }
 }
 
@@ -52,9 +52,10 @@ fetchListingCategory()
         <div class="text-sm">
           <div class="mb-2">
             <span class="text-valmon_menu font-medium">Category List</span>
-            <span class="inline-block text-valmon_Gold text-xs ms-3">3 Parent Categories</span>
+            <span class="inline-block text-valmon_Gold text-xs ms-3">{{ listingCategory?.length }} Parent
+              Categories</span>
           </div>
-          <p>List Of All Customers on The Platform</p>
+          <p>List Of All Listings on The Platform</p>
         </div>
         <!-- Content 2 -->
         <div class="flex items-center gap-8 justify-between">
@@ -226,16 +227,16 @@ fetchListingCategory()
                 1
               </th>
               <td>
-              {{ item.name }}
+                {{ item?.name }}
               </td>
               <td class="">
-                13,000
+                {{ item?.products_listed }}
               </td>
               <td>
-                13,000
+                NGN {{ item?.products_sold }}
               </td>
-              <td>NGN 76,000</td>
-              <td>NGN 7,600</td>
+              <td>NGN {{ item?.active_listings_cost }}</td>
+              <td>NGN {{ item?.sold_amount }}</td>
 
               <td
                 class="dropdown dropdown-end"
@@ -295,9 +296,7 @@ fetchListingCategory()
                 <button class="join-item btn  btn-sm">
                   4
                 </button>
-                <span
-                  class="join-item btn  btn-sm"
-                >
+                <span class="join-item btn  btn-sm">
                   ...
                 </span>
                 <button class="join-item btn  btn-sm">
@@ -320,9 +319,7 @@ fetchListingCategory()
   >
     <div class="modal-box">
       <div class="card-body  flex justify-center gap-10">
-        <h2
-          class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl text-center"
-        >
+        <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl text-center">
           Add Category
         </h2>
 

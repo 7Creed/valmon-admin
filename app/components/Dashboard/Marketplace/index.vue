@@ -3,13 +3,36 @@ import shop from '@/assets/icons/shop.svg'
 import cardpos from '@/assets/icons/card-pos-black.svg'
 import convertShape from '@/assets/icons/convertshape.svg'
 
+import { ListingsController } from '~/services/modules/Admin/listing'
+import { useGlobalStore } from '~/store'
+
 definePageMeta({
   layout: 'dashboard-layout',
 })
 
+const store = useGlobalStore()
+
+const { getListingSummary } = ListingsController()
+const listingSummary = ref({})
+const fetchListingSummary = async () => {
+  const { status, data, error } = await getListingSummary()
+  if (status.value === 'success') {
+    listingSummary.value = data.value.data
+  }
+  if (status.value === 'error') {
+    console.error(error.value.data.message)
+  }
+}
+
+fetchListingSummary()
+
 const emit = defineEmits('products')
 
-const emitEvent = () => {
+const emitEvent = (id) => {
+  store.$patch({
+    adminListingId: id,
+  })
+
   emit('products')
 }
 </script>
@@ -20,28 +43,25 @@ const emitEvent = () => {
     <div class=" flex flex-wrap gap-6 mb-10">
       <DashboardStatsCard
         title="Total Listings"
-        value="10,000"
-        percentage="8.5"
+        :value="listingSummary?.totalListingCount"
         :icon="shop"
         icon-bg="bg-[#5EA6F41A]"
       />
       <DashboardStatsCard
         title="Listed Value"
-        value="99,500,000"
-        percentage="8.5"
+        :value="listingSummary?.totalListedValue"
         :icon="cardpos"
         icon-bg="bg-[#5EF4881A]"
       />
       <DashboardStatsCard
         title="In-Escrow Value"
-        value="4,500,900"
-        percentage="8.5"
+        :value="listingSummary?.In_Escrow_Value"
         :icon="cardpos"
         icon-bg="bg-[#5EF4901A]"
       />
       <DashboardStatsCard
         title="In-Escrow"
-        value="500"
+        :value="listingSummary?.In_Escrow_count"
         :icon="convertShape"
         icon-bg="bg-[#F45E5E1A]"
       />
@@ -55,9 +75,9 @@ const emitEvent = () => {
           <div class="text-sm">
             <div class="mb-2">
               <span class="text-valmon_menu font-medium">Product List</span>
-              <span class="inline-block text-valmon_Gold text-xs ms-3">10,000 listed</span>
+              <span class="inline-block text-valmon_Gold text-xs ms-3">{{ listingSummary?.totalListingCount }} listed</span>
             </div>
-            <p>List Of All Customers on The Platform</p>
+            <p>List Of All Listings on The Platform</p>
           </div>
           <!-- Content 2 -->
           <div class="flex items-center w-1/3 gap-8 justify-between">
@@ -291,112 +311,51 @@ const emitEvent = () => {
             </thead>
             <tbody>
               <!-- row 1 -->
-              <tr>
-                <th>
-                  1
-                </th>
-                <td>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar">
-                      <div class="mask mask-squircle h-9 w-9">
-                        <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="font-medium text-valmon_menu">
-                  Iphone 12
-                </td>
-                <td>Used</td>
-                <td>Black</td>
-                <td>Phone</td>
-                <td>N437099GN </td>
-                <td>Raman Isamil</td>
-                <td>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar">
-                      <div class="mask mask-squircle h-9 w-9">
-                        <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td>8/9/2022</td>
-                <th>
-                  <button class="btn text-[#AD7A22]  btn-xs ">
-                    <span class="inline-block p-1 bg-[#E79E1F] rounded-full" />
-                    <span>Active</span>
-                  </button>
-                </th>
-                <td>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-6"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
-                    />
-                  </svg>
-                </td>
-              </tr>
-              <!-- row 2 -->
               <!-- Use this -->
               <tr
-                v-for="(item, index) in 12"
+                v-for="(item, index) in listingSummary?.all_listings"
                 :key="index"
               >
                 <th>
-                  {{ index + 2 }}
+                  {{ index + 1 }}
                 </th>
                 <td>
                   <div class="flex items-center gap-3">
                     <div class="avatar">
                       <div class="mask mask-squircle h-9 w-9">
                         <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
+                          :src="item.image ?? 'N/A'"
+                          :alt="item.image ?? 'N/A'"
                         >
                       </div>
                     </div>
                   </div>
                 </td>
                 <td class="font-medium text-valmon_menu">
-                  Iphone 12
+                  {{ item.name }}
                 </td>
-                <td>Used</td>
-                <td>Black</td>
-                <td>Phone</td>
-                <td>N437099GN </td>
-                <td>Raman Isamil</td>
+                <td>{{ (item.condition).slice(0, 20) }}...</td>
+                <td>{{ item.color }}</td>
+                <td>{{ item.category }}</td>
+                <td>NGN{{ item.price }}</td>
+                <td>{{ item.seller_name }}</td>
                 <td>
                   <div class="flex items-center gap-3">
                     <div class="avatar">
                       <div class="mask mask-squircle h-9 w-9">
                         <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
+                          :src="item.seller_image ?? 'N/A'"
+                          :alt="item.seller_image ?? 'N/A'"
                         >
                       </div>
                     </div>
                   </div>
                 </td>
-                <td>8/9/2022</td>
+                <td>{{ formatDate(item.listing_date) }}</td>
                 <th>
                   <button class="btn text-[#364254]  btn-xs ">
                     <span class="inline-block p-1 bg-[#6C778B] rounded-full" />
-                    <span>Inactive</span>
+                    <span>{{ (item.status).toLowerCase() }}</span>
                   </button>
                 </th>
                 <td
@@ -421,11 +380,8 @@ const emitEvent = () => {
                     tabindex="0"
                     class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow"
                   >
-                    <li @click="emitEvent">
-                      <a
-
-                        href="javascript:void(0)"
-                      >View</a>
+                    <li @click="emitEvent(item.id)">
+                      <a href="javascript:void(0)">View</a>
                     </li>
                     <li><a>Delete</a></li>
                   </ul>
@@ -460,9 +416,7 @@ const emitEvent = () => {
                   <button class="join-item btn  btn-sm">
                     4
                   </button>
-                  <span
-                    class="join-item btn  btn-sm"
-                  >
+                  <span class="join-item btn  btn-sm">
                     ...
                   </span>
                   <button class="join-item btn  btn-sm">

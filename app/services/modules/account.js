@@ -2,7 +2,7 @@
 import { useBaseApi } from '../baseApi'
 
 export const accountController = () => {
-  const { get, post, put, del } = useBaseApi()
+  const { get, post, put, patch, del } = useBaseApi()
 
   const uploadProfilePicture = userData => post(`account/upload-photo`, userData)
   const addServiceCategory = userData => post(`account/services`, userData)
@@ -36,6 +36,15 @@ export const accountController = () => {
 
   const resetpassword = data => post('account/reset-password', data)
 
+  //Reviews 
+  const createReview = (data, id) => post(`account/${id}/reviews`, data)
+  const getReviews = id => get(`account/${id}/reviews`)
+
+
+  // Active Jobs
+
+  const markJobAsCompleted = id => post(`jobs/${id}/status`)
+  const getActiveJobs = page => get(`jobs?perpage=14&page=${page}`)
 
   return {
     uploadProfilePicture,
@@ -57,5 +66,9 @@ export const accountController = () => {
     getNewGig,
     UpdateProfile,
     resetpassword,
+    createReview,
+    getReviews,
+    markJobAsCompleted,
+    getActiveJobs
   }
 }

@@ -16,6 +16,7 @@ const goBackward = () => {
 }
 </script>
 
+<!-- TODO :Pass Negotiation Id to View Chat  -->
 <template>
   <div class="text-card bg-primary_bg w-full p-10 px-14">
     <div
@@ -63,14 +64,30 @@ const goBackward = () => {
         v-if="activeComp === 'products'"
         @view-chat="toggleComp('viewChat')"
       />
-      <DashboardMarketplaceViewChat v-if="activeComp === 'viewChat'" />
+      <DashboardViewChat
+        v-if="activeComp == 'viewChat'"
+        type="marketplace"
+        @view-chat="toggleComp('viewChat')"
+      />
 
       <!-- Approval tab -->
-      <DashboardMarketplaceApproval v-if="activeComp === 'approval'" />
+      <DashboardMarketplaceApproval
+        v-if="activeComp === 'approval' && activeComp != 'products'"
+        @products="toggleComp('products')"
+      />
 
       <!-- Close Transaction -->
-      <DashboardMarketplaceCloseTransaction v-if="activeComp === 'transaction'" />
+      <DashboardMarketplaceCloseTransaction
+        v-if="activeComp === 'transaction' && activeComp != 'products'"
+        @products="toggleComp('products')"
+      />
       <DashboardMarketplaceCategories v-if="activeComp === 'category'" />
     </div>
   </div>
 </template>
+
+<style scoped>
+  .border_b {
+    @apply border-b-darkGold pb-1 !important;
+  }
+</style>

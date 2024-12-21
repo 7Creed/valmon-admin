@@ -1,14 +1,39 @@
 <script setup>
+import { SettingsController } from '~/services/modules/Admin/settings'
+
 definePageMeta(
   {
     layout: 'dashboard-layout',
   },
 )
 
+const { getAdmin, deleteAdmin } = SettingsController()
+
 const newAccount = ref(false)
 const AddNew = () => {
   newAccount.value = !newAccount.value
 }
+
+const Admins = ref([])
+const fetchAdmin = async () => {
+  try {
+    const { status, data, error } = await getAdmin()
+    if (status.value === 'success') {
+      console.log(data.value.data)
+      Admins.value = data.value.data
+    }
+    if (status.value === 'error') {
+      console.log(error.value.data.message)
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
+fetchAdmin()
+
+const convDate = date => formatDate(date)
 </script>
 
 <template>
@@ -166,43 +191,10 @@ const AddNew = () => {
               </tr>
             </thead>
             <tbody>
-              <!-- row 1 -->
-              <tr>
-                <th>
-                  1
-                </th>
-                <td>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar">
-                      <div class="mask mask-squircle h-9 w-9">
-                        <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="font-medium text-valmon_menu">
-                  Zemlak, Daniel and Leannon
-                </td>
-                <td>OuwaDunsin@gmail.com</td>
-                <td>1/1/2001</td>
-                <td class="text-darkGold">
-                  SuperAdmin
-                </td>
-                <td>1/1/2001</td>
-                <th>
-                  <button class="btn text-black  btn-xs bg-waring border-[#E79E1F] hover:bg-[#E79E1F]">
-                    <span class="inline-block p-1 bg-[#E79E1F] rounded-full" />
-                    <span>Active</span>
-                  </button>
-                </th>
-              </tr>
               <!-- row 2 -->
               <!-- Use this -->
               <tr
-                v-for="(item, index) in 12"
+                v-for="(item, index) in Admins"
                 :key="index"
               >
                 <th>
@@ -213,7 +205,7 @@ const AddNew = () => {
                     <div class="avatar">
                       <div class="mask mask-squircle h-9 w-9">
                         <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
+                          :src="item.image"
                           alt="Avatar Tailwind CSS Component"
                         >
                       </div>
@@ -221,18 +213,29 @@ const AddNew = () => {
                   </div>
                 </td>
                 <td class="font-medium text-valmon_menu">
-                  Zemlak, Daniel and Leannon
+                  {{ item.name }}
                 </td>
-                <td>OuwaDunsin@gmail.com</td>
+                <td>{{ item.email }}</td>
                 <td>1/1/2001</td>
                 <td>
-                  Admin
+                  {{ item.role }}
                 </td>
-                <td>1/1/2001</td>
+                <td>{{ convDate(item.last_seen) === 'Invalid Date' ? 'Never' : convDate(item.last_seen) }}</td>
                 <th>
-                  <button class="btn text-black  btn-xs bg-[#F2F4F7] border-[#6C778B] hover:bg-[#6C778B]">
+                  <button
+                    v-if="item.status === 'inactive'"
+                    class="btn text-black  btn-xs bg-waring border-[#E79E1F] hover:bg-[#E79E1F]"
+                  >
+                    <span class="inline-block p-1 bg-[#E79E1F] rounded-full" />
+                    <span>{{ item.status }}</span>
+                  </button>
+
+                  <button
+                    v-else
+                    class="btn text-black  btn-xs bg-[#F2F4F7] border-[#6C778B] hover:bg-[#6C778B]"
+                  >
                     <span class="inline-block p-1 bg-black rounded-full" />
-                    <span>Inactive</span>
+                    <span>{{ item.status }}</span>
                   </button>
                 </th>
               </tr>

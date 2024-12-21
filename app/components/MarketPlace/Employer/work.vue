@@ -6,9 +6,12 @@ import copySuccess from '@/assets/icons/copy-success.svg'
 import location from '@/assets/icons/location.svg'
 
 import { accountController } from '~/services/modules/account'
+import { UsersController } from '~/services/modules/Admin/users'
 
 import { useActiveView } from '@/composables/state'
 import { useGlobalStore } from '@/store'
+
+const { users, deleteUser, suspendUser, restoreUser } = UsersController()
 
 const { handleGeneralHistory, state } = useActiveView()
 const store = useGlobalStore()
@@ -38,8 +41,11 @@ const { SingleUserAccount, singleGallery } = accountController()
 const loading = ref(false)
 const userInfo = ref({})
 const gigs = ref([])
-// Listings
+const adminUsers = ref({})
+const reviews = ref([])
 
+// Listings
+const MPListing = ref([])
 // Gallery
 const galleryLoader = ref(false)
 const allGallery = ref([])
@@ -84,9 +90,6 @@ const FetchID = async (func, id, loader = null, alert = true) => {
   if (loader) loader.value = false
 }
 
-// Fetch single User Account
-FetchID(SingleUserAccount, store.userIdForProfileCheck, loading)
-
 // Handle User Location
 const userLocation = (address) => {
   if (address === null || address === undefined) return 'NA'
@@ -94,11 +97,46 @@ const userLocation = (address) => {
   return userAddress[0]
 }
 
+const fetchUsers = async (id) => {
+  try {
+    const { status, data, error } = await users(id)
+    if (status.value === 'success') {
+      adminUsers.value = data.value.data
+      allGallery.value = data.value.data.gallery
+      gigs.value = data.value.data.profile.gigs
+      reviews.value = data.value.data.reviews
+      MPListing.value = data.value.data.listings
+    }
+    if (status.value === 'error') {
+      console.log(error.value)
+    }
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
+
+const removeUser = async (id) => {
+  const { data, error, status } = await deleteUser(id)
+
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+    navigateTo('/admin/user')
+  }
+  else if (status.value === 'error') {
+    console.error('Delete User failed:', error.value.data.message)
+  }
+}
 // Fetch single User Gallery
-FetchID(singleGallery, store.userIdForProfileCheck, galleryLoader)
-// onMounted(() => {
-//   store.viewProfileFromDashboard = false
-// })
+if (store.UserAccount?.role == 'Admin' || store.UserAccount?.role == 'super_admin') {
+  console.log('dashbord profile')
+  fetchUsers(store.adminUserId)
+}
+else {
+  // Fetch single User Account and gallery
+  FetchID(singleGallery, store.userIdForProfileCheck, galleryLoader)
+  FetchID(SingleUserAccount, store.userIdForProfileCheck, loading)
+}
 
 const selectedServiceId = ref(null)
 const selectedService = ref('')
@@ -148,29 +186,91 @@ const PingUser = async () => {
 
 let interval
 
-onMounted(() => {
-  PingUser() // Initial call
-  interval = setInterval(PingUser, 30000) // Ping every 30 seconds
+// onMounted(() => {
+//   PingUser() // Initial call
+//   interval = setInterval(PingUser, 30000) // Ping every 30 seconds
+// })
+
+// onUnmounted(() => {
+//   clearInterval(interval) // Clean up
+// })
+
+const computedReviews = reactive({
+  average: 0,
+  data: [],
+  ratings: {},
+  total: 0,
 })
 
-onUnmounted(() => {
-  clearInterval(interval) // Clean up
+watch(reviews, (newVal, oldVal) => {
+  if (newVal) {
+    const totalRatings = newVal.reduce((acc, review) => acc + review.rating, 0)
+    const average = totalRatings / newVal.length
+    computedReviews.average = average.toFixed(1)
+
+    const Ratings = {
+      5: 0,
+      4: 0,
+      3: 0,
+      2: 0,
+      1: 0,
+    }
+    newVal.forEach((review) => {
+      Ratings[review.rating]++
+    })
+    computedReviews.data = newVal
+    computedReviews.ratings = Ratings
+  }
 })
+
+const manageUser = async (id, status) => {
+  if (status == 'ACTIVE') {
+    suspend(id)
+  }
+  else {
+    restore(id)
+  }
+  console.log(status)
+}
+
+const suspend = async (id) => {
+  const { data, error, status } = await suspendUser(id)
+
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+    fetchUsers(id)
+  }
+  else if (status.value === 'error') {
+    console.error('Delete User failed:', error.value.data.message)
+  }
+}
+
+const restore = async (id) => {
+  const { data, error, status } = await restoreUser(id)
+
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+    fetchUsers(id)
+  }
+  else if (status.value === 'error') {
+    console.error('Delete User failed:', error.value.data.message)
+  }
+}
 </script>
 
 <template>
   <div
     class="flex gap-8 pb-20 px-20 relative"
-    :class="{ 'flex-col': store.UserAccount?.role === 'Admin' }"
+    :class="{ 'flex-col': store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin' }"
   >
     <NuxtLink
-      v-if="store.viewProfileFromDashboard "
+      v-if="store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin'"
       to="/user"
     >
       <BaseBackButton class="absolute top-15 left-[-10px]" />
     </NuxtLink>
     <!-- Dashboard view -->
-    <template v-if="store.viewProfileFromDashboard">
+    <template v-if="store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin'">
       <aside class="">
         <div class="card card-compact bg-base-100 w-3/5 shadow-xl">
           <div class="card-body flex-row gap-20">
@@ -180,21 +280,17 @@ onUnmounted(() => {
                 <div class="flex items-center gap-6 mb-2 flex-1">
                   <!-- avatar -->
                   <div class="avatar">
-                    <div
-                      class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2"
-                    >
-                      <img
-                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                      >
+                    <div class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2">
+                      <img :src="adminUsers.profile_pic">
                     </div>
                   </div>
                   <!-- Profile desc -->
                   <div>
                     <h3 class="mb-1 text-[#24242] font-semibold text-sm">
-                      Raman Ismail
+                      {{ adminUsers.first_name }} {{ adminUsers.last_name }}
                     </h3>
                     <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
-                      <span class="t#62646Aext-black">Front-End</span>
+                      <span class="t#62646Aext-black">{{ adminUsers?.profile?.services[0]?.service?.name }}</span>
                     </div>
                     <div class="flex items-center gap-2">
                       <div class="rating w-4">
@@ -204,22 +300,21 @@ onUnmounted(() => {
                           class="mask mask-star"
                         >
                       </div>
-                      <span class="text-xs font-bold">4.7</span>
-                      <span class="text-black text-xs">(631 Ratings)</span>
+                      <span class="text-xs font-bold">{{ adminUsers?.rating }}</span>
+                      <span class="text-black text-xs">({{ adminUsers.ratings_count }} Ratings)</span>
                     </div>
                   </div>
                 </div>
                 <!-- 3rd -->
                 <div class="flex-1">
-                  <div
-                    class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1"
-                  >
+                  <div class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1">
                     <img
                       :src="location"
                       alt="Location icon"
                       class="h-5"
                     >
-                    <span class="font-medium text-[rgba(0,0,0,1)]">Lagos, Nigeria</span>
+                    <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation(adminUsers?.profile?.addresses).city
+                    }}, {{ userLocation(adminUsers?.profile?.addresses).country }}</span>
                   </div>
                   <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
                     <img
@@ -227,7 +322,8 @@ onUnmounted(() => {
                       alt="copy-success icon"
                       class="h-5"
                     >
-                    <span class="text-[rgba(0,0,0,1)] font-medium">65 jobs Completed</span>
+                    <span class="text-[rgba(0,0,0,1)] font-medium">{{ adminUsers.active_jobs_count }} jobs
+                      Completed</span>
                   </div>
                   <!-- Online Presence -->
                   <div class="relative flex gap-2">
@@ -275,18 +371,18 @@ onUnmounted(() => {
               <!-- contact -->
               <div>
                 <div class="card-actions justify-between gap-4">
-                  <button
-                    class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
-                  >
+                  <button class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2">
                     Contact
                   </button>
                   <button
                     class="btn bg-[#FF9F12CC]  flex-1 rounded-2xl border-[#FF9F12CC] border-2"
+                    @click="manageUser(adminUsers.id, adminUsers?.account_status)"
                   >
-                    Suspend
+                    {{ adminUsers?.account_status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}
                   </button>
                   <button
                     class="btn bg-red-600 flex-1 text-white rounded-2xl border-red-600 border-2"
+                    @click="removeUser(adminUsers.id)"
                   >
                     Delete
                   </button>
@@ -298,9 +394,7 @@ onUnmounted(() => {
                 About Me
               </h3>
               <p class="text-xs">
-                As an expert with over 20 years of experience, I've seen
-                remarkable advancements in technology, making it more accessible
-                and beneficial for everyday use.
+                {{ adminUsers?.profile?.bio ?? 'N/A' }}
               </p>
             </div>
           </div>
@@ -308,7 +402,7 @@ onUnmounted(() => {
       </aside>
     </template>
     <!-- General View -->
-    <template v-if="!store.viewProfileFromDashboard">
+    <template v-if="!(store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin')">
       <aside class="">
         <div class="card card-compact bg-base-100 w-72 shadow-xl">
           <div class="card-body">
@@ -348,9 +442,7 @@ onUnmounted(() => {
             <div class="flex items-center gap-6 mb-2">
               <!-- avatar -->
               <div class="avatar">
-                <div
-                  class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2"
-                >
+                <div class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2">
                   <img :src="userInfo.profile_pic">
                 </div>
               </div>
@@ -365,10 +457,7 @@ onUnmounted(() => {
                     :key="index"
                     class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm  w-fit "
                   >
-                    <span
-
-                      class=" text-black"
-                    >{{ service.service.name }}</span>
+                    <span class=" text-black">{{ service.service.name }}</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-2 ">
@@ -398,27 +487,22 @@ onUnmounted(() => {
                 {{ userInfo?.profile?.bio ?? 'Nil' }}
               </p>
             </div>
-            <div
-              class="flex justify-between items-center text-[#404145] text-xs mb-1"
-            >
+            <div class="flex justify-between items-center text-[#404145] text-xs mb-1">
               <span class="font-medium">Inbox response time</span>
               <span class="font-bold">{{ userInfo.inbox_response_time }} Mins</span>
             </div>
-            <div
-              class="flex justify-between items-center text-[#404145] text-xs mb-1"
-            >
+            <div class="flex justify-between items-center text-[#404145] text-xs mb-1">
               <span class="font-medium">Inbox response rate</span>
               <span class="font-bold">{{ userInfo.inbox_response_rate }} %</span>
             </div>
-            <div
-              class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1"
-            >
+            <div class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1">
               <img
                 :src="location"
                 alt="Location icon"
                 class="h-5"
               >
-              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation(userInfo?.profile?.addresses).city }}, {{ userLocation(userInfo?.profile?.addresses).country }}</span>
+              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation(userInfo?.profile?.addresses).city }}, {{
+                userLocation(userInfo?.profile?.addresses).country }}</span>
             </div>
             <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
               <img
@@ -527,9 +611,7 @@ onUnmounted(() => {
     <!-- main -->
     <section class="flex-1 ">
       <!-- Tab -->
-      <div
-        class="flex bg-white p-3 rounded-xl w-1/2 items-center justify-evenly mb-6"
-      >
+      <div class="flex bg-white p-3 rounded-xl w-1/2 items-center justify-evenly mb-6">
         <a
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
@@ -559,14 +641,15 @@ onUnmounted(() => {
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
           :class="{ border_b: workerTab === 'marketplace' }"
           @click="toggleTab('marketplace')"
-        >Marketplace Listings</a>
+        >Marketplace Listings </a>
       </div>
       <!-- Content -->
       <MarketPlaceEmployerBriefProfile
         v-if="workerTab === 'profile'"
-        :-user-gallery="allGallery"
+        :UserGallery="allGallery"
         type="profile"
         :gigs="gigs"
+        :reviews="computedReviews"
         @open-tab="viewAll"
       />
       <MarketPlaceEmployerWorkGallery
@@ -579,8 +662,14 @@ onUnmounted(() => {
         type="profile"
         :gigs="gigs"
       />
-      <MarketPlaceEmployerReviews v-if="workerTab === 'review'" />
-      <MarketPlaceEmployerMarketListing v-if="workerTab === 'marketplace'" />
+      <MarketPlaceEmployerReviews
+        v-if="workerTab === 'review'"
+        :reviews="computedReviews"
+      />
+      <MarketPlaceEmployerMarketListing
+        v-if="workerTab === 'marketplace'"
+        :listing="MPListing"
+      />
     </section>
   </div>
 
@@ -611,7 +700,8 @@ onUnmounted(() => {
             @change="selectServices(service.service.id, service.service.name)"
           >
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ service.service.name }}</span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{ service.years_of_experience }}</span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{
+            service.years_of_experience }}</span>
 
         </span>
       </div>

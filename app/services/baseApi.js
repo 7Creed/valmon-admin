@@ -49,6 +49,9 @@ export const useBaseApi = () => {
   const post = (url, body, options = {}) =>
     apiFetch(url, { ...options, method: 'POST', body })
 
+  const patch = (url, body, options = {}) =>
+    apiFetch(url, { ...options, method: 'PACTH', body })
+
   const put = (url, body, options = {}) =>
     apiFetch(url, { ...options, method: 'PUT', body })
 
@@ -61,5 +64,6 @@ export const useBaseApi = () => {
     post,
     put,
     del,
+    patch
   }
 }

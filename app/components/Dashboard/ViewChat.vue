@@ -2,9 +2,31 @@
 import productImg from '@/assets/images/UIElements/car.png'
 import resolvedbg from '@/assets/images/UIElements/sellOn.png'
 
+import { ListingsController } from '~/services/modules/Admin/listing'
+
+const { getConversation } = ListingsController()
+
 const props = defineProps({
   type: String,
 })
+
+const conversations = ref([])
+const loader = ref(false)
+const fetchConversation = async (id) => {
+  loader.value = true
+  const { data, status, error } = await getConversation(id)
+  loader.value = false
+  if (status.value === 'success') {
+    console.log(data.value.data)
+    conversations.value = data.value.data
+  }
+  if (status.value === 'error') {
+    loader.value = false
+    console.log(error.value)
+  }
+}
+
+fetchConversation(69)
 </script>
 
 <template>
@@ -19,7 +41,7 @@ const props = defineProps({
             <!-- avatar -->
             <div class="avatar">
               <div class="w-14 rounded-full">
-                <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp">
+                <img :src="conversations?.user?.profile_pic">
               </div>
             </div>
             <div>
@@ -27,7 +49,7 @@ const props = defineProps({
                 Buyer
               </div>
               <div class="text-[#101011] gap-8 mb-1">
-                <span class="text-sm  satoshiB">John Doe</span>
+                <span class="text-sm  satoshiB">{{ conversations?.user?.first_name }} {{ conversations?.user?.last_name }}</span>
                 <div class="flex items-center gap-2">
                   <div class="rating rating-sm">
                     <input
@@ -36,7 +58,7 @@ const props = defineProps({
                       class="mask mask-star"
                     >
                   </div>
-                  <span class="text-sm font-bold satoshiB">4.7</span>
+                  <span class="text-sm font-bold satoshiB">{{ conversations?.user?.ratings_count }}</span>
                   <span class="text-sm">(631 Ratings)</span>
                 </div>
               </div>
@@ -47,7 +69,7 @@ const props = defineProps({
             <!-- avatar -->
             <div class="avatar">
               <div class="w-14 rounded-full">
-                <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp">
+                <img :src="conversations?.recipient?.profile_pic">
               </div>
             </div>
             <div>
@@ -55,7 +77,7 @@ const props = defineProps({
                 Seller
               </div>
               <div class="text-[#101011] gap-8 mb-1">
-                <span class="text-sm  satoshiB">John Doe</span>
+                <span class="text-sm  satoshiB">{{ conversations?.recipient?.first_name }} {{ conversations?.recipient?.last_name }}</span>
                 <div class="flex items-center gap-2">
                   <div class="rating rating-sm">
                     <input
@@ -64,7 +86,7 @@ const props = defineProps({
                       class="mask mask-star"
                     >
                   </div>
-                  <span class="text-sm font-bold satoshiB">4.7</span>
+                  <span class="text-sm font-bold satoshiB">{{ conversations?.user?.ratings_count }}</span>
                   <span class="text-sm">(631 Ratings)</span>
                 </div>
               </div>
@@ -72,86 +94,65 @@ const props = defineProps({
           </div>
         </div>
 
-        <p class="text-[#4A4A4E] text-sm text-center mt-5 flex-grow-0">
+        <p class="text-[#4A4A4E] text-sm text-center mt-5 flex-grow-0 hidden">
           Your conversation with Daniel starts here
         </p>
 
         <!-- divider -->
         <div class="divider text-sm satoshiB text-black">
-          June 1, 2020
+          {{ formatDate(conversations.created_at) }}
         </div>
         <!-- Chat container -->
         <div class="h-96 overflow-auto">
-          <!-- User A -->
-          <div class="chat chat-start ">
-            <div class="chat-bubble bg-[#F0F2F5] text-black chat_adjustment">
-              It's over Anakin,
-              <br>
-              I have the high ground.
-            </div>
-          </div>
-          <!-- User B -->
-          <div class="chat chat-end ">
-            <div class="chat-bubble chat_adjustment bg-[#FEFDDA] text-black">
-              You underestimate my power!
-            </div>
-          </div>
-          <!-- User A -->
-          <div class="chat chat-start ">
-            <div class="chat-bubble bg-[#F0F2F5] text-black chat_adjustment">
-              It's over Anakin,
-              <br>
-              I have the high ground.
-              <div class="text-darkGold text-xs satoshiB mt-2">
-                3 Replies
+          <!-- User A :chat-start UserB : chat-end -->
+          <p
+            v-if="conversations.messages === 0"
+            class="text-[#4A4A4E] text-sm text-center mt-5"
+          >
+            No Conversation
+          </p>
+          <div v-else>
+            <div
+              v-for="(mesg, index) in conversations?.messages"
+              :key="mesg.id"
+              class="chat  "
+              :class="mesg.user_id == conversations?.user_id ? 'chat-start flex' : 'chat-end'"
+            >
+              <div
+                v-if="mesg.type === 'text'"
+                class="chat-bubble  text-black chat_adjustment"
+                :class="mesg.user_id == conversations?.user_id? 'bg-[#F0F2F5]' : 'bg-[#FEFDDA]'"
+              >
+                {{ mesg.content }}
+                <div class="hidden text-darkGold text-xs satoshiB mt-2">
+                  3 Replies
+                </div>
+                <div class=" text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
+                  <span class="text-darkGold hidden">Edited</span>
+                  <span class="ms-auto"> {{ getTimeDiff(mesg.created_at).time }} {{
+                   getTimeDiff(mesg.created_at).amPm }} </span>
+                  <!-- Emoji -->
+                  <span class="text-sm ml-2 hidden">😄</span>
+                </div>
               </div>
-              <div class="text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
-                <span class="text-darkGold ">Edited</span>
-                <span class="ms-auto">9:34 AM </span>
-                <!-- Emoji -->
-                <span class="text-sm ml-2">😄</span>
-              </div>
-            </div>
-          </div>
-          <!-- User B -->
-          <div class="chat chat-end">
-            <div class="chat-bubble chat_adjustment bg-[#FEFDDA] text-black">
-              You underestimate my power!
-            </div>
-          </div>
-          <!-- User A -->
-          <div class="chat chat-start">
-            <div class="chat-bubble bg-[#F0F2F5] text-black chat_adjustment">
-              It's over Anakin,
-              <br>
-              I have the high ground.
-              <div class="text-[10px] flex justify-between mt-2 text-[#2D2D30] satoshiM">
-                <span
-                  v-show="false"
-                  class="text-darkGold"
-                >Edited</span>
-                <span class="ms-auto">9:34 AM</span>
-              </div>
-            </div>
-          </div>
-          <!-- User B -->
-          <div class="chat chat-end">
-            <div class="chat-bubble chat_adjustment bg-[#FEFDDA] text-black">
-              You underestimate my power!
-            </div>
-          </div>
-          <!-- User A (SERVICE REQUEST) -->
-          <div class="chat chat-start">
-            <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
-              Service Provider is Requesting
-              <div class="mt-2 satoshiB">
-                NGN 45,678
+              <!-- User A (SERVICE REQUEST) -->
+              <div
+                v-if="mesg.type === 'negotiation'"
+                class="chat chat-start w-full "
+                :class="mesg.user_id == conversations?.user_id ? 'chat-start' : 'chat-end'"
+              >
+                <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
+                  {{ mesg.user_id == conversations?.user_id ? 'Client' : 'Service Provider' }} is Requesting
+                  <div class="mt-2 satoshiB">
+                    NGN {{ mesg.negotiation.price_offer }}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
         <!-- Button and chat box -->
-        <div class="flex items-center gap-4">
+        <div v-show="type !== 'marketplace'" class="flex items-center gap-4">
           <!-- chat box -->
           <label class="input input-bordered flex items-center gap-2 grow">
             <a
@@ -275,15 +276,15 @@ const props = defineProps({
       <div>
         <div class="card bg-base-100 w-96 shadow-xl flex-2 h-fit mb-5">
           <div class="card-body">
-            <figure class="w-[320px] h-[174px] mx-auto p-1">
+            <figure v-if="conversations?.orders[0]?.listing" class="w-[320px] mx-auto p-1">
               <img
-                :src="productImg"
+                :src="conversations?.orders[0]?.listing?.images[0]"
                 alt=""
                 class=" w-full  rounded-lg"
               >
             </figure>
             <p class=" text-valmon_menu mb-3">
-              Mercedes Benz AMG
+              {{ conversations?.orders[0]?.listing?.title }}
             </p>
             <p class=" text-valmon_menu font-semibold ">
               Listing Cost
@@ -294,7 +295,7 @@ const props = defineProps({
               class="alert block bg-[#F0F2F5] mb-3"
             >
               <div class="text-3xl text-black satoshiB">
-                NGN  195,799
+                NGN {{ conversations?.orders[0]?.amount }}
               </div>
             </div>
           </div>

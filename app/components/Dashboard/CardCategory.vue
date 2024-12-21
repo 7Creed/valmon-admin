@@ -5,8 +5,8 @@ const props = defineProps({
   percentage: String,
   icon: String,
   iconBg: String,
+  topCategories: Array,
 })
-const cardDetails = ['Tailor', 'Painter', 'Cleaner', 'Tailor', 'Painter', 'Cleaner', 'Tailor', 'Painter', 'Cleaner']
 </script>
 
 <template>
@@ -17,11 +17,11 @@ const cardDetails = ['Tailor', 'Painter', 'Cleaner', 'Tailor', 'Painter', 'Clean
       </h2>
       <div class="text-[#606060] flex flex-wrap text-sm font-semibold justify-between items-center gap-4">
         <div
-          v-for="(category, index) in cardDetails"
+          v-for="(category, index) in props?.topCategories"
           :key="index"
         >
           <span class="text-brightGold mr-2">{{ index + 1 }}.</span>
-          <span>{{ category }}</span>
+          <span>{{ category.name }}</span>
         </div>
       </div>
     </div>

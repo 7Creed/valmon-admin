@@ -1,4 +1,5 @@
 <script setup>
+import MarketListing from './MarketListing.vue'
 import archivedTick from '@/assets/icons/archive-tick.svg'
 import { accountController } from '~/services/modules/account'
 import { MarketplaceController } from '~/services/modules/marketplace'
@@ -57,7 +58,16 @@ const callListing = async () => {
       break
   }
 }
-callListing()
+
+// Fetch single User Gallery
+if (store.UserAccount?.role == 'Admin' || store.UserAccount?.role == 'super_admin') {
+  console.log('dashbord profile')
+  marketListings.value = props.otherListings
+}
+else {
+  callListing()
+}
+
 watch(props, (newVal) => {
   if (newVal) callListing()
 }, {

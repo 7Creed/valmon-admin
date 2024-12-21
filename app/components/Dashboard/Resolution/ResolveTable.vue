@@ -4,13 +4,37 @@ import emptyWallet from '@/assets/icons/empty-wallet.svg'
 import walletCheck from '@/assets/icons/wallet-check.svg'
 import cardTick from '@/assets/icons/card-tick.svg'
 
+import { ResolutionController } from '~/services/modules/Admin/resolution'
+
 const props = defineProps({
-  viewOption: String,
+  resolutionType: String,
 })
+
+const { getServiceTicket, getMarketPlaceTicket } = ResolutionController()
+
+const ResolutionTable = ref([])
+
+const fetchResolution = async (type, page, search) => {
+  const { data, error, status } = type === 'marketplace' ? await getMarketPlaceTicket(page, search) : await getServiceTicket(page, search)
+
+  if (status.value === 'success') {
+    console.log(data.value.data)
+    ResolutionTable.value = data.value.data
+  }
+  if (status.value === 'error') {
+    console.log('error', error.value)
+  }
+}
+
+fetchResolution(props?.resolutionType, 1)
+
 const emit = defineEmits(['custom-events'])
 const view = () => {
   emit('custom-events')
 }
+
+const formatedDate = date => formatDate(date)
+const TimeDiff = data => getTimeDiff(data)
 </script>
 
 <template>
@@ -19,29 +43,29 @@ const view = () => {
     <div class=" flex flex-wrap gap-6 mb-10">
       <DashboardStatsCard
         title="All Reports"
-        value="10,000"
-        percentage="8.5"
+        :value="ResolutionTable?.summary?.ticketCount"
+        :percentage="ResolutionTable?.summary?.all_reports_percentage"
         :icon="emptyWallet"
         icon-bg="bg-[#F45E5E1A]"
       />
       <DashboardStatsCard
         title="Resolved Reports"
-        value="NGN 4,500,900"
-        percentage="8.5"
+        :value="ResolutionTable?.summary?.resolvedTicketCount"
+        :percentage="ResolutionTable?.summary?.resolved_reports_percentage"
         :icon="walletCheck"
         icon-bg="bg-[#5E6DF41A]"
       />
       <DashboardStatsCard
         title="Total Value"
-        value="NGN 4,500,900"
-        percentage="8.5"
+        :value="ResolutionTable?.summary?.ticketsAmount"
+        :percentage="ResolutionTable?.summary?.ticketAmountGrowthPercentage"
         :icon="cardTick"
         icon-bg="bg-[#5EF4901A]"
       />
       <DashboardStatsCard
         title="Resolved Value"
-        value="NGN 4,500,900"
-        percentage="8.5"
+        :value="ResolutionTable?.summary?.resolvedTicketValue"
+        :percentage="ResolutionTable?.summary?.resolved_value_percentage"
         :icon="cardTick1"
         icon-bg="bg-[#5EF4901A]"
       />
@@ -54,7 +78,7 @@ const view = () => {
           <!-- content 1 -->
           <div class="text-sm">
             <div class="mb-2">
-              <span class="text-darkGold font-medium ">100,000 Report</span>
+              <span class="text-darkGold font-medium ">{{ ResolutionTable?.tickets?.length }} Report</span>
             </div>
           </div>
           <!-- Content 2 -->
@@ -112,7 +136,7 @@ const view = () => {
                 <th>
                   Serial Number
                 </th>
-                <th>Employer Name</th>
+                <th>{{ props?.resolutionType === 'services' ? 'Employer Name' : 'Buyer' }}</th>
                 <th>
                   <span>Service Provider</span>
                   <svg
@@ -270,7 +294,7 @@ const view = () => {
             </thead>
             <tbody>
               <!-- row 1 -->
-              <tr>
+              <tr class="hidden">
                 <th>
                   1
                 </th>
@@ -331,28 +355,39 @@ const view = () => {
               <!-- row 2 -->
               <!-- Use this -->
               <tr
-                v-for="(item, index) in 12"
-                :key="index"
+                v-for="(item, index) in ResolutionTable?.tickets"
+                :key="item.id"
               >
                 <th>
                   {{ index + 2 }}
                 </th>
                 <td>
-                  Pedro Macejkovic
+                  {{ item.employer || item.buyer }}
                 </td>
                 <td class="font-medium text-valmon_menu">
-                  Zemlak, Daniel and Leannon
+                  {{ item.provider || item.seller }}
                 </td>
-                <td>Tailor</td>
-                <td>Service</td>
-                <td>13 Hours</td>
-                <td>Incomplete Work</td>
-                <td>NGN 7,600</td>
-                <td>8/9/2022</td>
+                <td>{{ item.complainer }}</td>
+                <td> {{ item.category }}</td>
+                <td>{{ getTimeDiff(item.completed_at).time }} Hours</td>
+                <td>NGN {{ item.amount }}</td>
+                <td>{{ (item.reason).slice(0, 20) }}...</td>
+
+                <td>{{ formatedDate(item.created_at) }}</td>
                 <th>
-                  <button class="btn text-black  btn-xs ">
+                  <button
+                    v-if="item.status === 'open'"
+                    class="btn text-black  btn-xs "
+                  >
                     <span class="inline-block p-1 bg-[#444444] rounded-full" />
-                    <span>Open</span>
+                    <span>{{ item.status }}</span>
+                  </button>
+                  <button
+                    v-else
+                    class="btn text-black  btn-xs bg-[#D9FF92] border-[#D9FF92] hover:bg-[#D9FF76]"
+                  >
+                    <span class="inline-block p-1 bg-[#6C778B] rounded-full" />
+                    <span>{{ item.status }}</span>
                   </button>
                 </th>
                 <td
@@ -413,9 +448,7 @@ const view = () => {
                   <button class="join-item btn  btn-sm">
                     4
                   </button>
-                  <span
-                    class="join-item btn  btn-sm"
-                  >
+                  <span class="join-item btn  btn-sm">
                     ...
                   </span>
                   <button class="join-item btn  btn-sm">

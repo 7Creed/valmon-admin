@@ -1,23 +1,71 @@
 <script setup>
 import shop from '@/assets/icons/shop.svg'
 import cardpos from '@/assets/icons/card-pos-black.svg'
+
+import { ListingsController } from '~/services/modules/Admin/listing'
+import { useGlobalStore } from '~/store'
+
+const store = useGlobalStore()
+const emit = defineEmits('products')
+
+const emitEvent = (id) => {
+  store.$patch({
+    adminListingId: id,
+  })
+
+  emit('products')
+}
+const { awaitingListing, approveListing, denyListing } = ListingsController()
+
+const waitingList = ref([])
+const loading = ref(false)
+const getAwaitingListing = async () => {
+  loading.value = true
+  const { data, error, status } = await awaitingListing()
+  if (status.value === 'success') {
+    waitingList.value = data.value.data
+    loading.value = false
+  }
+  if (status.value === 'error') {
+    handleError('error', error.value.data.message)
+    loading.value = false
+  }
+}
+getAwaitingListing()
+
+const listingActions = async (func, id) => {
+  const { data, error, status } = await func(id)
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+  }
+  if (status.value === 'error') {
+    handleError('error', error.value.data.message)
+  }
+}
+
+const approve = (id) => {
+  listingActions(approveListing, id)
+}
+
+const deny = (id) => {
+  listingActions(denyListing, id)
+}
 </script>
 
 <template>
-  <div class="text-card w-full">
+  <SharedLoader v-if="loading" />
+  <div v-else class="text-card w-full">
     <!-- Stats card -->
     <div class=" flex flex-wrap gap-6 mb-10">
       <DashboardStatsCard
         title="Total Awaiting"
-        value="10,000"
-        percentage="8.5"
+        :value="waitingList?.total_awaiting"
         :icon="shop"
         icon-bg="bg-[#5EA6F41A]"
       />
       <DashboardStatsCard
         title="Awaiting Value"
-        value="99,500,000"
-        percentage="8.5"
+        :value="waitingList?.awaiting_value"
         :icon="cardpos"
         icon-bg="bg-[#5EF4881A]"
       />
@@ -31,7 +79,7 @@ import cardpos from '@/assets/icons/card-pos-black.svg'
           <div class="text-sm">
             <div class="mb-2">
               <span class="text-valmon_menu font-medium">Awaiting Approval List</span>
-              <span class="inline-block text-valmon_Gold text-xs ms-3">10,000 listed</span>
+              <span class="inline-block text-valmon_Gold text-xs ms-3">{{ waitingList.total_awaiting }} listed</span>
             </div>
             <p>List Of All Customers on The Platform</p>
           </div>
@@ -267,53 +315,62 @@ import cardpos from '@/assets/icons/card-pos-black.svg'
             <tbody>
               <!-- Use this -->
               <tr
-                v-for="(item, index) in 12"
+                v-for="(item, index) in waitingList.all_listings"
                 :key="index"
               >
                 <th>
-                  {{ index + 2 }}
+                  {{ index + 1 }}
                 </th>
                 <td>
                   <div class="flex items-center gap-3">
                     <div class="avatar">
                       <div class="mask mask-squircle h-9 w-9">
                         <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
+                          :src="item.image ?? 'N/A'"
+                          :alt="item.image ?? 'N/A'"
                         >
                       </div>
                     </div>
                   </div>
                 </td>
                 <td class="font-medium text-valmon_menu">
-                  Iphone 12
+                  {{ item.name }}
                 </td>
-                <td>Used</td>
-                <td>Black</td>
-                <td>Phone</td>
-                <td>N437099GN </td>
-                <td>Raman Isamil</td>
+                <td>{{ (item.condition).slice(0, 20) }}...</td>
+                <td>{{ item.color }}</td>
+                <td>{{ item.category }}</td>
+                <td>NGN{{ item.price }}</td>
+                <td>{{ item.seller_name }}</td>
                 <td>
                   <div class="flex items-center gap-3">
                     <div class="avatar">
                       <div class="mask mask-squircle h-9 w-9">
                         <img
-                          src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                          alt="Avatar Tailwind CSS Component"
+                          :src="item.seller_image ?? 'N/A'"
+                          :alt="item.seller_image ?? 'N/A'"
                         >
                       </div>
                     </div>
                   </div>
                 </td>
-                <td>8/9/2022</td>
+                <td>{{ formatDate(item.listing_date) }}</td>
                 <th>
-                  <button class="btn btn-outline text-green-600  btn-xs mr-2 ">
+                  <button
+                    class="btn btn-outline text-green-600  btn-xs mr-2 "
+                    @click="approve(item.id)"
+                  >
                     Approval
                   </button>
-                  <button class="btn btn-outline text-red-600  btn-xs mr-2 ">
+                  <button
+                    class="btn btn-outline text-red-600  btn-xs mr-2 "
+                    @click="deny(item.id)"
+                  >
                     Deny
                   </button>
-                  <button class="btn bg-brightGold text-black btn-xs ">
+                  <button
+                    class="btn bg-brightGold text-black btn-xs "
+                    @click="emitEvent(item.id)"
+                  >
                     View
                   </button>
                 </th>
@@ -347,9 +404,7 @@ import cardpos from '@/assets/icons/card-pos-black.svg'
                   <button class="join-item btn  btn-sm">
                     4
                   </button>
-                  <span
-                    class="join-item btn  btn-sm"
-                  >
+                  <span class="join-item btn  btn-sm">
                     ...
                   </span>
                   <button class="join-item btn  btn-sm">

@@ -30,7 +30,7 @@ const toggleTab = (tab) => {
           @click="toggleTab('billing')"
         >Billing Information</a>
         <a
- 
+          v-show="store.UserAccount.account_type === 'worker'"
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
           :class="{ border_b: Tab === 'payment' }"
@@ -45,8 +45,6 @@ const toggleTab = (tab) => {
         Withdraw
       </button>
     </div>
-    <!-- v-show="store.UserAccount.account_type === 'worker'" -->
-
     <!-- Content -->
     <div class="text-[#516778]">
       <!-- Card Items -->

@@ -7,6 +7,7 @@ const emit = defineEmits(['deleteService', 'editService'])
 const props = defineProps({
   gigs: Array,
   type: String, // type is profile if from User dashboard
+
 })
 const deleteService = (index) => {
   emit('deleteService', index)
@@ -33,6 +34,10 @@ const hire = (item) => {
   store.updateGig(item.title, item.price)
   navigateTo('/chat')
 }
+
+const isAdmin = computed(() => {
+  return store?.UserAccount?.role == 'admin' || store?.UserAccount?.role == 'super_admin'
+})
 </script>
 
 <template>
@@ -72,7 +77,7 @@ const hire = (item) => {
                 </p>
               </div>
               <div class="">
-                <div v-if="!props.type === 'profile'">
+                <div v-if="props.type != 'profile'">
                   <a
                     href="javascript:void(0)"
                     class="text-darkGold text-sm font-semibold block mb-5"
@@ -84,15 +89,16 @@ const hire = (item) => {
                     @click="deleteService(index)"
                   >Delete</a>
                 </div>
+
                 <div
-                  v-else
+                  v-if="props.type === 'profile' && !isAdmin"
                   class=""
                 >
                   <a
                     href="javascript:void(0)"
                     class="text-darkGold text-base font-semibold block mb-5 satoshiM"
                     @click="hire(item)"
-                  >Hire</a>
+                  >Hire </a>
                 </div>
               </div>
             </div>
