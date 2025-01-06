@@ -106,15 +106,13 @@ fetchSummary()
     <div class="bg-black w-fit text-sm p-2 mb-10 px-5 rounded-2xl  text-white  center gap-3">
       <span class=""> Show Result For</span>
       <span class="ring ring-white ring-offset-0 center rounded-sm">
-        <select class="select border-2  max-w-xs ml-4 bg-black ">
+        <select class="select border  max-w-xs ml-4 bg-black ">
           <option
             disabled
             selected
           >
             This Year
           </option>
-          <option>Han Solo</option>
-          <option>Greedo</option>
         </select>
       </span>
     </div>

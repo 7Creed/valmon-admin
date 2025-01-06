@@ -344,6 +344,10 @@ watch(selectedConversation, (newVal) => {
     jobStatus.value = 'Completed'
     latestOrder.value = newVal.orders[newVal.orders.length - 1]
   }
+  else if (newVal.last_job_id) {
+    jobStatus.value = 'Completed'
+      latestOrder.value = newVal.last_job
+  }
   else {
     jobStatus.value = ''
   }
@@ -370,22 +374,31 @@ const orderLoading = ref(false)
 // v-if="_shippingStatus === 'Product Received' || _shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered'"
 
 const productDelivered = async (id) => {
-  review.value = true
-  orderLoading.value = true
-  try {
-    const { status, error } = await markAsDelivered(id)
-    if (status.value === 'success') {
-      modal5.value.click()
-      await fetchConversation()
-      return
+  if (Image.value == null) {
+    handleALert('error', 'Upload an Image')
+    return
+  }
+  else {
+    review.value = true
+    orderLoading.value = true
+
+    const formData = new FormData()
+    formData.append('shipping_proof', Image.value)
+    try {
+      const { status, error } = await markAsDelivered(id, formData)
+      if (status.value === 'success') {
+        modal5.value.click()
+        await fetchConversation()
+        return
+      }
+      handleError('error', error.value.data.message)
     }
-    handleError('error', error.value.data.message)
-  }
-  catch (err) {
-    handleError('error', err.message)
-  }
-  finally {
-    orderLoading.value = false
+    catch (err) {
+      handleError('error', err.message)
+    }
+    finally {
+      orderLoading.value = false
+    }
   }
 }
 
@@ -426,7 +439,7 @@ const Image = ref(null)
 function handleClick() {
   const input = document.createElement('input')
   input.type = 'file'
-  input.accept = ''
+  input.accept = 'image/*'
   input.onchange = (e) => {
     const file = (e.target).files?.[0]
     if (file) {
@@ -799,6 +812,7 @@ const report = () => {
     <!-- card 3 -->
     <div class="card bg-base-100 w-96 shadow-xl flex-2 h-fit pb-10">
       <div class="card-body">
+        <!-- For Marketplace listings -->
         <div v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">
           <figure class="rounded-lg">
             <img
@@ -812,9 +826,13 @@ const report = () => {
             </h2>
           </div>
         </div>
+        <!-- for services -->
         <h2 class="card-title ">
-          <span v-if="selectedConversation?.service_id"> Service Cost NGN {{ latestOffer }}</span>
+          <span v-if="selectedConversation?.service_id"> Service Cost:</span>
         </h2>
+        <div v-show="jobStatus === ''" class="input input-bordered w-full max-w-xs center">
+          NGN {{ latestOffer || 0 }}
+        </div>
         <div
           v-show="jobStatus === 'Completed'"
           role="alert"
@@ -830,8 +848,14 @@ const report = () => {
         >
           <div class="label">
             <span
+              v-if="activeTab == 'job'"
               class="label-text"
-              v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is asking for?'"
+              v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : ''"
+            />
+            <span
+              v-else
+              class="label-text"
+              v-text="store.UserAccount.account_type !== 'employer' ? 'Buyer is asking for?' : 'Seller is asking for?'"
             />
           </div>
           <!-- Add for Gigs here -->
@@ -855,24 +879,16 @@ const report = () => {
             ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
               === 'workerService' ? 'Accept & Hire' : 'Accept ' }}</span>
         </button>
-        <!-- Completed Button for seller view -->
+        <!-- Completed/product delivered Button for seller view -->
         <div class="w-full center">
           <button
             v-if="jobStatus === 'Completed' && (_shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered')"
+            :disabled="_shippingStatus === 'Completed' "
             class="btn bg-darkGold mb-3 text-white w-full"
-            @click="productDelivered(latestOrder.id)"
+            onclick="my_modal_8.showModal()"
           >
-            <span
-              v-if="orderLoading"
-              class="loading loading-spinner loading-sm"
-            />
-            <span v-else>{{ _shippingStatus }}</span>
+            <span>{{ _shippingStatus }}</span>
           </button>
-          <!-- Modal trigger for when marked as delivered is successful  -->
-          <span
-            ref="modal5"
-            onclick="my_modal_5.showModal()"
-          />
 
           <!-- For buyer view -->
           <button
@@ -899,11 +915,13 @@ const report = () => {
         </button>
 
         <!-- Reject offer or report -->
-        <div class="w-full">
+        <div
+          v-if="jobStatus === 'Completed'"
+          class="w-full"
+        >
           <!-- Report -->
           <button
-            v-if="jobStatus === 'Completed' || jobStatus === 'Rejected'"
-
+            v-if="activeTab == 'marketPlace'"
             class="btn btn-outline btn-error w-full"
             type="button"
             onclick="my_modal_7.showModal()"
@@ -1096,6 +1114,89 @@ const report = () => {
     </div>
   </dialog>
 
+  <!-- Proof of delivery -->
+  <dialog
+    id="my_modal_8"
+    class="modal"
+  >
+    <div class="modal-box">
+      <div class="card-body p-2">
+        <h2 class="card-title text-black font-bold text-2xl text-center center">
+          Confirm Delivery
+        </h2>
+
+        <p class=" text-black mb-3">
+          You have marked this product as delivered, please upload proof for seller to confirm
+        </p>
+        <!-- Attachment -->
+        <div class="text-[#6E7191]">
+          <h1 class="mb-2">
+            Upload Attachment (max 8mb)
+          </h1>
+          <div
+            class="border-dashed border-2 flex flex-col items-center justify-between p-4"
+            @click="handleClick"
+          >
+            <div
+              v-if="!draggedFile"
+              class="flex flex-col items-center justify-between"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-20 mb-3"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                />
+              </svg>
+              <div class="text-sm text-[#5B5B5B] mb-1">
+                <span class="text-[#030359]">Select</span> Image you want to upload
+              </div>
+              <div class="text-[#949CA9]">
+                Png and Jpg Allowed
+              </div>
+            </div>
+            <!-- image uploaded -->
+            <img
+              v-if="draggedFile"
+              :src="draggedFile"
+              alt=""
+            >
+          </div>
+        </div>
+      </div>
+      <button
+        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+        @click="productDelivered(latestOrder.id)"
+      >
+        <span
+          v-if="orderLoading"
+          class="loading loading-spinner loading-sm"
+        />
+        Submit Proof
+      </button>
+      <!-- Modal trigger for when marked as delivered is successful  -->
+      <span
+        ref="modal5"
+        onclick="my_modal_5.showModal()"
+      />
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">
+            Close
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Repport Worker -->
   <dialog
     id="my_modal_7"
@@ -1204,7 +1305,7 @@ const report = () => {
   <!-- Await Confirmation  for worker flow -->
   <dialog
     v-show="store.isEmployee"
-    id="my_modal_8"
+    id="my_modal_88"
     class="modal hidden"
   >
     <div class="modal-box">
@@ -1236,6 +1337,7 @@ const report = () => {
       </div>
     </div>
   </dialog>
+
   <dialog
     id="my_modal_1"
     class="modal hidden"

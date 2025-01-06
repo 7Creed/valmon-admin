@@ -117,14 +117,14 @@ const resendOTP = async () => {
         Verify OTP
       </h2>
       <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-5">
-        <span v-if="maskedEmail"> Input one time password sent to {{ maskedEmail }} To Continue?</span>
+        <span v-if="maskedEmail"> Input one time password sent to {{ maskedEmail }} to continue?</span>
         <span
           v-else
           class="text-red-500"
         >No Email Found, try registration with a new email</span>
       </p>
       <BaseInput
-        v-model="OTPData.code"
+        v-model.trim="OTPData.code"
         type="text"
         label="OTP"
         placeholder="placeholder"

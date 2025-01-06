@@ -15,8 +15,9 @@ const props = defineProps({
 
 })
 
+/* ------------------------- Fetch service category ------------------------- */
 const loading = ref(false)
-// Fetch service category
+
 const fetchData = ref([])
 const fetchCategory = async () => {
   const { data, status, error } = await getAppServices()
@@ -29,10 +30,10 @@ const fetchCategory = async () => {
   }
 }
 
-// Function call
 fetchCategory()
 
 // ADD SERVICE CATEGORY
+
 // Hold the category which is passed on the primary category as a props
 const categoryData = ref([])
 // Update  categoryData  on component mount
@@ -85,15 +86,39 @@ const updateCategoryRegister = () => {
   })
 }
 
-// This for User Account profile
-const serviceData = {
-  services: [...(store.UserAccount.profile.services || [])],
+const removeSCRegistration = (index) => {
+  console.log('delete', index)
+
+  categoryData.value.splice(index, 1)
+  // Update the store;
+  store.$patch({
+    serviceCategory: categoryData.value,
+  })
 }
+// Emit events
+const emitEvent = (event) => {
+  if (event === 'nextEvent' && categoryData.value.length > 0) {
+    emits(event, categoryData.value)
+  }
+  else {
+    emits(event)
+  }
+}
+/* ------------- Handling Service Category from the User Profile ------------ */
+
+// This for  user profile
+const serviceData = reactive({
+  services: [],
+})
+
 if (props.useType === 'account') {
   store.getAccount()
+
+  // This for  user profile
+  serviceData.services = [...(store.UserAccount?.profile?.services || [])]
 }
 
-watch(() => store.UserAccount.profile.services, (newVal) => {
+watch(() => store.UserAccount?.profile?.services, (newVal) => {
   if (newVal) {
     serviceData.services = [...newVal]
   }
@@ -128,7 +153,7 @@ const saveCategoryFromAccount = async () => {
 }
 
 const saveEditCategory = (index) => {
-  serviceData.services[index].name = addCategoryFromAccount.years_of_experience
+  serviceData.services[index].years_of_experience = addCategoryFromAccount.years_of_experience
   serviceData.services[index].service_id = addCategoryFromAccount.service_id
   serviceData.services[index].primary = addCategoryFromAccount.primary
 
@@ -194,21 +219,11 @@ const saveCategory = () => {
   }
 }
 
-// Delete
+// Delete  Category
 const removeServiceCategory = (index) => {
   console.log('delete', index)
   serviceData.services.splice(index, 1)
   updateCategoryFromAccount()
-}
-
-// Emit events
-const emitEvent = (event) => {
-  if (event === 'nextEvent' && categoryData.value.length > 0) {
-    emits(event, categoryData.value)
-  }
-  else {
-    emits(event)
-  }
 }
 </script>
 
@@ -231,14 +246,14 @@ const emitEvent = (event) => {
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{
             item.years_of_experience
           }}</span>
-          <span class="text-red-600 text-base font-bold hover:text-red-400">Edit</span>
+          <span class="text-red-600 text-base font-bold hover:text-red-400 hidden">Edit</span>
           <span
             class="text-darkGold text-base font-bold  hover:text-brightGold"
-            @click="removeServiceCategory"
+            @click.self="removeSCRegistration(index)"
           >Delete</span>
         </span>
       </button>
-      <!-- For rendering the service category on user profile -->
+      <!--  Handling Service Category from the User Profile -->
       <div v-if="props.useType === 'account'">
         <button
           v-for="(item, index) in store.UserAccount?.profile?.services"

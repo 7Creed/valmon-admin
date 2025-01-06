@@ -113,8 +113,7 @@ const emitEvent = (event) => {
         />
         <BaseButton
           :loading="loading"
-          :disabled="store.serviceCategory.length === 0"
-          title="Next"
+          :title="buttonOption"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
           border="#8B6914"

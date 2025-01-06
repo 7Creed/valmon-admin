@@ -10,6 +10,10 @@ const chartOptions = {
   title: {
     text: 'Platform Income From Skills',
   },
+  fill: {
+    colors: ['#E79E1F'],
+  },
+  
   xaxis: {
     categories: [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

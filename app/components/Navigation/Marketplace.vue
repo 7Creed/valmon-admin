@@ -71,14 +71,14 @@ const toggleNotification = () => {
 }
 
 // Show New Job Offer Modal
-const popUp = ref(null)
-onMounted(() => {
-  setTimeout(() => {
-    if (popUp.value && store.isEmployee) {
-      popUp.value.click()
-    }
-  }, 1000)
-})
+// const popUp = ref(null)
+// onMounted(() => {
+//   setTimeout(() => {
+//     if (popUp.value && store.isEmployee) {
+//       popUp.value.click()
+//     }
+//   }, 1000)
+// })
 
 const UnreadNotifications = ref([])
 

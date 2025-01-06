@@ -1,5 +1,4 @@
 <script setup>
-import MainProductView from '@/assets/images/UIElements/mainproductview.png'
 
 import { useGlobalStore } from '~/store'
 // Initialization
@@ -175,7 +174,7 @@ async function openContact(id) {
         <h1 class="font-extrabold text-xl satoshiM mb-4">
           Similar Listings
         </h1>
-        <div class="flex flex-wrap justify-between gap-4">
+        <div class="flex flex-wrap justify-start gap-4">
           <MarketPlaceEmployerMarket
             type="featuredListings"
             :other-listings="props.products.similar"

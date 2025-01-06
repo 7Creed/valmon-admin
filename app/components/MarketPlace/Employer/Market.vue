@@ -1,8 +1,6 @@
 <script setup>
-import MarketListing from './MarketListing.vue'
 import archivedTick from '@/assets/icons/archive-tick.svg'
 import { accountController } from '~/services/modules/account'
-import { MarketplaceController } from '~/services/modules/marketplace'
 import { useGlobalStore } from '@/store'
 
 const store = useGlobalStore()
@@ -76,9 +74,10 @@ watch(props, (newVal) => {
 
 // manage  product function
 
+const route =  useRoute()
 const productCardFunction = (id) => {
   // for opening chat for listing
-  if (store.marketPlaceTab) {
+  if (store.marketPlaceTab && route.fullPath == '/profile') {
     openChatForListing(id)
   }
   else {

@@ -2,7 +2,7 @@
 // Images and Icons
 import brandLogo from '@/assets/images/Logo/valmon.svg'
 import bell from '@/assets/icons/notification-bing.svg'
-import { NotificationController } from '~/services/modules/Admin/notification';
+import { NotificationController } from '~/services/modules/Admin/notification'
 import { useGlobalStore } from '@/store'
 
 // Initialize Variables
@@ -29,6 +29,13 @@ const fetchUnreadNotifications = async () => {
 }
 fetchUnreadNotifications()
 
+const route = useRoute()
+const getRouteName = () => {
+  const routeName = route.name.split('-')
+  if (routeName.length > 1) {
+    return (routeName[1]).charAt(0).toUpperCase() + (routeName[1]).slice(1)
+  }
+}
 </script>
 
 <template>
@@ -98,7 +105,7 @@ fetchUnreadNotifications()
             >
           </div>
         </div>
-        <span class="text-white ms-10 font-bold">Summary</span>
+        <span class="text-white ms-10 font-bold">{{ getRouteName() }}</span>
         <!-- Left side  -->
         <div
           class="flex items-center justify-end flex-1 space-x-4"
@@ -144,7 +151,7 @@ fetchUnreadNotifications()
               <span
                 class="rounded-md px-3 py-2 text-base font-medium text-white hover:bg-gray-700 hover:text-white"
                 aria-current="page"
-              >{{store.UserAccount.name}}</span>
+              >{{ store.UserAccount.name }}</span>
               <span class="font-normal rounded-3xl bg-[#E1CD7182] pt-2 px-4 text-white">{{ store.UserAccount.role === 'super_admin' ? 'Super Admin' : 'admin' }}</span>
             </div>
           </div>

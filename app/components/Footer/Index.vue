@@ -15,10 +15,25 @@ import tikTok from '@/assets/icons/facebook.svg'
         alt="brand logo"
       ></a>
       <div class="text-white gap-4 flex items-center w-1/3 justify-between text-base">
-        <a class="link link-hover">About Us</a>
-        <a class="link link-hover">Our Team</a>
+        <NuxtLink
+          to="/about"
+          class="link link-hover"
+        >
+          About Us
+        </NuxtLink>
+        <NuxtLink
+          to="javascript:void(0)"
+          class="link link-hover"
+        >
+          Our Team
+        </NuxtLink>
         <a class="link link-hover">Support</a>
-        <a class="link link-hover">FAQ</a>
+        <NuxtLink
+          to="faq"
+          class="link link-hover"
+        >
+          FAQ
+        </NuxtLink>
       </div>
       <div class="center gap-3">
         <a
@@ -149,18 +164,19 @@ import tikTok from '@/assets/icons/facebook.svg'
           href=""
           class="link link-hover text-gray-600"
         >Copyright Infringement</a>
-        <a
-          href=""
+        <NuxtLink
+          to="privacy"
           class="link link-hover text-gray-600"
-        >Code of Conduct</a>
+        >Code of Conduct</NuxtLink>
         <a
           href=""
           class="link link-hover  text-gray-600"
         >Privacy Policy</a>
-        <a
+        <NuxtLink
+          to="terms"
           href=""
           class="link link-hover  text-gray-600"
-        >Terms of Service</a>
+        >Terms of Service</NuxtLink>
       </div>
     </nav>
     <div />

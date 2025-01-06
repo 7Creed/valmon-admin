@@ -241,7 +241,7 @@ const suspend = async (id) => {
     fetchUsers(id)
   }
   else if (status.value === 'error') {
-    console.error('Delete User failed:', error.value.data.message)
+    console.error('Delete User failed:', error.value)
   }
 }
 

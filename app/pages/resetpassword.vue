@@ -54,7 +54,7 @@ const retrievePassword = async () => {
           </h2>
           <form @submit.prevent="retrievePassword">
             <BaseInput
-              v-model="userData.token"
+              v-model.trim="userData.token"
               type="text"
               label="OTP"
               placeholder="placeholder"

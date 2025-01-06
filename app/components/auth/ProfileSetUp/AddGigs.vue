@@ -34,7 +34,9 @@ const addGig = reactive({
   ],
 })
 
+const loading = ref(false)
 const saveGig = async () => {
+  loading.value = true
   try {
     const { status, data, error } = await addNewGig(addGig)
     if (status.value === 'success') {
@@ -47,6 +49,9 @@ const saveGig = async () => {
   }
   catch (error) {
     handleError(error)
+  }
+  finally {
+    loading.value = false
   }
 }
 </script>
@@ -155,6 +160,7 @@ const saveGig = async () => {
         class="textarea textarea-bordered textarea-lg w-full "
       />
       <BaseButton
+        :loading="loading"
         title="Add Service"
         color="rgba(33, 31, 31, 1)"
         text-color="rgba(255, 255, 255, 1)"

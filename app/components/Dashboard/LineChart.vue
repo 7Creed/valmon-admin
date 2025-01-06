@@ -10,9 +10,13 @@ const chartOptions = {
   title: {
     text: 'MarketPlace Sales',
   },
+  fill: {
+    colors: ['#E79E1F'],
+  },
   subtitle: {
     text: 'Income Over Time',
   },
+
   xaxis: {
     categories: [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

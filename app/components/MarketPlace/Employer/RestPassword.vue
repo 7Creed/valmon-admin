@@ -15,19 +15,21 @@ const loader = ref(false)
 const resetPassword = async () => {
   loader.value = true
   try {
-    const { status, data } = await ResetPassword(userData)
+    const { status, data, error } = await ResetPassword(userData)
     if (status.value === 'success') {
-      loader.value = false
       console.log('notifications', notifications.value)
-      handleALert('success', data.value.message)
+      handleALert('success', 'Password Updated')
     }
     if (status.value === 'error') {
-      loader.value = false
       handleALert('error', error.value.data.message)
     }
   }
   catch (error) {
     console.error('Error fetching notifications:', error)
+    handleError('error', error.message)
+  }
+  finally {
+    loader.value = false
   }
 }
 </script>

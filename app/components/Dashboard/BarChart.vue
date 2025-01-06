@@ -11,7 +11,10 @@ const chartOptions = {
     text: 'Skilled Employments',
   },
   subtitle: {
-    text: 'Number Of employments on the platform'
+    text: 'Number Of employments on the platform',
+  },
+  fill: {
+    colors: ['#E79E1F'],
   },
   xaxis: {
     categories: [
@@ -25,7 +28,7 @@ const series = [
   {
     name: 'Income from Skills',
     data: [
-      ...props.skilledEmployments.values
+      ...props.skilledEmployments.values,
     ],
   },
 ]

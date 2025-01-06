@@ -76,3 +76,19 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 
 
 
+<!-- TODO -Admin -->
+<!-- ------------------------ 
+  1. Run a system test
+  2. Add Chat
+  3. Add Notification.
+  4.Responsiveness
+
+ ------------------------- -->
+
+<!-- TODO -Dashboard -->
+<!-- ------------------------ 
+  1. Run a system test
+  2. Add Chat
+  3. Add Notification.
+
+ ------------------------- -->

@@ -36,7 +36,7 @@ const signIn = async () => {
       navigateTo('/admin/summary')
     }
     if (status.value === 'error') {
-      handleALert('error', error.value.data.message)
+      handleALert('error', error.value)
     }
   }
   catch (error) {

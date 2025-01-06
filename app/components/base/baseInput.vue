@@ -38,7 +38,7 @@ const toggleVisibility = () => {
         <button
           v-if="props?.icon && props.instanceId"
           class="absolute right-0 focus:outline-none"
-          @click="toggleVisibility"
+          @click.prevent="toggleVisibility"
         >
           <!-- Password Icons -->
           <span v-if="props?.iconType ==='password'">
