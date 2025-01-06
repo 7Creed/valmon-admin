@@ -175,7 +175,7 @@ featuredListing()
           >
         </h4>
         <div
-          class="h-[730px] rounded-lg w-[60%] flex text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold "
+          class="h-auto rounded-lg w-[60%] flex text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold "
         >
           <div class="techinical_services w-[400px] ">
             <h5 class="_header font-extrabold mb-4 p-3 text-center bg-darkGold">
