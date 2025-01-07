@@ -91,9 +91,10 @@ const emitEvent = (event) => {
       >
         <span class="flex flex-row justify-between w-full">
           <span class="flex gap-2 items-center"><input
-            type="checkbox"
+            type="radio"
             :checked="category.primary"
             class="checkbox"
+            name="primaryCategory"
           ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{
             category.name
           }}</span></span>

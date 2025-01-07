@@ -13,10 +13,6 @@ import { useGlobalStore } from '~/store'
 const store = useGlobalStore()
 
 const emit = defineEmits('viewChat')
-// Initialization
-const { setMarketPlaceChatId } = useActiveView()
-// Manage Product Image View
-const productImages = [MainProductView, car1, car2, car, car1, car2]
 
 const ProductView = ref(MainProductView)
 
@@ -24,11 +20,11 @@ function updateProductImage(image) {
   ProductView.value = image
 }
 
-async function openChat(id) {
-  emit('viewChat')
-  store.$patch({
-    viewAdminChatId: id,
-  })
+async function openChat(conversationId) {
+  emit('viewChat', conversationId)
+  // store.$patch({
+  //   viewAdminChatId: id,
+  // })
 }
 
 async function openContact() {

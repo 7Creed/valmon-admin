@@ -29,12 +29,15 @@ const fetchResolution = async (type, page, search) => {
 fetchResolution(props?.resolutionType, 1)
 
 const emit = defineEmits(['custom-events'])
-const view = () => {
-  emit('custom-events')
+const view = (conversationId, ticketId) => {
+  emit('custom-events', {
+    conversationId,
+    ticketId,
+  })
 }
 
 const formatedDate = date => formatDate(date)
-const TimeDiff = data => getTimeDiff(data)
+
 </script>
 
 <template>
@@ -359,7 +362,7 @@ const TimeDiff = data => getTimeDiff(data)
                 :key="item.id"
               >
                 <th>
-                  {{ index + 2 }}
+                  {{ index + 1 }}
                 </th>
                 <td>
                   {{ item.employer || item.buyer }}
@@ -412,7 +415,7 @@ const TimeDiff = data => getTimeDiff(data)
                     tabindex="0"
                     class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow"
                   >
-                    <li @click="view()">
+                    <li @click="view(item.conversation_id, item.id)">
                       <a>View</a>
                     </li>
                     <li><a>Delete</a></li>

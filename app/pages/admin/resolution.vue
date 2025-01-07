@@ -11,6 +11,13 @@ const Tab = ref('services')
 const toggleTab = (tab) => {
   Tab.value = tab
 }
+
+// pass the conversation Id and render the chat UI
+const ConversationId = ref(null)
+const openChat = (conversationId) => {
+  Tab.value = 'chat'
+  ConversationId.value = conversationId
+}
 </script>
 
 <template>
@@ -33,11 +40,17 @@ const toggleTab = (tab) => {
       >Marketplace</a>
     </div>
     <!-- Transaction  -->
-    <DashboardResolution v-if="Tab === 'services'" />
+    <!-- <DashboardResolution  /> -->
+    <DashboardResolutionResolveTable
+      v-if="Tab === 'services'"
+      resolution-type="services"
+      @custom-events="openChat"
+    />
     <DashboardResolutionMarketplace v-if="Tab === 'marketplace'" />
     <DashboardViewChat
       v-if="Tab === 'chat'"
       type="resolution"
+      :conversation-id="ConversationId"
     />
   </div>
 </template>

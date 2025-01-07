@@ -3,11 +3,14 @@ import productImg from '@/assets/images/UIElements/car.png'
 import resolvedbg from '@/assets/images/UIElements/sellOn.png'
 
 import { ListingsController } from '~/services/modules/Admin/listing'
+import { ResolutionController } from '~/services/modules/Admin/resolution'
 
 const { getConversation } = ListingsController()
 
+const { getTicketsById, refundMP, refundSkills, payMP, paySkills } = ResolutionController()
 const props = defineProps({
   type: String,
+  conversationId: Object,
 })
 
 const conversations = ref([])
@@ -15,8 +18,9 @@ const loader = ref(false)
 const fetchConversation = async (id) => {
   loader.value = true
   const { data, status, error } = await getConversation(id)
-  loader.value = false
+
   if (status.value === 'success') {
+    loader.value = false
     console.log(data.value.data)
     conversations.value = data.value.data
   }
@@ -26,7 +30,74 @@ const fetchConversation = async (id) => {
   }
 }
 
-fetchConversation(69)
+fetchConversation(props?.conversationId.conversationId)
+
+const ticketLoaders = ref(false)
+const allTickets = ref([])
+const getTickets = async (id) => {
+  ticketLoaders.value = true
+  const { data, status, error } = await getTicketsById(id)
+
+  if (status.value === 'success') {
+    ticketLoaders.value = false
+    console.log(data.value.data)
+    allTickets.value = data.value.data
+  }
+  if (status.value === 'error') {
+    ticketLoaders.value = false
+    console.log(error.value)
+  }
+}
+
+const catalog = computed(() => {
+  if (conversations.value.service_id) {
+    return 'services'
+  }
+  else {
+    return 'listings'
+  }
+})
+
+getTickets(props?.conversationId.ticketId)
+
+const refundLoader = ref(false)
+const payLoader = ref(false)
+
+// Resolve Tickets
+const resolve = async (funcName, id, loader) => {
+  loader.value = true
+  const { data, status, error } = await funcName(id)
+
+  if (status.value === 'success') {
+    loader.value = false
+    console.log(data.value.data)
+    handleALert('success', data.value.message)
+  }
+  if (status.value === 'error') {
+    loader.value = false
+    handleALert('error', 'Action failed')
+    console.log(error.value)
+  }
+}
+
+// pay
+const pay = (value) => {
+  if (value == 'services') {
+    resolve(paySkills, allTickets.value.id, payLoader)
+  }
+  else {
+    resolve(payMP, allTickets.value.id, payLoader)
+  }
+}
+
+const refund = (value) => {
+  if (value == 'services') {
+    resolve(refundSkills, allTickets.value.id, refundLoader)
+  }
+  else {
+    resolve(refundMP, allTickets.value.id, refundLoader)
+  }
+}
 </script>
 
 <template>
@@ -130,7 +201,7 @@ fetchConversation(69)
                 <div class=" text-[10px] flex justify-between items-center mt-2 text-[#2D2D30] satoshiM relative">
                   <span class="text-darkGold hidden">Edited</span>
                   <span class="ms-auto"> {{ getTimeDiff(mesg.created_at).time }} {{
-                   getTimeDiff(mesg.created_at).amPm }} </span>
+                    getTimeDiff(mesg.created_at).amPm }} </span>
                   <!-- Emoji -->
                   <span class="text-sm ml-2 hidden">😄</span>
                 </div>
@@ -152,7 +223,10 @@ fetchConversation(69)
           </div>
         </div>
         <!-- Button and chat box -->
-        <div v-show="type !== 'marketplace'" class="flex items-center gap-4">
+        <div
+          v-show="type !== 'marketplace'"
+          class="flex items-center gap-4"
+        >
           <!-- chat box -->
           <label class="input input-bordered flex items-center gap-2 grow">
             <a
@@ -228,22 +302,32 @@ fetchConversation(69)
               class="alert block bg-[#F0F2F5] mb-3"
             >
               <div class="text-3xl text-black satoshiB">
-                NGN  195,799
+                NGN  {{ catalog == 'services' ? conversations?.last_job?.amount : conversations?.orders?.amount }}
               </div>
             </div>
             <!-- Completed Button -->
             <button
               class="btn bg-neutral mb-3 text-white"
-              onclick="my_modal_5.showModal()"
+              @click="pay(catalog)"
             >
-              Service Provider
+              <span
+                v-if="payLoader"
+                class="loading loading-spinner loading-xs"
+              />
+
+              <span v-else>{{ catalog == 'services' ? 'Pay Service Provider' : 'Pay Seller' }}</span>
             </button>
 
             <button
-              onclick="my_modal_7.showModal()"
               class="btn btn-outline"
+              @click="refund(catalog)"
             >
-              Refund Employer
+              <span
+                v-if="refundLoader"
+                class="loading loading-spinner loading-xs"
+              />
+
+              <span v-else>  {{ catalog == 'services' ? 'Refund Employer' : 'Refund Buyer' }}</span>
             </button>
           </div>
         </div>
@@ -253,14 +337,10 @@ fetchConversation(69)
               Reasons
             </h2>
             <h3 class="font-bold">
-              Incomplete Work
+              {{ allTickets.reason }}
             </h3>
             <p class="mb-1 text-sm">
-              Lorem ipsum dolor sit amet consectetur. Amet volutpat cras bibendum risus ac
-              egestas. Neque diam donec a purus ultrices at lacinia ultricies. Eu netus interdum
-              nunc tellus. Gravida suspendisse
-              tincidunt enim porttitor pretium commodo. Non semper massa nunc elit metus sodales
-              nisi et at. Morbi viverra at morbi egestas est. Tempor purus enim non.
+              {{ allTickets.description }}
             </p>
             <figure>
               <img
@@ -275,8 +355,14 @@ fetchConversation(69)
     <template v-else>
       <div>
         <div class="card bg-base-100 w-96 shadow-xl flex-2 h-fit mb-5">
-          <div class="card-body">
-            <figure v-if="conversations?.orders[0]?.listing" class="w-[320px] mx-auto p-1">
+          <div
+            v-if="conversations.orders"
+            class="card-body"
+          >
+            <figure
+              v-if="conversations?.orders[0]?.listing"
+              class="w-[320px] mx-auto p-1"
+            >
               <img
                 :src="conversations?.orders[0]?.listing?.images[0]"
                 alt=""

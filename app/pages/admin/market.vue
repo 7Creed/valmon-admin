@@ -11,6 +11,14 @@ const activeComp = ref('listing')
 const toggleComp = (comp) => {
   activeComp.value = comp
 }
+
+// pass the conversation Id and render the chat UI
+const ConversationId = ref(null)
+const openChat = (conversationId) => {
+  activeComp.value = 'viewChat'
+  ConversationId.value = conversationId
+}
+
 const goBackward = () => {
   activeComp.value = 'listing'
 }
@@ -62,11 +70,12 @@ const goBackward = () => {
       />
       <DashboardMarketplaceProduct
         v-if="activeComp === 'products'"
-        @view-chat="toggleComp('viewChat')"
+        @view-chat="openChat"
       />
       <DashboardViewChat
         v-if="activeComp == 'viewChat'"
         type="marketplace"
+        :conversation-id="ConversationId"
         @view-chat="toggleComp('viewChat')"
       />
 
