@@ -346,7 +346,7 @@ watch(selectedConversation, (newVal) => {
   }
   else if (newVal.last_job_id) {
     jobStatus.value = 'Completed'
-      latestOrder.value = newVal.last_job
+    latestOrder.value = newVal.last_job
   }
   else {
     jobStatus.value = ''
@@ -734,7 +734,11 @@ const report = () => {
               :class="mesg.user_id == store.UserAccount.id ? 'chat-start' : 'chat-end'"
             >
               <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
-                {{ mesg.user_id == store.UserAccount.id ? 'Client' : 'Service Provider' }} is Requesting
+                <span v-if="mesg.negotiation.user_id == store.UserAccount.id">You are requesting</span>
+                <span v-else>
+                  <span v-if="activeTab == 'marketPlace'"> {{ store.UserAccount.account_type !== 'employer' ? 'Buyer' : 'Seller' }} is Requesting</span>
+                  <span v-else> {{ store.UserAccount.account_type !== 'employer' ? 'Client' : 'Service Provider' }} is Requesting</span>
+                </span>
                 <div class="mt-2 satoshiB">
                   NGN {{ mesg.negotiation.price_offer }}
                 </div>
@@ -830,7 +834,17 @@ const report = () => {
         <h2 class="card-title ">
           <span v-if="selectedConversation?.service_id"> Service Cost:</span>
         </h2>
-        <div v-show="jobStatus === ''" class="input input-bordered w-full max-w-xs center">
+        <div class="label">
+          <span
+            v-if="activeTab == 'job'"
+            class="label-text"
+            v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is Asking for?'"
+          />
+        </div>
+        <div
+          v-show="jobStatus === ''"
+          class="input input-bordered w-full max-w-xs center"
+        >
           NGN {{ latestOffer || 0 }}
         </div>
         <div
@@ -847,15 +861,15 @@ const report = () => {
           class="form-control w-full max-w-xs mb-3"
         >
           <div class="label">
-            <span
+            <!-- <span
               v-if="activeTab == 'job'"
               class="label-text"
-              v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : ''"
-            />
+              v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is Asking for?'"
+            /> -->
             <span
-              v-else
+             v-if="activeTab !== 'job'"
               class="label-text"
-              v-text="store.UserAccount.account_type !== 'employer' ? 'Buyer is asking for?' : 'Seller is asking for?'"
+              v-text="store.UserAccount.account_type !== 'employer' ? 'Buyer is Asking for?' : 'Seller is Asking for?'"
             />
           </div>
           <!-- Add for Gigs here -->
@@ -877,13 +891,13 @@ const report = () => {
         >
           <span>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
             ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
-              === 'workerService' ? 'Accept & Hire' : 'Accept ' }}</span>
+              === 'workerService' ? 'Accept Proposal' : 'Accept ' }}</span>
         </button>
         <!-- Completed/product delivered Button for seller view -->
         <div class="w-full center">
           <button
             v-if="jobStatus === 'Completed' && (_shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered')"
-            :disabled="_shippingStatus === 'Completed' "
+            :disabled="_shippingStatus === 'Completed'"
             class="btn bg-darkGold mb-3 text-white w-full"
             onclick="my_modal_8.showModal()"
           >
@@ -926,8 +940,10 @@ const report = () => {
             type="button"
             onclick="my_modal_7.showModal()"
           >
-            <span v-if="activeTab === 'job'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Client' : 'Report Worker' }}</span>
-            <span v-if="activeTab === 'marketPlace'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Buyer' : 'Report Seller' }}</span>
+            <span v-if="activeTab === 'job'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Client'
+              : 'Report Worker' }}</span>
+            <span v-if="activeTab === 'marketPlace'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Buyer'
+              : 'Report Seller' }}</span>
           </button>
           <button
             v-else
@@ -951,7 +967,6 @@ const report = () => {
   <!-- Success and Rating -->
   <dialog
     id="my_modal_5"
-
     class="modal"
   >
     <div class="modal-box">
@@ -1031,13 +1046,13 @@ const report = () => {
           </label>
           <button
             class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-            @click="sendReviews "
+            @click="sendReviews"
           >
             <span
               v-if="reviewLoading"
               class="loading loading-spinner loading-xs"
             />
-            <span v-else>  Submit Review</span>
+            <span v-else> Submit Review</span>
           </button>
         </div>
       </div>
