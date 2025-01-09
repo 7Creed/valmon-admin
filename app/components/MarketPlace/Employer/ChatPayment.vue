@@ -178,10 +178,12 @@ const chatApiWithParam = async (func, userData, loader) => {
           console.log('DoneWorker', data.value.data)
           if (store.UserAccount.account_type === 'employer') {
             const paymentUrl = data.value.data.payment.data.authorization_url
-            reloadNuxtApp({
-              path: paymentUrl,
-              force: true,
-            })
+            window.location.href = paymentUrl
+            window.open(window.location.href, '_blank')
+            // reloadNuxtApp({
+            //   path: paymentUrl,
+            //   force: true,
+            // })
           }
           else {
             return
@@ -867,7 +869,7 @@ const report = () => {
               v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is Asking for?'"
             /> -->
             <span
-             v-if="activeTab !== 'job'"
+              v-if="activeTab !== 'job'"
               class="label-text"
               v-text="store.UserAccount.account_type !== 'employer' ? 'Buyer is Asking for?' : 'Seller is Asking for?'"
             />
