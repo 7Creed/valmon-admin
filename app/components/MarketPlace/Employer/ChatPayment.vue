@@ -177,9 +177,8 @@ const chatApiWithParam = async (func, userData, loader) => {
           proposalResponse.value = data.value.data
           console.log('DoneWorker', data.value.data)
           if (store.UserAccount.account_type === 'employer') {
-            const paymentUrl = data.value.data.payment.data.authorization_url
-            window.location.href = paymentUrl
-            window.open(window.location.href, '_blank')
+            const paymentUrl = data.value.data.payment.data.authorization_url;
+            window.open(paymentUrl, '_blank');
             // reloadNuxtApp({
             //   path: paymentUrl,
             //   force: true,
