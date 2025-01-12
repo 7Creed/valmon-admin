@@ -24,6 +24,7 @@ const PERSISTED_KEYS = {
     'recipientObjNegotiation',
     'adminUserId',
     'viewAdminChatId',
+    'fetchListing',
 
   ],
   // Should clear on logout

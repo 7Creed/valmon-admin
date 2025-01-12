@@ -49,7 +49,11 @@ function handleClick() {
 }
 
 const markAsCompleted = async (id) => {
-  const { status, error } = await markJobAsCompleted(id)
+  const jobStatus = store.UserAccount.account_type == 'employer' ? 'completed' : 'in review'
+
+  const { status, error } = await markJobAsCompleted(id, {
+    status: jobStatus,
+  })
   if (status.value === 'success') {
     loader.value = false
     handleALert('success', 'Job marked as completed')

@@ -314,8 +314,6 @@ const refund = (value) => {
                 v-if="payLoader"
                 class="loading loading-spinner loading-xs"
               />
-
-           
               <span v-else>{{ catalog == 'services' ? 'Pay Service Provider' : 'Pay Seller' }}</span>
             </button>
 

@@ -54,6 +54,7 @@
 import { ref } from 'vue'
 import { NotificationsController } from '~/services/modules/notificatons'
 
+
 definePageMeta({
   layout: 'market-place',
 })
@@ -64,7 +65,7 @@ const selectTag = (tag) => {
   renderApi(tag)
 }
 
-const { getAllNotifications, getUnreadNotifications } = NotificationsController()
+const { getAllNotifications, getUnreadNotifications, markAsRead } = NotificationsController()
 
 const notifications = ref([])
 const allNotifications = ref([])
@@ -118,6 +119,20 @@ const fetchUnreadNotifications = async () => {
     console.error('Error fetching notifications:', error)
   }
 }
+
+const markAllAsRead = async () => {
+  try {
+    const { status, data } = await markAsRead()
+    if (status.value === 'success') {
+      console.log(data.value.data)
+      await navigateTo('/notifications')
+    }
+  }
+  catch (error) {
+    console.error('Error fetching notifications:', error)
+  }
+}
+
 onMounted(() => {
   fetchNotifications()
   fetchUnreadNotifications()

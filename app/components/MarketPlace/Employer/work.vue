@@ -146,15 +146,14 @@ const selectServices = (id, name) => {
 }
 
 const openChat = () => {
-  store.updateNewConversationDetails({
-    recipient_id: store.userIdForProfileCheck,
-    service_id: selectedServiceId,
-  })
+  store.updateNewConversationDetails(store.userIdForProfileCheck, selectedServiceId.value )
+  store.newConversationDetails.gig = null
   navigateTo('/chat')
 }
 
 const openChatForListing = () => {
   store.updateNewConversationDetails(store.userIdForProfileCheck, null, store.listingId)
+  store.newConversationDetails.gig = null
   navigateTo('/chat')
 }
 
@@ -590,6 +589,7 @@ const restore = async (id) => {
             <div class="card-actions justify-between gap-4">
               <button
                 v-if="!store.marketPlaceTab"
+                onclick="my_modal_1.showModal()"
                 class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
               >
                 Contact

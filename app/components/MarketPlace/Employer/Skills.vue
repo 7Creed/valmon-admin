@@ -1,8 +1,8 @@
 <script setup>
+import { onUnmounted } from 'vue'
 import { servicesController } from '~/services/modules/services'
 import { useGlobalStore } from '~/store'
 import { MiscController } from '~/services/modules/misc'
-import { onUnmounted } from 'vue'
 
 const props = defineProps({
   page: {
@@ -369,7 +369,15 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-    <section class=" container mx-auto pb-14">
+    <SharedLoader v-if="loading" />
+    <section
+      v-else
+      class=" container mx-auto pb-14"
+    >
+      <SharedAvailable
+        v-if="!userByServices || userByServices.length === 0"
+        message="Client"
+      />
       <!-- Client Card -->
       <div
         v-if="activeTab === 'job' || props.page === 'employer'"

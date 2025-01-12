@@ -43,7 +43,7 @@ export const accountController = () => {
 
   // Active Jobs
 
-  const markJobAsCompleted = id => post(`jobs/${id}/status`)
+  const markJobAsCompleted = (id, data) => post(`jobs/${id}/status`, data)
   const getActiveJobs = page => get(`jobs?perpage=14&page=${page}`)
 
   return {

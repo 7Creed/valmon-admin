@@ -27,10 +27,7 @@ const displayGigs = computed(() => {
 })
 const hire = (item) => {
   console.log(item)
-  store.updateNewConversationDetails({
-    recipient_id: store.userIdForProfileCheck,
-    service_id: item.service.id,
-  })
+  store.updateNewConversationDetails(store.userIdForProfileCheck, item.service.id)
   store.updateGig(item.title, item.price)
   navigateTo('/chat')
 }

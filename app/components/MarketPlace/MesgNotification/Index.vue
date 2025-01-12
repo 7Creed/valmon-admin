@@ -1,7 +1,36 @@
 <script setup>
+import conversation from '@/assets/icons/conversation.svg'
+import acceptNegotiation from '@/assets/icons/acceptNegotiation.svg'
+import rejectNegotiation from '@/assets/icons/rejectNegotiation.svg'
+import jobCompleted from '@/assets/icons/jobCompleted.svg'
+import NegotiationRequest from '@/assets/icons/NegotiationPrice.svg'
+
 const props = defineProps({
   notifications: Array,
 })
+
+const NotificationIcons = [
+  {
+    name: 'New conversation started',
+    icon: conversation,
+  },
+  {
+    name: 'Negotiation request accepted',
+    icon: acceptNegotiation,
+  },
+  {
+    name: 'Negotiation request rejected',
+    icon: rejectNegotiation,
+  },
+  {
+    name: 'jobCompleted',
+    icon: jobCompleted,
+  },
+  {
+    name: 'New Negotiation Request',
+    icon: NegotiationRequest,
+  },
+]
 
 const formatDate = (date) => {
   return new Intl.DateTimeFormat('en-US', {
@@ -28,28 +57,13 @@ const formatDate = (date) => {
           <!-- Notification Type Icon -->
           <div class="flex-shrink-0">
             <span
-              v-if="notification.type === 'info'"
-              class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-blue-100"
+              v-if="NotificationIcons.some(icon => icon.name === notification.data.title)"
+              class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-[#EFE68736]"
             >
-              <InformationCircleIcon class="h-6 w-6 text-blue-600" />
-            </span>
-            <span
-              v-else-if="notification.type === 'success'"
-              class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-green-100"
-            >
-              <CheckCircleIcon class="h-6 w-6 text-green-600" />
-            </span>
-            <span
-              v-else-if="notification.type === 'warning'"
-              class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-yellow-100"
-            >
-              <ExclamationIcon class="h-6 w-6 text-yellow-600" />
-            </span>
-            <span
-              v-else
-              class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-100"
-            >
-              <XCircleIcon class="h-6 w-6 text-red-600" />
+              <img
+                :src="NotificationIcons.find(icon => icon.name === notification.data.title).icon"
+                class="h-6 w-6 text-blue-600"
+              >
             </span>
           </div>
 
@@ -60,7 +74,7 @@ const formatDate = (date) => {
                 {{ notification.data.title }}
               </p>
               <div class="flex items-center gap-4">
-                <a href="javascript:void(0)" ><svg
+                <a href="javascript:void(0)"><svg
                   width="19"
                   height="18"
                   viewBox="0 0 19 18"
@@ -74,7 +88,7 @@ const formatDate = (date) => {
                     fill="#473F33"
                   />
                 </svg></a>
-                <a href="javascript:void(0)" ><svg
+                <a href="javascript:void(0)"><svg
                   width="14"
                   height="15"
                   viewBox="0 0 14 15"

@@ -223,6 +223,7 @@ const saveCategory = () => {
 const removeServiceCategory = (index) => {
   console.log('delete', index)
   serviceData.services.splice(index, 1)
+  serviceData.services[0].primary = true
   updateCategoryFromAccount()
 }
 </script>

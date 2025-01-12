@@ -71,6 +71,7 @@ const WithdrawToBank = async () => {
   formdata.append('amount', paymentInfo.amount)
   formdata.append('account_number', paymentInfo.account_number)
   formdata.append('bank', paymentInfo.bank)
+  formdata.append('code', paymentInfo.code)
 
   console.log(paymentInfo)
   const { status, data, error } = await withdraw(formdata)

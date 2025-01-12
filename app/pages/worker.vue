@@ -20,7 +20,7 @@ const stepsdata = [
   { name: 'Profile Picture', id: 7 },
 
 ]
-const step = ref(5)
+const step = ref(1)
 
 // Handle profile setup
 const profileSetup = ref('')

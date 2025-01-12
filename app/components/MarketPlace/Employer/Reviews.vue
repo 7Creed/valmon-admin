@@ -7,6 +7,12 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
   const RP = (reviewCount / totalReviews) * 100
   return parseInt(RP)
 }
+
+const loader = ref(true)
+
+watch(props?.reviews, () => {
+  loader.value = false
+})
 </script>
 
 <template>

@@ -7,17 +7,35 @@ const store = useGlobalStore()
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
 const props = defineProps({
-  serviceData: Array,
+  serviceData: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
 })
 
 console.log('This is from service Data sent to primary', props?.serviceData)
 // For Updating the UI
-const renderServiceData = ref(props.serviceData)
+
+const renderServiceData = ref([])
+
+// Watch for changes in serviceData and update renderServiceData when data arrives
+watch(() => props.serviceData, (newValue) => {
+  if (newValue) {
+    renderServiceData.value = newValue.map(item => ({ ...item }))
+    // Set first item as primary if there are items
+    if (renderServiceData.value.length > 0) {
+      renderServiceData.value[0].primary = true
+    }
+  }
+}, { immediate: true })
 
 // This function updates the primary properties in renderServiceData
 const selectPrimaryCategory = (index) => {
-  renderServiceData.value[index].primary
-    = !renderServiceData.value[index].primary
+  renderServiceData.value = renderServiceData.value.map((item, i) => ({
+    ...item,
+    primary: i === index,
+  }))
 }
 
 // Provides the api data for posting primary services
@@ -98,7 +116,8 @@ const emitEvent = (event) => {
           ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{
             category.name
           }}</span></span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{ category.years_of_experience }}</span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{
+            category.years_of_experience }}</span>
         </span>
       </button>
 

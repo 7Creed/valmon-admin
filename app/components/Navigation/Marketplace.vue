@@ -13,7 +13,7 @@ import { MiscController } from '~/services/modules/misc'
 // Initialize Variables
 const store = useGlobalStore()
 const { getCurrencies } = MiscController()
-const { getUnreadNotifications, markAsRead } = NotificationsController()
+const { getUnreadNotifications} = NotificationsController()
 
 /* --------------------- Handles The Currency Drop Down -------------------- */
 
@@ -65,9 +65,10 @@ const fetchCurrencies = async () => {
 fetchCurrencies()
 // Handles Notification
 const notification = ref(false)
-const toggleNotification = () => {
+const toggleNotification = async () => {
   // call the toggle helper function
-  toggle(notification)
+  // toggle(notification)
+  await navigateTo('/notifications')
 }
 
 // Show New Job Offer Modal
@@ -101,25 +102,8 @@ watch(UnreadNotifications, (newVal, oldVal) => {
     newNotificationAlert.value = true
   }
 })
-const OpenNotification = async () => {
-  try {
-    const { status, data } = await markAsRead()
-    if (status.value === 'success') {
-      console.log(data.value.data)
-      await navigateTo('/notifications')
-    }
-  }
-  catch (error) {
-    console.error('Error fetching notifications:', error)
-  }
-}
-
-setInterval(() => {
-  // fetchNotifications()
-}, 20000000)
-onMounted(() => {
-  // fetchNotifications()
-})
+setInterval(fetchNotifications, 60000)
+onMounted(fetchNotifications)
 </script>
 
 <template>
@@ -181,20 +165,23 @@ onMounted(() => {
         <div
           class="flex items-center justify-center sm:items-stretch sm:justify-start"
         >
-          <div class="flex flex-shrink-0 items-center">
+          <a
+            href="/"
+            class="flex flex-shrink-0 items-center"
+          >
             <img
               class="w-auto"
               :src="brandLogo"
               alt="Valmon Brand Logo"
             >
-          </div>
+          </a>
         </div>
         <!-- Left side  -->
         <div
           class="flex items-center justify-end flex-1 space-x-4"
         >
           <!-- search input -->
-          <div class="w-1/4 rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-stone-900">
+          <div class="hidden w-1/4 rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-stone-900">
             <label class="h-10 input input-bordered flex items-center gap-2 bg-inherit search">
               <img
                 :src="magnifyLens"
@@ -224,7 +211,7 @@ onMounted(() => {
               </NuxtLink>
             </div>
           </div>
-          <NuxtLink to="/favorites">
+          <NuxtLink to="javascript:void(0);">
             <button
 
               type="button"
@@ -268,7 +255,7 @@ onMounted(() => {
             <!-- Notification drop down -->
             <div
               v-if="notification"
-              class="p-4 bg-white rounded-md absolute z-50 w-96 right-[-150px] top-11 border-b-brightGold border-b-2"
+              class="hidden p-4 bg-white rounded-md absolute z-50 w-96 right-[-150px] top-11 border-b-brightGold border-b-2"
             >
               <div class="flex justify-between items-center mb-3">
                 <h3 class="text-sm font-semibold text-black">
@@ -280,7 +267,7 @@ onMounted(() => {
                 >Clear</a>
               </div>
               <div
-                v-for="notification in UnreadNotifications"
+                v-for="notification in UnreadNotifications.slice(0, 6)"
                 :key="notification.id"
                 role="alert"
                 class="alert mb-3"

@@ -14,7 +14,7 @@ const toggleTab = (tab) => {
 }
 onMounted(() => {
   if (store.fetchListing) {
-    Tab.value = 'gallery'
+    Tab.value = 'listings'
   }
 })
 

@@ -92,11 +92,13 @@ const addSubCategory = () => {
           <!-- content 1 -->
           <div class="text-sm">
             <div class="mb-2">
-              <span class="text-valmon_menu font-medium">{{ type == 'skill' ? 'Transactions' : 'Sub Category List' }}</span>
+              <span class="text-valmon_menu font-medium">{{ type == 'skill' ? 'Transactions' : 'Sub Category List'
+              }}</span>
               <span
                 v-if="type == 'sub-category'"
                 class="inline-block text-valmon_Gold text-xs ms-3"
-              >{{ transactions?.all_sub_categories?.length }} Sub Categories</span>
+              >{{
+                transactions?.all_sub_categories?.length }} Sub Categories</span>
             </div>
             <p v-if="type == 'skill'">
               List Of All Transactions on The Platform
@@ -162,9 +164,7 @@ const addSubCategory = () => {
           <table class="table">
             <!-- head -->
             <thead>
-              <template
-                v-if="type ==='skill'"
-              >
+              <template v-if="type === 'skill'">
                 <tr>
                   <th>
                     Serial Number
@@ -357,7 +357,7 @@ const addSubCategory = () => {
                   </td>
                   <td>{{ item.category || 'N/A' }}</td>
                   <td>N/A</td>
-                  <td>  {{ getHours(item.job_created_at, item.job_completed_at) }}Hours</td>
+                  <td> {{ getHours(item.job_created_at, item.job_completed_at) }}Hours</td>
                   <td>NGN {{ item.amount }}</td>
                   <td>NGN {{ item.to_valmon }}</td>
                   <td>{{ formatDate(item.date) }}</td>
@@ -469,9 +469,7 @@ const addSubCategory = () => {
                   <button class="join-item btn  btn-sm">
                     4
                   </button>
-                  <span
-                    class="join-item btn  btn-sm"
-                  >
+                  <span class="join-item btn  btn-sm">
                     ...
                   </span>
                   <button class="join-item btn  btn-sm">

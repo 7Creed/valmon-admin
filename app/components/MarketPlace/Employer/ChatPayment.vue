@@ -6,7 +6,7 @@ import { chatController } from '@/services/modules/chat'
 import { TicketController } from '~/services/modules/Admin/Tickets'
 
 const { createConversation, getConversation, getMessages, sendMessages, sendProposal, rejectProposal, acceptProposal, markAsRead, initiatePayment, markAsDelivered, orderCompleted } = chatController()
-const { createReview, getReviews } = accountController()
+const { createReview, getReviews, markJobAsCompleted } = accountController()
 const { createTicket } = TicketController()
 
 const props = defineProps({
@@ -177,8 +177,8 @@ const chatApiWithParam = async (func, userData, loader) => {
           proposalResponse.value = data.value.data
           console.log('DoneWorker', data.value.data)
           if (store.UserAccount.account_type === 'employer') {
-            const paymentUrl = data.value.data.payment.data.authorization_url;
-            window.open(paymentUrl, '_blank');
+            const paymentUrl = data.value.data.payment.data.authorization_url
+            window.open(paymentUrl, '_blank')
             // reloadNuxtApp({
             //   path: paymentUrl,
             //   force: true,
@@ -356,12 +356,15 @@ watch(selectedConversation, (newVal) => {
   deep: true,
 })
 
+// for marketplace
 const _shippingStatus = computed(() => {
   if (conversationType.value === 'employerListing') {
     return latestOrder.value.shipping_status === 'delivered' ? 'Product Received' : 'Product Pending Shipping'
   }
   return conversationType.value === 'workerListing' && latestOrder.value.shipping_status === 'pending' ? 'Product Delivered' : 'Completed'
 })
+
+
 
 const review = ref(false)
 
@@ -496,6 +499,28 @@ const report = () => {
   formdata.append('description', reportData.description)
 
   chatApiWithParam(createTicket, formdata, reportLoader)
+}
+
+const MCloading = ref(false)
+const MarkCompleted = async () => {
+  // MCloading.value = true
+  const JobStatus = store.UserAccount.account_type == 'employer' ? 'completed' : 'in review'
+  try {
+    const { status, error } = await markJobAsCompleted(latestOrder.value.id, {
+      status: JobStatus,
+    })
+    if (status.value === 'success') { 
+      await fetchConversation()
+      submitReview()
+      modal5.value.click()
+      return
+    }
+    handleError('error', error.value.data.message)
+  }
+  catch (err) {
+    handleError('error', err.message)
+  }
+  // finally {}
 }
 </script>
 
@@ -894,8 +919,26 @@ const report = () => {
             ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
               === 'workerService' ? 'Accept Proposal' : 'Accept ' }}</span>
         </button>
+
+        <!-- Services -->
+        <div
+          v-if="activeTab == 'job'"
+          class="w-full center"
+        >
+          <button
+            v-if="jobStatus === 'Completed'"
+            :disabled="latestOrder.status != 'in review' && store.UserAccount.account_type == 'employer' || latestOrder.status == 'completed'"
+            class="btn bg-darkGold mb-3 text-white w-full"
+            @click="MarkCompleted"
+          >
+            <span>{{ latestOrder.status  == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
+          </button>
+        </div>
         <!-- Completed/product delivered Button for seller view -->
-        <div class="w-full center">
+        <div
+          v-else
+          class="w-full center"
+        >
           <button
             v-if="jobStatus === 'Completed' && (_shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered')"
             :disabled="_shippingStatus === 'Completed'"
@@ -936,7 +979,7 @@ const report = () => {
         >
           <!-- Report -->
           <button
-            v-if="activeTab == 'marketPlace'"
+            v-if="jobStatus === 'Completed'"
             class="btn btn-outline btn-error w-full"
             type="button"
             onclick="my_modal_7.showModal()"
@@ -947,7 +990,7 @@ const report = () => {
               : 'Report Seller' }}</span>
           </button>
           <button
-            v-else
+           v-else
             class="btn btn-outline btn-error w-full"
             type="button"
             @click="rejectProposa()"
@@ -1221,7 +1264,10 @@ const report = () => {
     <div class="modal-box">
       <div class="card-body p-2">
         <h2 class="card-title text-black font-bold text-2xl text-center center">
-          Report {{ store.UserAccount.account_type === 'employer' ? 'Client' : 'Worker' }}
+          <span v-if="activeTab === 'job'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Client'
+              : 'Report Worker' }}</span>
+            <span v-if="activeTab === 'marketPlace'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Buyer'
+              : 'Report Seller' }}</span>
         </h2>
         <p class="text-sm text-black">
           Report an issue you might have experienced, and our admin
