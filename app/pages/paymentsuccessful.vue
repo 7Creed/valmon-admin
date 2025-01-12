@@ -41,15 +41,19 @@ const paymentSuccess = async () => {
 
 <template>
   <!-- Payment successful -->
-  <span
-    v-if="!lastJobConversation "
-    class="loading loading-spinner loading-lg"
-  />
+
   <div
-    v-else
+
     class="min-h-screen center bg-white"
   >
-    <div class="modal-box">
+    <span
+      v-if="!lastJobConversation "
+      class="loading loading-spinner loading-lg"
+    />
+    <div
+      v-else
+      class="modal-box"
+    >
       <div class="card-body p-2 mb-5">
         <h2 class="card-title text-black font-bold text-2xl text-center center mb-5">
           Payment Success
