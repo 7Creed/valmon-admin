@@ -18,12 +18,12 @@ const conversation = params.get('conversation')
 
 const lastJobConversation = ref(null)
 const fetchConversation = async () => {
-  const { status, data} = await getConversation(conversation)
+  const { status, data } = await getConversation(conversation)
   if (status.value === 'success') {
     lastJobConversation.value = data.value.data.find(conv => conv.id == conversation)
   }
   if (status.value === 'error') {
-    handleError('error', 'Error fetching conversation proceed to delivery')
+    handleError('error', 'Error fetching conversation Refresh or proceed to delivery')
   }
   console.log(lastJobConversation)
 }
@@ -41,7 +41,14 @@ const paymentSuccess = async () => {
 
 <template>
   <!-- Payment successful -->
-  <div class="min-h-screen center bg-white">
+  <span
+    v-if="!lastJobConversation "
+    class="loading loading-spinner loading-lg"
+  />
+  <div
+    v-else
+    class="min-h-screen center bg-white"
+  >
     <div class="modal-box">
       <div class="card-body p-2 mb-5">
         <h2 class="card-title text-black font-bold text-2xl text-center center mb-5">
