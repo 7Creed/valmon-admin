@@ -194,7 +194,7 @@ const openProduct = (id) => {
         <figure>
           <img
             :src="item.images[0]"
-            alt="Shoes"
+           alt="ProductImage"
           >
         </figure>
         <div class="flex items-center gap-6 mb-2">

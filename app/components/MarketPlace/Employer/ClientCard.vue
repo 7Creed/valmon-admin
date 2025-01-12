@@ -18,6 +18,7 @@ const openProfile = (id) => {
   })
 }
 const openContact = (userId, serviceId) => {
+  console.log(userId, serviceId)
   store.updateNewConversationDetails(userId, serviceId)
   updateContactView()
 }

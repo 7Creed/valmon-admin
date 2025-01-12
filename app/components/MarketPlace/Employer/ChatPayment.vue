@@ -176,7 +176,7 @@ const chatApiWithParam = async (func, userData, loader) => {
         case 'acceptProposal':
           proposalResponse.value = data.value.data
           console.log('DoneWorker', data.value.data)
-          if (store.UserAccount.account_type === 'employer') {
+          if (store.UserAccount?.account_type === 'employer') {
             const paymentUrl = data.value.data.payment.data.authorization_url
             window.open(paymentUrl, '_blank')
             // reloadNuxtApp({
@@ -326,6 +326,14 @@ const MarkAsRead = () => {
 // render chat time
 const getTimeDifference = timestamp => getTimeDiff(timestamp)
 
+const acceptNegotiation = () => {
+  if (store.UserAccount.account_type === 'employer') {
+    acceptNewProposal()
+  }
+  else {
+    InitiatePayment()
+  }
+}
 const acceptNewProposal = () => {
   chatApiWithParam(acceptProposal, {
     negotiation_id: latestOfferNegotiationId.value,
@@ -363,8 +371,6 @@ const _shippingStatus = computed(() => {
   }
   return conversationType.value === 'workerListing' && latestOrder.value.shipping_status === 'pending' ? 'Product Delivered' : 'Completed'
 })
-
-
 
 const review = ref(false)
 
@@ -430,10 +436,22 @@ const reviewData = reactive({
   content: '',
 })
 
+// get recipient id and user id for jobs
+const latestJobOfferUserId = computed(() => {
+  if (store.UserAccount.account_type === 'employer' && activeTab.value == 'job') {
+    return selectedConversation.value.recipient_id
+  }
+  else if (store.UserAccount.account_type === 'worker' && activeTab.value == 'job') {
+    return selectedConversation.value.user_id
+  }
+  else {
+    return null
+  }
+})
 const reviewLoader = ref(false)
 const sendReviews = () => {
   chatApiWithParams(createReview,
-    reviewData, latestOfferUserId.value, reviewLoader)
+    reviewData, (latestOfferUserId.value || latestJobOfferUserId.value), reviewLoader)
 }
 
 // selected Image url
@@ -470,8 +488,8 @@ watch([activeTab, selectedConversation], ([newTab, newConversation]) => {
     reportData.order_id = newConversation.orders[0].id
     reportData.job_id = null
   }
-  else if (newConversation?.job_id) {
-    reportData.job_id = newConversation.job_id
+  else if (newConversation?.last_job_id) {
+    reportData.job_id = newConversation.last_job_id
     reportData.order_id = null
   }
 })
@@ -509,7 +527,7 @@ const MarkCompleted = async () => {
     const { status, error } = await markJobAsCompleted(latestOrder.value.id, {
       status: JobStatus,
     })
-    if (status.value === 'success') { 
+    if (status.value === 'success') {
       await fetchConversation()
       submitReview()
       modal5.value.click()
@@ -848,6 +866,7 @@ const MarkCompleted = async () => {
             <img
               :src="selectedConversation.listing.images[0]"
               :alt="selectedConversation.listing.title"
+              class="w-2/3"
             >
           </figure>
           <div class="card-body">
@@ -868,7 +887,7 @@ const MarkCompleted = async () => {
           />
         </div>
         <div
-          v-show="jobStatus === ''"
+          v-show="jobStatus === '' && activeTab == 'job'"
           class="input input-bordered w-full max-w-xs center"
         >
           NGN {{ latestOffer || 0 }}
@@ -882,6 +901,7 @@ const MarkCompleted = async () => {
             NGN {{ latestOrder?.amount ?? 'N/A' }}
           </div>
         </div>
+        <!-- Marketplace -->
         <label
           v-show="jobStatus === ''"
           class="form-control w-full max-w-xs mb-3"
@@ -906,6 +926,7 @@ const MarkCompleted = async () => {
             latestOffer ? latestOffer : selectedConversation.listing.price }}</div>
 
         </label>
+        <!-- Marketplace End -->
         <!-- accept proposal  -->
         <button
           v-if="jobStatus === ''"
@@ -913,7 +934,7 @@ const MarkCompleted = async () => {
           :disabled="allMessages.length === 0 || !latestOffer"
           type="button"
           class="btn bg-darkGold mb-3 text-white w-full"
-          @click="acceptNewProposal"
+          @click="acceptNegotiation"
         >
           <span>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
             ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
@@ -931,7 +952,7 @@ const MarkCompleted = async () => {
             class="btn bg-darkGold mb-3 text-white w-full"
             @click="MarkCompleted"
           >
-            <span>{{ latestOrder.status  == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
+            <span>{{ latestOrder.status == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
           </button>
         </div>
         <!-- Completed/product delivered Button for seller view -->
@@ -990,7 +1011,7 @@ const MarkCompleted = async () => {
               : 'Report Seller' }}</span>
           </button>
           <button
-           v-else
+            v-else
             class="btn btn-outline btn-error w-full"
             type="button"
             @click="rejectProposa()"
@@ -1017,7 +1038,7 @@ const MarkCompleted = async () => {
       <div class="card-body p-2">
         <!-- Product delivered -->
         <div
-          v-if="!review"
+          v-if="!review && (conversationType !== 'employerService' || conversationType !== 'workerService')"
           class=""
         >
           <h1 class="text-2xl font-bold mb-4">
@@ -1265,9 +1286,9 @@ const MarkCompleted = async () => {
       <div class="card-body p-2">
         <h2 class="card-title text-black font-bold text-2xl text-center center">
           <span v-if="activeTab === 'job'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Client'
-              : 'Report Worker' }}</span>
-            <span v-if="activeTab === 'marketPlace'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Buyer'
-              : 'Report Seller' }}</span>
+            : 'Report Worker' }}</span>
+          <span v-if="activeTab === 'marketPlace'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Buyer'
+            : 'Report Seller' }}</span>
         </h2>
         <p class="text-sm text-black">
           Report an issue you might have experienced, and our admin
