@@ -1,19 +1,37 @@
 <script setup>
+import { chatController } from '@/services/modules/chat'
+
 definePageMeta({
   layout: 'market-place',
 })
 
+const { getConversation } = chatController()
+
 // Get the full URL from the window object
-const url = window.location.href;
+const url = window.location.href
 
 // Parse the query parameters
-const params = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search)
 
 // Extract the 'conversation' parameter
-const conversation = params.get('conversation');
+const conversation = params.get('conversation')
+
+const lastJobConversation = ref(null)
+const fetchConversation = async () => {
+  const { status, data} = await getConversation(conversation)
+  if (status.value === 'success') {
+    lastJobConversation.value = data.value.data.find(conversation => conv.id == conversation)
+  }
+  if (status.value === 'error') {
+    handleError('error', 'Error fetching conversation proceed to delivery')
+  }
+  console.log(lastJobConversation)
+}
+
+fetchConversation()
 
 // Log the value
-console.log(conversation);
+console.log(conversation)
 
 const paymentSuccess = async () => {
   const redirectUrl = `${window.location.origin}/chat?id=${conversation}`
@@ -31,12 +49,14 @@ const paymentSuccess = async () => {
         </h2>
 
         <p class=" text-black mb-3 ">
-          Buyer has paid NGN 56,778 for this product. Please proceed
+          Buyer has paid NGN {{ lastJobConversation?.last_job?.amount }} for this product. Please proceed
           to delivery
         </p>
       </div>
-      <button class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
-        @click="paymentSuccess">
+      <button
+        class="btn btn-neutral mb-3 text-base font-bold text-white border-2 _border w-full mx-auto"
+        @click="paymentSuccess"
+      >
         Done
       </button>
     </div>

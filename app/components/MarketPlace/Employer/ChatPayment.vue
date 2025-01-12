@@ -227,7 +227,7 @@ fetchConversation()
 
 setInterval(() => {
   fetchConversation()
-}, 300000)
+}, 30000)
 
 const Chat = (conv) => {
   selectedConversation.value = conv
@@ -910,7 +910,7 @@ const MarkCompleted = async () => {
         <button
           v-if="jobStatus === ''"
           id="start-payment-button"
-          :disabled="allMessages.length === 0"
+          :disabled="allMessages.length === 0 || !latestOffer"
           type="button"
           class="btn bg-darkGold mb-3 text-white w-full"
           @click="acceptNewProposal"
