@@ -20,7 +20,7 @@ const lastJobConversation = ref(null)
 const fetchConversation = async () => {
   const { status, data} = await getConversation(conversation)
   if (status.value === 'success') {
-    lastJobConversation.value = data.value.data.find(conversation => conv.id == conversation)
+    lastJobConversation.value = data.value.data.find(conv => conv.id == conversation)
   }
   if (status.value === 'error') {
     handleError('error', 'Error fetching conversation proceed to delivery')
