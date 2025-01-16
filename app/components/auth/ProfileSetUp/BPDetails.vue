@@ -14,7 +14,7 @@ watch(userBio, (newVal, oldVal) => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col  sm:w-[500px]">
     <h2 class="card-title text-left text-[#232323] text-3xl  mb-10">
       About Me
     </h2>

@@ -110,21 +110,22 @@ const signUp = () => {
 <template>
   <div class="">
     <div class="mb-9 ">
-      <h1 class="text-3xl font-bold text-[rgba(35, 35, 35, 1)] mb-2">
+      <h1 class="text-2xl lg:text-3xl font-bold text-[rgba(35, 35, 35, 1)] mb-2 text-center lg:text-left">
         {{ props.accountType === 'employer' ? 'Client Sign Up':'Worker Sign Up' }}
       </h1>
-      <p class="text-lg text-[rgba(106, 106, 106, 1)]">
+      <p class="text-lg text-[rgba(106, 106, 106, 1)] text-center lg:text-left">
         Sign up to find the best Man For The Job
       </p>
     </div>
-    <form @submit.prevent="signUp">
-      <div class="center gap-2 mb-5">
+    <form @submit.prevent="signUp" class="w-full">
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-2 mb-5">
         <BaseInput
           v-model="userData.first_name"
           label="First Name"
           type="text"
           placeholder="John"
-          class="flex-1 "
+          class="w-full mb-5"
+
           :required="true"
         />
         <BaseInput
@@ -132,7 +133,8 @@ const signUp = () => {
           label="Last Name"
           type="text"
           placeholder="Doe"
-          class="flex-1 "
+          class="w-full mb-5"
+
           :required="true"
         />
       </div>
@@ -141,16 +143,16 @@ const signUp = () => {
         label="Email"
         type="email"
         placeholder="Johndoe@email.com"
-        class="flex-1 mb-5"
+        class="w-full mb-5"
         :required="true"
       />
-      <div class="center gap-2 mb-5">
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-2 mb-5">
         <BaseInput
           v-model="userData.country_code"
           label="Country Code"
           type="select"
           :data="countryCode"
-          class="flex-1 "
+          class="w-full mb-5"
           :required="true"
         />
         <BaseInput
@@ -158,12 +160,13 @@ const signUp = () => {
           label="Phone Number"
           type="tel"
           placeholder="08123487678"
-          class="flex-1 "
+          class="w-full mb-5"
+
           :required="true"
         />
       </div>
       <div class="gap-2 mb-5">
-        <div class="center gap-2">
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-2 mb-5">
           <BaseInput
             v-model="userData.password"
             label="Password"
@@ -171,7 +174,8 @@ const signUp = () => {
             :icon="true"
             icon-type="password"
             :instance-id="'password1'"
-            class="flex-1 "
+            class="w-full mb-5"
+
             :required="true"
             @password-visible="handlePasswordVisible"
           />
@@ -182,7 +186,8 @@ const signUp = () => {
             :icon="true"
             icon-type="password"
             :instance-id="'password2'"
-            class="flex-1 "
+            class="w-full mb-5"
+
             :required="true"
             @password-visible="handlePasswordVisible"
           />

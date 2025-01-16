@@ -8,17 +8,18 @@ const addresses = {
   addresses: [
     {
       details: null,
-      street: 'nwaniba',
-      city: 'uyo',
-      state: 'akwa-ibom',
-      country: 'nigeria',
-      postal_code: '520101',
+      street: '',
+      city: '',
+      state: '',
+      country: '',
+      postal_code: '',
     },
   ],
 }
 
 const { getCountries } = MiscController()
 const buttonNext = ref('Verify')
+
 const { addAddresses } = accountController()
 const loading = ref(false)
 const handleAddAddress = async () => {
@@ -60,10 +61,10 @@ fetchCountries()
 <template>
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
-      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl">
+      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-2xl lg:text-3xl justify-center lg:justify-start">
         Address
       </h2>
-      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-20">
+      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-20 text-center lg:text-left">
         Add Physical locations of your business
       </p>
       <!-- Add address btn -->
@@ -176,7 +177,7 @@ fetchCountries()
           />
 
           <BaseButton
-            title="Save Address"
+            :title="buttonNext === 'Verify' ? 'Save Address' : 'Address Saved Successfully!'"
             color="rgba(33, 31, 31, 1)"
             text-color="rgba(255, 255, 255, 1)"
             :outline="false"

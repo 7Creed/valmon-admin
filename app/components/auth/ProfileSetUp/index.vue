@@ -89,7 +89,7 @@ const Next = (param) => {
 </script>
 
 <template>
-  <div class="w-2/5">
+  <div class="">
     <div
       ref="setup"
       onclick="my_modal_2.showModal()"

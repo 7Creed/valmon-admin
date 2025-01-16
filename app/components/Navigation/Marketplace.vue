@@ -13,7 +13,7 @@ import { MiscController } from '~/services/modules/misc'
 // Initialize Variables
 const store = useGlobalStore()
 const { getCurrencies } = MiscController()
-const { getUnreadNotifications} = NotificationsController()
+const { getUnreadNotifications } = NotificationsController()
 
 /* --------------------- Handles The Currency Drop Down -------------------- */
 
@@ -84,6 +84,7 @@ const toggleNotification = async () => {
 const UnreadNotifications = ref([])
 
 const fetchNotifications = async () => {
+  console.log('Fetching notifications...')
   try {
     const { status, data } = await getUnreadNotifications()
     if (status.value === 'success') {
@@ -102,7 +103,15 @@ watch(UnreadNotifications, (newVal, oldVal) => {
     newNotificationAlert.value = true
   }
 })
-setInterval(fetchNotifications, 60000)
+
+// Fetch Notifications when user is logged in
+if (store.UserAccount.id) {
+  setInterval(fetchNotifications, 30000)
+}
+else {
+  clearInterval(fetchNotifications)
+}
+
 onMounted(fetchNotifications)
 </script>
 

@@ -53,12 +53,15 @@ const signIn = async () => {
   <div class="flex justify-items-center flex-row w-[90%] bg-white">
     <!-- Authentication -->
     <div class="Login flex-1 center">
-      <div class="w-1/2">
+      <div
+        class="w-full md:w-4/6 xxl:w-1/2 py-6 lg:py-0"
+        
+      >
         <div class="mb-9 ">
-          <h1 class="text-3xl font-bold text-[rgba(35, 35, 35, 1)] mb-2">
+          <h1 class="text-2xl lg:text-3xl text-center lg:text-left font-bold text-[rgba(35, 35, 35, 1)] mb-2">
             Sign In
           </h1>
-          <p class="text-lg text-[rgba(106, 106, 106, 1)]">
+          <p class="text-lg text-[rgba(106, 106, 106, 1)] text-center lg:text-left">
             Please login to continue to your account.
           </p>
         </div>
@@ -126,7 +129,7 @@ const signIn = async () => {
       </div>
     </div>
     <!-- Images -->
-    <div class=" flex-1">
+    <div class=" flex-1 lg:flex hidden">
       <authValmon />
     </div>
   </div>

@@ -5,7 +5,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="min-h-screen center">
+  <div class="min-h-screen center bg-white">
     <authLogin />
   </div>
 </template>

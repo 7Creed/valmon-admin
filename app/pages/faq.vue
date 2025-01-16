@@ -9,8 +9,8 @@ const openAcc = (accIndex) => {
 </script>
 
 <template>
-  <div class="  bg-stone-950 min-h-screen pb-28 relative">
-    <h1 class="text-5xl font-bold text-white text-center pt-20 mb-12 relative w-fit mx-auto z-10 satoshiM">
+  <div class="  bg-stone-950 min-h-screen  relative mb-20 lg:mb-30">
+    <h1 class="text-3xl lg:text-5xl font-bold text-white text-center pt-20 mb-12 relative w-fit mx-auto z-10 satoshiM">
       Valmon FAQs
       <img
         :src="rectangle"
@@ -18,9 +18,9 @@ const openAcc = (accIndex) => {
         class="w-16 top-[5rem] right-[3rem] absolute -z-10"
       >
     </h1>
-    <div class=" mx-auto mt-8 p-10 rounded-lg flex gap-4 container">
+    <div class=" mx-auto mt-8 p-10 rounded-lg flex flex-wrap gap-4 container">
       <!-- Card left -->
-      <div class="card card-compact bg-base-100 w-72 shadow-xl bg-inherit border border-darkGold h-fit ">
+      <div class="card card-compact bg-base-100  w-full lg:w-72 mb-20 lg:mb-5 shadow-xl bg-inherit border border-darkGold h-fit ">
         <div class="card-body">
           <h2 class="card-title text-white mb-5">
             Topic Navigation
@@ -36,7 +36,7 @@ const openAcc = (accIndex) => {
         </div>
       </div>
       <!-- Accordion -->
-      <div class="accordion_wrapper w-3/5 ms-8">
+      <div class="accordion_wrapper w-full lg:w-3/5 ms-8">
         <div
           v-for="(item, index) in 8 "
           :key="index"

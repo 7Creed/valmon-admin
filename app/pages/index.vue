@@ -77,15 +77,15 @@ featuredListing()
 </script>
 
 <template>
-  <div class="mb-40">
+  <div class="mb-20 lg:mb-30">
     <HomeHero />
     <div>
       <!-- Why Join Us -->
-      <div class="text-center mb-40">
-        <h1 class="text-white font-bold staoshiM text-2xl mb-10">
-          Why Join Us
+      <div class="text-center mb-4 md:mb-40 px-2 md:px-0">
+        <h1 class="text-white font-bold staoshiM text-2xl lg:mb-10">
+          Why Join Valmon
         </h1>
-        <div class="flex">
+        <div class="flex flex-wrap ">
           <div
             v-for="(feature, index) in Features"
             :key="index"
@@ -94,7 +94,7 @@ featuredListing()
             <img
               :src="feature.image"
               alt=""
-              class="mx-auto mb-10"
+              class="mx-auto mb-3 md:mb-10"
             >
             <h2 class="text-xl mb-6">
               {{ feature.title }}
@@ -163,8 +163,8 @@ featuredListing()
         </div>
       </div>
       <!-- Platform category -->
-      <div class="text-white mb-40 ">
-        <h4 class="text-3xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
+      <div class="text-white mb-40 w-full px-4">
+        <h4 class="text-2xl lg:text-3xl font-bold w-full md:w-2/4 mx-auto text-center mb-20 relative z-10 ">
           Discover our platform's wide range of freelance categories,
           where your unique skills find the perfect match
           with clients across diverse industries.
@@ -174,8 +174,14 @@ featuredListing()
             class="absolute rectangular"
           >
         </h4>
+        <div class="mb-10 justify-center items-center lg:hidden flex">
+          <img
+            :src="MosesTree"
+            alt=""
+          >
+        </div>
         <div
-          class="h-auto rounded-lg w-[60%] flex text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold "
+          class="h-auto rounded-lg lg:w-[80%] xl:w-[65%] flex text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold "
         >
           <div class="techinical_services w-[400px] ">
             <h5 class="_header font-extrabold mb-4 p-3 text-center bg-darkGold">
@@ -183,9 +189,9 @@ featuredListing()
             </h5>
             <div class="flex gap-4 justify-center items-center flex-wrap ">
               <span
-                v-for="(items, index) in CategoryServices.length ? CategoryServices[0].services : 21"
+                v-for="(items, index) in CategoryServices.length ? CategoryServices[0].services.slice(0, 15) : 21"
                 :key="index"
-                class="border border-darkGold py-2 px-4 rounded-lg"
+                class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base"
               >{{ items.name ?? 'Placeholder' }}</span>
               <a
                 href="Javascript:void(0)"
@@ -193,7 +199,7 @@ featuredListing()
               >More</a>
             </div>
           </div>
-          <div class="bg_img ">
+          <div class="bg_img hidden lg:flex ">
             <img
               :src="MosesTree"
               alt=""
@@ -205,9 +211,9 @@ featuredListing()
             </h5>
             <div class="flex gap-4 items-center flex-wrap justify-center ">
               <span
-                v-for="(items, index) in CategoryServices.length ? CategoryServices[1].services : 21"
+                v-for="(items, index) in CategoryServices.length ? CategoryServices[1].services.slice(0, 15) : 21"
                 :key="index"
-                class="border border-darkGold py-2 px-4 rounded-lg"
+                class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base"
               >{{ items.name ?? 'Placeholder' }}</span>
               <a
                 href="Javascript:void(0)"
@@ -219,8 +225,8 @@ featuredListing()
       </div>
 
       <!-- Other solutions -->
-      <div class="text-white mb-40">
-        <h4 class="text-3xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
+      <div class="text-white mb-40 px-4 lg:px-0">
+        <h4 class="text-2xl lg:text-3xl font-bold md:w-2/4 mx-auto text-center mb-20 relative z-10">
           We hosts skilled professionals delivering innovative web designs, cutting-edge software solutions, and more
           with creativity and expertise.
           <img
@@ -230,12 +236,12 @@ featuredListing()
           >
         </h4>
         <div
-          class="min-h-[730px] w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+        class="lg:w-[80%] xl:w-[65%]  flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
         >
           <div
             v-for="(items, index) in ImageArray"
             :key="index"
-            class="w-[300px] h-[300px] flex "
+            class="sm:w-[300px] h-[300px] flex "
           >
             <img
               :src="items"
@@ -247,8 +253,8 @@ featuredListing()
       </div>
 
       <!-- Featured Product -->
-      <div class="text-white mb-40">
-        <h4 class="text-3xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
+      <div class="text-white mb-40 px-4 lg:px-0">
+        <h4 class="text-2xl lg:text-3xl font-bold md:w-2/4 mx-auto text-center mb-20 relative z-10">
           Our marketplace empowers customers to sell their items with ease, providing a trusted platform for
           high-quality transactions and exceptional service
           <img
@@ -262,25 +268,25 @@ featuredListing()
           Featured Listings
         </h5>
         <div
-          class=" w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+        class="lg:w-[80%] xl:w-[65%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
         >
           <HomeFeaturedListing
             :key="index"
-            :listings="featuredListings"
+            :listings="featuredListings.slice(0, 9)"
             class="max-h-[400px]"
           />
         </div>
       </div>
 
-      <SellOnValmon class="w-[60%] mx-auto mb-40" />
+      <SellOnValmon class="hidden lg:block w-[60%] mx-auto mb-40" />
 
       <!-- Featured Product -->
-      <div class="text-white mb-40">
-        <h4 class="text-3xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
+      <div class="text-white mb-40 px-4 lg:px-0">
+        <h4 class="text-2xl font-bold w-2/4 mx-auto text-center mb-20 relative z-10">
           Testimonials
         </h4>
         <div
-          class="h-[900px] w-[60%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+          class="lg:w-[80%] xl:w-[65%]  flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
         >
           <HomeTestimonies
             v-for="(item, index) in 5"
@@ -292,13 +298,13 @@ featuredListing()
 
       <!-- Join Our Community -->
       <div
-        class="w-[70%] mx-auto hero justify-items-start heroCommunity min-h-[700px] bg-cover  bg-no-repeat  border border-darkGold rounded-lg"
+        class="lg:w-[70%] mx-auto hero justify-items-start heroCommunity min-h-[500px] lg:min-h-[700px]  bg-cover  bg-no-repeat  border border-darkGold rounded-lg "
       >
         <div class="hero-overlay w-full  bg-black bg-opacity-50" />
 
         <div class="hero-content  text-white justify-start">
           <div class="max-w-full relative">
-            <h2 class="text-5xl font-extrabold mb-3">
+            <h2 class=" text-2xl lg:text-5xl font-extrabold mb-3">
               Join Our Community Today
             </h2>
             <p class="mb-4 text-lg font-medium ">

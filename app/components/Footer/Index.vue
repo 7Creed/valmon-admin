@@ -8,13 +8,13 @@ import tikTok from '@/assets/icons/facebook.svg'
 </script>
 
 <template>
-  <footer class="bg-[#151212] text-base-content p-10 px-20 ">
-    <nav class="flex justify-between">
+  <footer class="bg-[#151212] text-base-content lg:p-10 lg:px-20 ">
+    <nav class="flex flex-col lg:flex-row items-center gap-8 lg:gap-0 lg:justify-between ">
       <a class=""><img
         :src="brandLogo"
         alt="brand logo"
       ></a>
-      <div class="text-white gap-4 flex items-center w-1/3 justify-between text-base">
+      <div class="text-white gap-4 flex items-center lg:w-1/3 justify-between text-base">
         <NuxtLink
           to="/about"
           class="link link-hover"
@@ -155,28 +155,32 @@ import tikTok from '@/assets/icons/facebook.svg'
       </div>
     </nav>
     <div class="border border-darkGold my-5" />
-    <nav class="flex items-center justify-between">
-      <p class="text-sm text-white">
+    <nav class="flex flex-col-reverse lg:flex-row gap-4 items-center justify-between mb-5">
+      <p class="text-sm text-white w-ful lg:lw-2/6">
         © 2024 Valmon. All rights reserved.
       </p>
-      <div class="text-sm w-1/2 flex justify-between">
-        <a
-          href=""
-          class="link link-hover text-gray-600"
-        >Copyright Infringement</a>
-        <NuxtLink
-          to="privacy"
-          class="link link-hover text-gray-600"
-        >Code of Conduct</NuxtLink>
-        <a
-          href=""
-          class="link link-hover  text-gray-600"
-        >Privacy Policy</a>
-        <NuxtLink
-          to="terms"
-          href=""
-          class="link link-hover  text-gray-600"
-        >Terms of Service</NuxtLink>
+      <div class="text-sm p-3 gap-4 lg:px-0  w-full flex justify-between flex-1 text-center">
+        <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
+          <a
+            href=""
+            class="link link-hover text-gray-600 flex-1"
+          >Copyright Infringement</a>
+          <NuxtLink
+            to="privacy"
+            class="link link-hover text-gray-600 flex-1"
+          >Code of Conduct</NuxtLink>
+        </span>
+        <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
+          <a
+            href=""
+            class="link link-hover  text-gray-600"
+          >Privacy Policy</a>
+          <NuxtLink
+            to="terms"
+            href=""
+            class="link link-hover  text-gray-600"
+          >Terms of Service</NuxtLink>
+        </span>
       </div>
     </nav>
     <div />

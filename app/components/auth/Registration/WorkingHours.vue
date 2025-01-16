@@ -151,10 +151,10 @@ const emitEvent = (event) => {
 <template>
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
-      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl">
+      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-2xl lg:text-3xl justify-center lg:justify-start">
         Working hours
       </h2>
-      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-10">
+      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-10 text-center lg:text-left ">
         When would you be available for bookings
       </p>
       <button
@@ -168,10 +168,10 @@ const emitEvent = (event) => {
             type="checkbox"
             :checked="schedules.open"
             class="checkbox"
-          ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{ schedules.day }}</span></span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">{{ schedules.from }} - {{ schedules.to }}</span>
+          ><span class="text-[rgba(105, 102, 113, 1)] text-base sm:text-lg font-bold">{{ schedules.day }}</span></span>
+          <span class="text-[rgba(105, 102, 113, 1)] text-xs sm:text-sm font-medium ">{{ schedules.from }} - {{ schedules.to }}</span>
           <span
-            class="text-darkGold font-bold hover:text-brightGold"
+            class="text-darkGold font-bold hover:text-brightGold text-sm sm:text-base"
             onclick="my_modal_12.showModal()"
             @click="editWorkingHours(index, schedules.day)"
           >Edit Hours</span>

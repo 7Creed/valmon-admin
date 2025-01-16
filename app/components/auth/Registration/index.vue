@@ -22,9 +22,9 @@ const back = () => {
 </script>
 
 <template>
-  <div class="flex justify-items-center flex-row w-[90%] bg-white">
+  <div class="flex justify-items-center flex-row w-[90%] bg-white ">
     <!-- Images -->
-    <div class=" flex-1">
+    <div class="flex-1 hidden lg:flex">
       <authValmon
         :navigation="navigation"
         @btn-event="back()"
@@ -37,9 +37,9 @@ const back = () => {
     >
       <div
         v-if="user !== 'client'"
-        class="w-2/3"
+        class="lg:w-2/3"
       >
-        <h1 class="text-3xl font-bold text-[rgba(30, 30, 30, 1)] mb-5 text-center">
+        <h1 class="text-2xl lg:text-3xl font-bold text-[rgba(30, 30, 30, 1)] mb-5 text-center">
           I am signing up to
         </h1>
 
@@ -60,7 +60,7 @@ const back = () => {
       <!-- CLient Sign up process -->
       <div
         v-if="user ==='client'"
-        class="w-1/2"
+        class="w-full md:w-4/6 xl:w-1/2 py-6 lg:py-0"
       >
         <ClientSignUp account-type="employer" />
       </div>

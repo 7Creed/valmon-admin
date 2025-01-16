@@ -84,6 +84,7 @@ const PingUser = async () => {
 PingUser()
 // Ping user at every 30secs
 setInterval(ping(), 30000)
+
 </script>
 
 <template>

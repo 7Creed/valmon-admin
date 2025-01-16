@@ -23,7 +23,7 @@ const emitEvent = (event) => {
 </script>
 
 <template>
-  <div class="w-1/2 xxl:w-1/3">
+  <div class="w-full md:w-1/2 xxl:w-1/3">
     <OTP
       v-if="!uploadPicture"
       @next-event="uploadPictureCom"

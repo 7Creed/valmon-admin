@@ -5,7 +5,7 @@ export const toggle = (param) => {
   param.value = !param.value
 }
 
-export const handleALert = (icon, text, title = '', time = 3000) => {
+export const handleALert = (icon, text, title = '', time = 300000) => {
   swal({
     icon: `${icon}`,
     text: `${text}`,

@@ -113,10 +113,10 @@ const resendOTP = async () => {
 <template>
   <div class="card shadow-xl bg-white">
     <div class="card-body">
-      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl">
+      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-2xl lg:text-3xl justify-center lg:justify-start">
         Verify OTP
       </h2>
-      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-5">
+      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-5 text-center lg:text-left">
         <span v-if="maskedEmail"> Input one time password sent to {{ maskedEmail }} to continue?</span>
         <span
           v-else

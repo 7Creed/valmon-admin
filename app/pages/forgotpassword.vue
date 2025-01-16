@@ -34,14 +34,14 @@ const retrievePassword = async () => {
 </script>
 
 <template>
-  <div class="p-12 bg-white min-h-screen center">
-    <div class="w-1/2 xxl:w-1/3 mx-auto">
+  <div class=" p-6 lg:p-12 bg-white min-h-screen center">
+    <div class="w-full md:w-1/2 xxl:w-1/3 mx-auto">
       <div class="card shadow-xl bg-white">
         <div class="card-body">
-          <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl">
+          <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-2xl lg:text-3xl justify-center lg:justify-start">
             Forgot Password
           </h2>
-          <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-5">
+          <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-5 text-center lg:text-left">
             Input your email address to continue
           </p>
           <form @submit.prevent="retrievePassword">
@@ -61,7 +61,7 @@ const retrievePassword = async () => {
                 border="#8B6914"
                 :outline="false"
                 type="submit"
-                class="block mb-5 w-[20%]"
+                class="block mb-5 w-full lg:w-[20%]"
               />
             </div>
           </form>

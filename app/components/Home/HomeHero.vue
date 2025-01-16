@@ -6,18 +6,18 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 
 <template>
   <div
-    class="hero min-h-screen"
+    class="hero h-[600px] lg:min-h-screen"
   >
     <div class="hero-overlay bg-opacity-10" />
     <div class="hero-content text-white text-center">
       <div class="max-w-full relative">
-        <h1 class="mb-10 text-5xl font-extrabold">
+        <h1 class="mb-10 text-3xl md:text-5xl font-extrabold">
           Showcase Your Skills, Connect with Clients
         </h1>
         <img
           :src="rectangle"
           alt=""
-          class="absolute rectangle"
+          class="absolute rectangle w-14 lg:w-20 right-[12rem] lg:right-[17rem] "
         >
         <p class="mb-12 text-lg font-medium ">
           Find the perfect freelancer for your project or discover your next freelance opportunity
@@ -48,10 +48,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
   background-image: url('../../assets/images/UIElements/Hero.png');
 }
 .rectangle {
-  right: 17rem;
-  width: 87px;
-  z-index: -1;
-  height: 76px;
-  top: -10px;
+    z-index: -1;
+  top: 0px;
 }
 </style>

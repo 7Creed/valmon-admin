@@ -70,7 +70,7 @@ const upload = async () => {
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
       <h2
-        class="card-title center text-[rgba(35, 35, 35, 1)] font-bold text-3xl text-center"
+        class="card-title center text-[rgba(35, 35, 35, 1)] font-bold text-2xl lg:text-3xl text-center"
         :class="{ 'mb-8': worker }"
       >
         Upload Profile Picture

@@ -98,7 +98,7 @@ const toggleVisibility = () => {
     </div>
 
     <!-- SELECT -->
-    <div v-if="props.type ==='select'">
+    <div v-if="props.type ==='select'" class="">
       <div class="flex items-center justify-between mb-2">
         <label
           for="password"

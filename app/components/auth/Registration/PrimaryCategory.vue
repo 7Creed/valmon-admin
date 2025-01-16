@@ -95,10 +95,10 @@ const emitEvent = (event) => {
 <template>
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
-      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl">
+      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-2xl sm:text-3xl  justify-center lg:justify-start">
         Select Primary Category
       </h2>
-      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-10">
+      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-10 text-center lg:text-left">
         Primary category is the main service you offer
       </p>
       <button
@@ -113,7 +113,7 @@ const emitEvent = (event) => {
             :checked="category.primary"
             class="checkbox"
             name="primaryCategory"
-          ><span class="text-[rgba(105, 102, 113, 1)] text-lg font-bold">{{
+          ><span class="text-[rgba(105, 102, 113, 1)] lg:text-lg font-bold">{{
             category.name
           }}</span></span>
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium">Year of experience {{

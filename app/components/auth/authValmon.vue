@@ -8,7 +8,7 @@ defineEmits(['btnEvent'])
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative flex">
     <img
       :src="valmon"
       alt="Valmon WallPaper"

@@ -205,6 +205,7 @@ onMounted(() => {
   })
 })
 
+const BtnModal = ref(null)
 // Updates the CategoryData Object
 const saveCategory = () => {
   const isDataComplete = Object.values(addCategoryData).every(value => value !== '')
@@ -213,6 +214,7 @@ const saveCategory = () => {
 
   if (props.useType === 'registration') {
     updateCategoryRegister()
+    closeModal(BtnModal)
   }
   else if (props.useType === 'account') {
     edit.value ? updateCategoryFromAccount() : saveCategoryFromAccount()
@@ -231,10 +233,10 @@ const removeServiceCategory = (index) => {
 <template>
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
-      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-3xl">
+      <h2 class="card-title text-[rgba(35, 35, 35, 1)] font-bold text-2xl lg:text-3xl justify-center lg:justify-start">
         Service Category
       </h2>
-      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-10">
+      <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-10 text-center lg:text-left">
         Please add your service category so clients can find you
       </p>
       <button
@@ -244,12 +246,12 @@ const removeServiceCategory = (index) => {
       >
         <span class="flex flex-row justify-between w-full">
           <span class="text-[rgba(105, 102, 113, 1)] text-sm font-bold">{{ item.name }}</span>
-          <span class="text-[rgba(105, 102, 113, 1)] text-sm font-medium"> Years Of Experience {{
+          <span class="text-[rgba(105, 102, 113, 1)] text-xs sm:text-sm font-medium"> Years Of Experience {{
             item.years_of_experience
           }}</span>
           <span class="text-red-600 text-base font-bold hover:text-red-400 hidden">Edit</span>
           <span
-            class="text-darkGold text-base font-bold  hover:text-brightGold"
+            class="text-darkGold text-sm lg:text-base font-bold  hover:text-brightGold"
             @click.self="removeSCRegistration(index)"
           >Delete</span>
         </span>
@@ -271,7 +273,7 @@ const removeServiceCategory = (index) => {
               @click="EditServiceCategory(index)"
             >Edit</span>
             <span
-              class="text-darkGold text-base font-bold  hover:text-brightGold"
+              class="text-darkGold text-sm lg:text-base font-bold  hover:text-brightGold"
               @click="removeServiceCategory(index)"
             >Delete</span>
           </span>
@@ -294,7 +296,7 @@ const removeServiceCategory = (index) => {
 
       <button
         ref="addCategoryBtn"
-        class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2"
+        class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full md:w-1/2"
         :class="{ 'mx-auto': props?.useType !== 'account' }"
         onclick="my_modal_9.showModal()"
         @click="fetchCategory"
@@ -348,7 +350,7 @@ const removeServiceCategory = (index) => {
       class="modal"
     >
       <div class="modal-box">
-        <h3 class="text-3xl font-bold text-center text-[rgba(35, 35, 35, 1)] mb-4">
+        <h3 class=" text-2xl lg:text-3xl font-bold text-center text-[rgba(35, 35, 35, 1)] mb-4">
           <span v-if="!edit">Add Service Category</span>
           <span
             v-else
@@ -426,7 +428,7 @@ const removeServiceCategory = (index) => {
         <div class="modal-action">
           <form method="dialog">
             <!-- if there is a button in form, it will close the modal -->
-            <button class="btn">
+            <button class="btn" ref="BtnModal">
               Close
             </button>
           </form>

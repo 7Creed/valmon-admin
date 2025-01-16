@@ -3,8 +3,9 @@
 
 <template>
   <div class="relative">
-    <Navigation />
-    <div class="pt-[6rem] bg-black">
+    <Navigation class="hidden lg:block" />
+    <NavigationMobile class="flex lg:hidden"/>
+    <div class="lg:pt-[6rem] bg-black">
       <slot />
     </div>
     <Footer />
