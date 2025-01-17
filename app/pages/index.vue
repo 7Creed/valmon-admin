@@ -17,7 +17,7 @@ const Features = [
   {
     image: walletAdd,
     title: 'Grow Your Client Base',
-    text: 'We are committed to making the crypto experience as smooth as possible. We believe that by providing a safe and',
+    text: 'Access a larger client base. Whether you are a web developer, data analyst, or graphic designer, connect to clients, sell your unique skills and grow your portfolio.',
   },
   {
     image: securitySafe,
