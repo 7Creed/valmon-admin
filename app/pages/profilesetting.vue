@@ -17,7 +17,7 @@ const logOut = async () => {
   token.value.token = null
   token.value.type = null
   store.$patch({
-    User: null,
+    UserAccount: null,
   })
 
   await navigateTo('/login')

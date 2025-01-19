@@ -1,6 +1,8 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useGlobalStore } from '~/store'
 
+const store = useGlobalStore()
 const showMenu = ref(false)
 
 const toggleMenu = () => {
@@ -31,6 +33,20 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', closeMenu)
   document.body.style.overflow = '' // Ensure scrolling is re-enabled on unmount
 })
+
+// Logout
+const token = useCookie('token')
+
+const logOut = async () => {
+  token.value.token = null
+  token.value.type = null
+
+  store.$patch({
+    UserAccount: null,
+  })
+
+  await navigateTo('/login')
+}
 </script>
 
 <template>
@@ -64,12 +80,12 @@ onBeforeUnmount(() => {
             to="/login"
             class="btn btn-ghost btn-circle"
           >
-            <span class="text-white satoshiM text-xs sm:text-base">Sign In</span>
+            <span class="text-white satoshiM ">Sign In</span>
           </NuxtLink>
-          <span class="text-white satoshiM text-xs">|</span>
+          <span class="text-white satoshiM text-xs hidden">|</span>
           <NuxtLink
             to="/getstarted"
-            class="btn btn-ghost btn-circle"
+            class="btn btn-ghost btn-circle hidden"
           >
             <span class="text-white satoshiM text-xs sm:text-base">Sign Up</span>
           </NuxtLink>
@@ -92,52 +108,94 @@ onBeforeUnmount(() => {
             class="w-2/6 mb-10"
           >
 
-          <div class="font-semibold bg-[#1E1E1E] box-shadow-md rounded-lg p-4 mb-8">
-            <p class="text-white font-semibold mb-3">
-              Select Currency
-            </p>
-            <div class="flex flex-col gap-4">
-              <button class="btn bg-[#FF8C48] border border-[#FF8C48] text-white font-semibold text-lg">
+          <NuxtLink
+            v-if="store?.UserAccount?.id"
+            to="/profilesetting"
+            class="flex items-center gap-6 w-full bg-[#C09742] border border-[#C09742] text-white font-semibold text-lg rounded-md py-2 px-4 mb-7"
+          >
+            <div class="avatar">
+              <div class="ring ring-offset-base-100 w-12 rounded-full">
                 <img
-                  src="../../assets/icons/Nigeria.svg"
-                  alt=""
+                  :src="store?.UserAccount?.profile_pic"
+                  alt="Profile Pic"
                 >
-                <span>Nigeria Naira</span>
-              </button>
-              <button class="btn font-semibold text-lg">
-                <img
-                  src="../../assets/icons/pound.svg"
-                  alt=""
-                >
-                <span>Pound Sterling</span>
-              </button>
+              </div>
             </div>
-          </div>
-          <div class="flex flex-col group">
+            <span class="text-base">My Profile</span>
+          </NuxtLink>
+
+          <div class="flex flex-col">
             <NuxtLink
-              to="/notification"
+              to="/home"
+              class="text-white font-semibold"
+            >
+              Explore Skills
+            </NuxtLink>
+            <div class="divider h-[1px] bg-gray-500" />
+            <NuxtLink
+              to="/marketplace"
+              class="text-white font-semibold"
+            >
+              Marketplace
+            </NuxtLink>
+            <div class="divider h-[1px] bg-gray-500" />
+            <NuxtLink
+              v-if="store?.UserAccount?.id"
+              to="javascript:void(0);"
+              class="text-white font-semibold"
+            >
+              Favourites
+            </NuxtLink>
+            <div
+              v-if="store?.UserAccount?.id"
+              class="divider h-[1px] bg-gray-500"
+            />
+            <NuxtLink
+              v-if="store?.UserAccount?.id"
+              to="/chat"
+              class="text-white font-semibold"
+            >
+              Messages
+            </NuxtLink>
+            <div
+              v-if="store?.UserAccount?.id"
+              class="divider h-[1px] bg-gray-500"
+            />
+            <NuxtLink
+              v-if="store?.UserAccount?.id"
+              to="/notifications"
               class="text-white font-semibold"
             >
               Notifications
             </NuxtLink>
-            <div class="divider h-[1px] bg-gray-500" />
+            <div
+              v-if="store?.UserAccount?.id"
+              class="divider h-[1px] bg-gray-500"
+            />
             <NuxtLink
-              to="/notification"
+              v-if="!store?.UserAccount?.id"
+              to="/login"
               class="text-white font-semibold"
             >
-              Contact Us
+              Sign In
             </NuxtLink>
-            <div class="divider h-[1px] bg-gray-500" />
+            <div
+              v-if="!store?.UserAccount?.id"
+              class="divider h-[1px] bg-gray-500"
+            />
             <NuxtLink
-              to="/notification"
-              class="text-white font-semibold"
+              v-if="!store?.UserAccount?.id"
+              to="/getstarted"
             >
-              Order Tracking
+              <button class="btn btn-outline bg-inherit text-white">
+                Join Now
+              </button>
             </NuxtLink>
-            <div class="divider h-[1px] bg-gray-500" />
+
             <NuxtLink
-              to="/notification"
-              class="text-white font-semibold"
+              v-if="store?.UserAccount?.id"
+              class="text-white font-semibold cursor-pointer"
+              @click="logOut"
             >
               Logout
             </NuxtLink>
