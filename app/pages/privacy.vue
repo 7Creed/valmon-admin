@@ -3,7 +3,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 </script>
 
 <template>
-  <div class="  bg-stone-950 min-h-screen mb-20 lg:mb-30 relative">
+  <div class="bg-stone-950 min-h-screen mb-20 lg:mb-30 relative">
     <h1 class="text-3xl lg:text-5xl font-bold text-white text-center pt-20 mb-12 relative w-fit mx-auto z-10">
       Privacy Policy
       <img
@@ -13,106 +13,145 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
       >
     </h1>
     <div class="max-w-4xl mx-auto mt-8 p-10 border border-darkGold rounded-lg">
+      <h2 class="lg:text-xl font-bold mb-5 text-white">
+        Valmon Privacy Policy
+        </h2>
+                <h2 class="lg:text-xl font-bold mb-5 text-white">
+          Effective Date: November 2024
+        </h2>
       <section class="mb-6 text-white">
-        <h2 class="text-xl font-bold mb-5">
+        <h2 class="lg:text-xl font-bold mb-5">
           Introduction
         </h2>
         <p class="text-gray-700">
-          We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and share your personal information when you use our services.
+          At Valmon, we are committed to protecting your privacy and ensuring that your personal information is handled responsibly.
+          This Privacy Policy outlines how we collect, use, disclose, and safeguard your information when you use our platform, services, and website.
         </p>
       </section>
 
       <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          What personal information do we collect?
+        <h3 class="lg:text-xl font-semibold text-white  mb-2">
+          Information We Collect
         </h3>
-        <p class="text-gray-700 mb-2">
-          We collect the following types of personal information from you:
+        <h4 class="font-semibold text-white  mb-1 ">
+          Personal Information
+        </h4>
+        <p class="text-gray-700">
+          When you register or use our services, we may collect personal information that can identify you, including but not limited to:
         </p>
         <ul class="list-disc list-inside text-gray-700">
-          <li>Contact information: This includes your name, email address, phone number, and mailing address.</li>
-          <li>Account information: This includes your username, password, and security questions.</li>
-          <li>Transaction information: This includes information about the services you purchase and the payments you make.</li>
-          <li>Usage information: This includes information about how you use our services, such as the pages you visit and the ads you click on.</li>
-          <li>Location information: This includes information about your physical location, such as your IP address and GPS coordinates.</li>
+          <li>Name</li>
+          <li>Email address</li>
+          <li>Phone number</li>
+          <li>Payment information</li>
+          <li>Profile details (skills, experience, etc.)</li>
+        </ul>
+        <h4 class="font-semibold text-white  mt-4 mb-1">
+          Non-Personal Information
+        </h4>
+        <p class="text-gray-700">
+          We may also collect non-personal information about your interactions with our platform, such as:
+        </p>
+        <ul class="list-disc list-inside text-gray-700">
+          <li>Device information (e.g., IP address, browser type)</li>
+          <li>Usage data (e.g., pages visited, time spent on the site)</li>
+          <li>Cookies and tracking technologies</li>
         </ul>
       </section>
 
       <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          How do we use your personal information?
-        </h3>
-        <p class="text-gray-700 mb-2">
-          We use your personal information to provide the services you have requested, to improve our services, to communicate with you, and to protect our rights and interests.
-        </p>
-        <p class="text-gray-700 mb-2">
-          Specifically, we use your personal information for the following purposes:
-        </p>
-        <ul class="list-disc list-inside text-gray-700">
-          <li>To provide the services you have requested.</li>
-          <li>To improve our services.</li>
-          <li>To communicate with you.</li>
-          <li>To protect our rights and interests.</li>
-        </ul>
-      </section>
-
-      <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          Who do we share your personal information with?
-        </h3>
-        <p class="text-gray-700 mb-2">
-          We may share your personal information with the following third parties:
-        </p>
-        <ul class="list-disc list-inside text-gray-700">
-          <li>Our service providers.</li>
-          <li>Our partners.</li>
-          <li>Law enforcement.</li>
-        </ul>
-      </section>
-
-      <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          How do we protect your personal information?
+        <h3 class="lg:text-xl font-semibold text-white  mb-2">
+          How We Use Your Information
         </h3>
         <p class="text-gray-700">
-          We take steps to protect your personal information, including storing it securely, encrypting it, and limiting access to authorized personnel.
-        </p>
-      </section>
-
-      <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          What are your rights?
-        </h3>
-        <p class="text-gray-700 mb-2">
-          You have the following rights with respect to your personal information:
+          We use the information we collect for various purposes, including:
         </p>
         <ul class="list-disc list-inside text-gray-700">
-          <li>Access.</li>
-          <li>Correction.</li>
-          <li>Deletion.</li>
-          <li>Portability.</li>
-          <li>Objection.</li>
+          <li>To provide, maintain, and improve our services</li>
+          <li>To facilitate job connections between workers and clients</li>
+          <li>To process transactions and manage your account</li>
+          <li>To communicate with you about your account or services</li>
+          <li>To send you marketing communications (you can opt-out at any time)</li>
+          <li>To analyze usage patterns and improve user experience</li>
         </ul>
       </section>
 
       <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          How can you contact us?
+        <h3 class="lg:text-xl font-semibold text-white  mb-2">
+          Sharing Your Information
         </h3>
         <p class="text-gray-700">
-          If you have any questions about this Privacy Policy, please contact us at: <a
-            href="mailto:[email protected]"
-            class="text-blue-500 underline"
-          >[email protected]</a>
+          We do not sell or rent your personal information to third parties. However, we may share your information in the following circumstances:
+        </p>
+        <ul class="list-disc list-inside text-gray-700">
+          <li>
+            <strong>With Service Providers:</strong> We may employ third-party companies and individuals to facilitate our services, process payments, or provide customer support.
+            These third parties will have access to your personal information only to perform tasks on our behalf.
+          </li>
+          <li>
+            <strong>For Legal Reasons:</strong> We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court or government agency).
+          </li>
+          <li>
+            <strong>Business Transfers:</strong> If Valmon is involved in a merger, acquisition, or asset sale, your personal information may be transferred as part of that transaction.
+          </li>
+        </ul>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold text-white  mb-2">
+          Data Security
+        </h3>
+        <p class="text-gray-700">
+          We take the security of your personal information seriously and implement appropriate technical and organizational measures
+          to protect it from unauthorized access, loss, or destruction. However, no method of transmission over the Internet or method
+          of electronic storage is 100% secure. Therefore, while we strive to use commercially acceptable means to protect your
+          information, we cannot guarantee its absolute security.
         </p>
       </section>
 
-      <section class="">
-        <h3 class="text-xl font-semibold mb-2">
-          Changes to this Privacy Policy
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold text-white  mb-2">
+          Your Rights
         </h3>
         <p class="text-gray-700">
-          We may update this Privacy Policy from time to time. The most current version of the Privacy Policy will always be posted on our website. If we make any material changes to this Privacy Policy, we will notify you by email or through a prominent notice on our website.
+          Depending on your jurisdiction, you may have the following rights regarding your personal information:
+        </p>
+        <ul class="list-disc list-inside text-gray-700">
+          <li>The right to access, update, or delete the personal information we hold about you.</li>
+          <li>The right to object to or restrict the processing of your data.</li>
+          <li>The right to data portability.</li>
+          <li>The right to withdraw consent at any time where we rely on your consent to process your personal information.</li>
+        </ul>
+        <p class="text-gray-700">
+          To exercise these rights, please contact us using the information provided below.
+        </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold text-white  mb-2">
+          Changes to This Privacy Policy
+        </h3>
+        <p class="text-gray-700">
+          We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on
+          this page and updating the effective date. We encourage you to review this Privacy Policy periodically for any changes.
+        </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold text-white  mb-2">
+          Contact Us
+        </h3>
+        <p class="text-gray-700">
+          If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:
+        </p>
+        <p class="text-gray-700">
+          Email: <a
+            href="mailto:support@valmonvalues.com"
+            class="text-brightGold underline"
+          >support@valmonvalues.com</a>
+        </p>
+        <p class="text-gray-700 mt-6 valmon">
+          Thank you for choosing Valmon! Your trust, is important to us, and we are committed to protecting your privacy.
         </p>
       </section>
     </div>
@@ -120,7 +159,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 </template>
 
 <style scoped>
-p, h3, li{
+p, h3, li {
   color: white !important;
 }
 p, li {
@@ -132,7 +171,7 @@ h3 {
   font-weight: 700;
   font-size: 20px;
 }
-/* img {
-  z-index: -1;
-} */
+.valmon {
+  @apply text-brightGold !important
+}
 </style>

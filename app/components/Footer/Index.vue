@@ -10,7 +10,7 @@ import tikTok from '@/assets/icons/facebook.svg'
 <template>
   <footer class="bg-[#151212] text-base-content lg:p-10 lg:px-20 ">
     <nav class="flex flex-col lg:flex-row items-center gap-8 lg:gap-0 lg:justify-between ">
-      <a class=""><img
+      <a href="/" class=""><img
         :src="brandLogo"
         alt="brand logo"
       ></a>
@@ -22,7 +22,7 @@ import tikTok from '@/assets/icons/facebook.svg'
           About Us
         </NuxtLink>
         <NuxtLink
-          to="javascript:void(0)"
+          to="terms"
           class="link link-hover"
         >
           Our Team
@@ -71,7 +71,7 @@ import tikTok from '@/assets/icons/facebook.svg'
         </a>
         <a
           class="link link-hover"
-          href="www.linkedin.com/in/valmon-world-53b5b4336"
+          href="https://www.linkedin.com/in/valmon-world-53b5b4336"
         ><svg
           width="30"
           height="31"
@@ -137,7 +137,7 @@ import tikTok from '@/assets/icons/facebook.svg'
         </svg></a>
         <a
           class="link link-hover ms-2"
-          href="www.youtube.com/@Valmon_world"
+          href="https://www.youtube.com/@Valmon_world"
         ><svg
           width="24"
           height="18"
@@ -162,19 +162,19 @@ import tikTok from '@/assets/icons/facebook.svg'
       <div class="text-sm p-3 gap-4 lg:px-0  w-full flex justify-between flex-1 text-center">
         <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
           <a
-            href=""
+            href="javascript:void(0)"
             class="link link-hover text-gray-600 flex-1"
           >Copyright Infringement</a>
           <NuxtLink
-            to="privacy"
+            to="terms"
             class="link link-hover text-gray-600 flex-1"
-          >Code of Conduct</NuxtLink>
-        </span>
+          >Code of Conduct
+          </nuxtlink></span>
         <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
-          <a
-            href=""
+          <NuxtLink
+            to="privacy"
             class="link link-hover  text-gray-600"
-          >Privacy Policy</a>
+          >Privacy Policy</NuxtLink>
           <NuxtLink
             to="terms"
             href=""

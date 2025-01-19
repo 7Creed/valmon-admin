@@ -157,7 +157,7 @@ featuredListing()
               </linearGradient>
             </defs>
           </svg>
-          <p class="text-white satoshiM font-bold text-2xl">
+          <p class="text-white satoshiM font-bold md:text-2xl">
             {{ items }}
           </p>
         </div>
@@ -180,45 +180,62 @@ featuredListing()
             alt=""
           >
         </div>
-        <div
-          class="h-auto rounded-lg lg:w-[80%] xl:w-[65%] flex text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold "
+        <SharedLoader v-if="loader"/>
+        <div v-else
+          class="h-auto rounded-lg w-full lg:w-[80%] xl:w-[65%] flex flex-col lg:flex-row text-base p-4 justify-center mx-auto gap-5 font-bold border border-darkGold"
         >
-          <div class="techinical_services w-[400px] ">
+          <!-- Technical Services Section -->
+          <div class="flex-1 flex flex-col min-w-0 lg:min-w-[300px] max-w-full lg:max-w-[400px]">
             <h5 class="_header font-extrabold mb-4 p-3 text-center bg-darkGold">
               {{ CategoryServices.length ? CategoryServices[0].name : 'Technical Services' }}
             </h5>
-            <div class="flex gap-4 justify-center items-center flex-wrap ">
+            <div class="flex gap-4 justify-center items-center flex-wrap">
               <span
                 v-for="(items, index) in CategoryServices.length ? CategoryServices[0].services.slice(0, 15) : 21"
                 :key="index"
-                class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base"
-              >{{ items.name ?? 'Placeholder' }}</span>
+                class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base truncate max-w-[150px]"
+                :title="items.name"
+              >
+                {{ items.name ?? 'Placeholder' }}
+              </span>
               <a
-                href="Javascript:void(0)"
+                href="/home"
                 class="border border-darkGold py-2 px-4 rounded-lg text-brightGold"
-              >More</a>
+              >
+                More
+              </a>
             </div>
           </div>
-          <div class="bg_img hidden lg:flex ">
+
+          <!-- Center Image (Hidden on Small Screens) -->
+          <div class="hidden lg:flex items-center justify-center">
             <img
               :src="MosesTree"
               alt=""
+              class="max-h-[200px] object-contain"
             >
           </div>
-          <div class="softeare_skills  w-[400px]">
+
+          <!-- Software Skills Section -->
+          <div class="flex-1 flex flex-col min-w-0 lg:min-w-[300px] max-w-full lg:max-w-[400px]">
             <h5 class="_header font-extrabold p-3 mb-4 text-center bg-darkGold">
-              {{ CategoryServices.length ? CategoryServices[1].name : 'Software Skills ' }}
+              {{ CategoryServices.length ? CategoryServices[1].name : 'Software Skills' }}
             </h5>
-            <div class="flex gap-4 items-center flex-wrap justify-center ">
+            <div class="flex gap-4 items-center flex-wrap justify-center">
               <span
                 v-for="(items, index) in CategoryServices.length ? CategoryServices[1].services.slice(0, 15) : 21"
                 :key="index"
-                class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base"
-              >{{ items.name ?? 'Placeholder' }}</span>
+                class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base truncate max-w-[150px]"
+                :title="items.name"
+              >
+                {{ items.name ?? 'Placeholder' }}
+              </span>
               <a
-                href="Javascript:void(0)"
+                href="/home"
                 class="border border-darkGold py-2 px-4 rounded-lg text-brightGold"
-              >More</a>
+              >
+                More
+              </a>
             </div>
           </div>
         </div>
@@ -236,7 +253,7 @@ featuredListing()
           >
         </h4>
         <div
-        class="lg:w-[80%] xl:w-[65%]  flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+          class="lg:w-[80%] xl:w-[65%]  flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
         >
           <div
             v-for="(items, index) in ImageArray"
@@ -267,9 +284,12 @@ featuredListing()
         <h5 class="text-2xl font-bold w-[60%] mx-auto satoshiM mb-5">
           Featured Listings
         </h5>
-        <div
-        class="lg:w-[80%] xl:w-[65%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+     
+
+        <div 
+          class="lg:w-[80%] xl:w-[65%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
         >
+        <SharedLoader v-if="listingLoader"/>
           <HomeFeaturedListing
             :key="index"
             :listings="featuredListings.slice(0, 9)"
@@ -310,7 +330,8 @@ featuredListing()
             <p class="mb-4 text-lg font-medium ">
               Connect with clients and skilled professionals from around the world.
             </p>
-            <button
+            <NuxtLink
+              to="/getstarted"
               class="btn btn-outline bg-inherit text-white border-2 bg-gradient-to-r hover:from-[#C09742] hover:to-[#C09742] hover:border-[#CFB159]"
             >
               <span class="text-base font-medium">Sign Up Now</span>
@@ -326,7 +347,7 @@ featuredListing()
                   fill="white"
                 />
               </svg>
-            </button>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -344,5 +365,24 @@ featuredListing()
 
 .heroCommunity {
   background-image: url('../assets//images/UIElements/Community.png');
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+._header {
+  color: #fff;
+  background-color: #b8860b;
+}
+
+.border-darkGold {
+  border-color: #b8860b;
+}
+
+.text-brightGold {
+  color: #ffd700;
 }
 </style>

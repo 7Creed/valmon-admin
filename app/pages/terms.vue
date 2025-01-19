@@ -3,7 +3,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 </script>
 
 <template>
-  <div class="  bg-stone-950 min-h-screen  relative mb-20 lg:mb-30">
+  <div class="bg-stone-950 min-h-screen relative mb-20 lg:mb-30">
     <h1 class="text-3xl lg:text-5xl font-bold text-white text-center pt-20 mb-12 relative w-fit mx-auto z-10">
       Terms Of Services
       <img
@@ -13,126 +13,140 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
       >
     </h1>
     <div class="max-w-4xl mx-auto mt-8 p-10 border border-darkGold rounded-lg">
+      <h2 class="lg:text-xl font-bold mb-5 text-white">
+        Terms and Conditions for Valmon
+      </h2>
       <section class="mb-6 text-white">
-        <h2 class="text-xl font-bold mb-5">
-          Introduction
+        <h2 class="lg:text-xl font-bold mb-5">
+          Effective Date: November 2024
         </h2>
         <p class="text-gray-700">
-          We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and share your personal information when you use our services.
+          Welcome to Valmon! By accessing or using our platform, you agree to comply with and be bound by these Terms and Conditions. Please read them carefully.
         </p>
       </section>
 
       <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          What personal information do we collect?
-        </h3>
-        <p class="text-gray-700 mb-2">
-          We collect the following types of personal information from you:
-        </p>
-        <ul class="list-disc list-inside text-gray-700">
-          <li>Contact information: This includes your name, email address, phone number, and mailing address.</li>
-          <li>Account information: This includes your username, password, and security questions.</li>
-          <li>Transaction information: This includes information about the services you purchase and the payments you make.</li>
-          <li>Usage information: This includes information about how you use our services, such as the pages you visit and the ads you click on.</li>
-          <li>Location information: This includes information about your physical location, such as your IP address and GPS coordinates.</li>
-        </ul>
-      </section>
-
-      <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          How do we use your personal information?
-        </h3>
-        <p class="text-gray-700 mb-2">
-          We use your personal information to provide the services you have requested, to improve our services, to communicate with you, and to protect our rights and interests.
-        </p>
-        <p class="text-gray-700 mb-2">
-          Specifically, we use your personal information for the following purposes:
-        </p>
-        <ul class="list-disc list-inside text-gray-700">
-          <li>To provide the services you have requested.</li>
-          <li>To improve our services.</li>
-          <li>To communicate with you.</li>
-          <li>To protect our rights and interests.</li>
-        </ul>
-      </section>
-
-      <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          Who do we share your personal information with?
-        </h3>
-        <p class="text-gray-700 mb-2">
-          We may share your personal information with the following third parties:
-        </p>
-        <ul class="list-disc list-inside text-gray-700">
-          <li>Our service providers.</li>
-          <li>Our partners.</li>
-          <li>Law enforcement.</li>
-        </ul>
-      </section>
-
-      <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          How do we protect your personal information?
+        <h3 class="lg:text-xl font-semibold mb-2">
+          1. Acceptance of Terms
         </h3>
         <p class="text-gray-700">
-          We take steps to protect your personal information, including storing it securely, encrypting it, and limiting access to authorized personnel.
+          By using Valmon, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. If you do not agree, you must not use our services.
         </p>
       </section>
 
       <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          What are your rights?
+        <h3 class="lg:text-xl font-semibold mb-2">
+          2. Services Offered
         </h3>
-        <p class="text-gray-700 mb-2">
-          You have the following rights with respect to your personal information:
+        <p class="text-gray-700">
+          Valmon provides a platform that connects skilled workers with clients for employment opportunities and includes a marketplace for buying and selling products. The specifics of the services may evolve, and we reserve the right to modify or discontinue any service at any time.
         </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold mb-2">
+          3. User Registration
+        </h3>
+        <p class="text-gray-700">
+          To access certain features of Valmon, you may need to create an account. You agree to provide accurate, current, and complete information and to update this information as necessary. You are responsible for maintaining the confidentiality of your account information.
+        </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold mb-2">
+          4. User Responsibilities
+        </h3>
         <ul class="list-disc list-inside text-gray-700">
-          <li>Access.</li>
-          <li>Correction.</li>
-          <li>Deletion.</li>
-          <li>Portability.</li>
-          <li>Objection.</li>
+          <li class="list-none">
+            User must:
+          </li>
+          <li>Use the platform only for lawful purposes.</li>
+          <li>Respect the rights of other users and clients.</li>
+          <li>Not engage in fraudulent activities or misrepresentation.</li>
+          <li>Not post any content that is offensive, defamatory, or violates any laws.</li>
         </ul>
       </section>
 
       <section class="mb-6">
-        <h3 class="text-xl font-semibold mb-2">
-          How can you contact us?
+        <h3 class="lg:text-xl font-semibold mb-2">
+          5. Intellectual Property
         </h3>
         <p class="text-gray-700">
-          If you have any questions about this Privacy Policy, please contact us at: <a
-            href="mailto:[email protected]"
-            class="text-blue-500 underline"
-          >[email protected]</a>
+          All content, trademarks, and other intellectual property on the Valmon platform are owned by Valmon or its licensors. You may not use, reproduce, or distribute any material without prior written consent.
+        </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold mb-2">
+          6. Dispute Resolution
+        </h3>
+        <p class="text-gray-700">
+          Any disputes arising from or related to your use of Valmon will be resolved by the Valmon resolution team.
+        </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold mb-2">
+          7. Limitation of Liability
+        </h3>
+        <p class="text-gray-700">
+          Valmon is not responsible for any indirect, incidental, or consequential damages arising from your use of the platform. Our liability is limited to the maximum extent permitted by law.
+        </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold mb-2">
+          8. Indemnification
+        </h3>
+        <p class="text-gray-700">
+          You agree to indemnify and hold Valmon harmless from any claims, damages, losses, or expenses arising from your use of the platform or violation of these Terms and Conditions.
+        </p>
+      </section>
+
+      <section class="mb-6">
+        <h3 class="lg:text-xl font-semibold mb-2">
+          9. Changes to Terms
+        </h3>
+        <p class="text-gray-700">
+          Valmon reserves the right to modify these Terms and Conditions at any time. Changes will be effective immediately upon posting on our website. Your continued use of the platform constitutes acceptance of the revised terms.
         </p>
       </section>
 
       <section class="">
-        <h3 class="text-xl font-semibold mb-2">
-          Changes to this Privacy Policy
+        <h3 class="lg:text-xl font-semibold mb-2">
+          10. Contact Information
         </h3>
         <p class="text-gray-700">
-          We may update this Privacy Policy from time to time. The most current version of the Privacy Policy will always be posted on our website. If we make any material changes to this Privacy Policy, we will notify you by email or through a prominent notice on our website.
+          For any questions regarding these Terms and Conditions, please contact us at:
+        </p>
+        <p class="text-gray-700">
+          Email: <a
+            href="mailto:support@valmonvalues.com"
+            class="text-brightGold underline"
+          >support@valmonvalues.com</a>
         </p>
       </section>
+
+      <p class="valmon mt-6">
+        By using Valmon, you agree to these Terms and Conditions. Thank you for being a part of our community!
+      </p>
     </div>
   </div>
 </template>
 
 <style scoped>
-p, h3, li{
+p, h3, li {
   color: white !important;
 }
 p, li {
   font-weight: 500;
   font-size: 18px;
 }
-
 h3 {
   font-weight: 700;
   font-size: 20px;
 }
-/* img {
-  z-index: -1;
-} */
+.valmon {
+  @apply text-brightGold !important
+}
 </style>
