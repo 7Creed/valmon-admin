@@ -229,7 +229,31 @@ setInterval(() => {
   fetchConversation()
 }, 30000)
 
+/* ------------------------------ Mobile Width ------------------------------ */
+const isMobile = ref(false)
+
+const screenWidth = ref(window.innerWidth)
+
+const handleResize = () => {
+  screenWidth.value = window.innerWidth
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+isMobile.value = computed(() => {
+  return screenWidth.value <= 1024
+})
+
+/* ---------------------------- Open Conversation --------------------------- */
+const isMobileChat = ref(false)
 const Chat = (conv) => {
+  isMobileChat.value = isMobile.value // open chat in mobile view format
   selectedConversation.value = conv
   MarkAsRead()
 }
@@ -546,10 +570,13 @@ const MarkCompleted = async () => {
   <SharedLoader v-if="conversationLoader" />
   <div
     v-else
-    class="flex gap-10 pt-10"
+    class="flex gap-10  lg:pt-10 w-full "
   >
     <!-- card 1 -->
-    <div class="card bg-base-100 w-[400px] shadow-xl flex-2 text-[#93939A]">
+    <div
+      :class="{ hidden: isMobileChat && isMobile }"
+      class=" card bg-base-100 h-screen lg:h-auto mb-4 lg:mb-0 lg:w-[400px] shadow-xl flex-2 text-[#93939A]"
+    >
       <div class="card-body">
         <!-- tab -->
         <div class="flex items-center justify-between mb-5">
@@ -680,8 +707,11 @@ const MarkCompleted = async () => {
       </div>
     </div>
     <!-- card 2 -->
-    <div class="card bg-base-100 w-96 shadow-xl flex-1">
-      <div class="card-body">
+    <div
+      :class="{ hidden: isMobile && !isMobileChat }"
+      class=" card bg-base-100 w-full lg:w-96 shadow-xl flex-1"
+    >
+      <div class="card-body p-4">
         <!-- chat Header -->
         <div
           v-if="selectedConversation"
@@ -689,7 +719,7 @@ const MarkCompleted = async () => {
         >
           <!-- avatar -->
           <div class="avatar">
-            <div class="w-14 rounded-full">
+            <div class="w-12 lg:w-14 rounded-full">
               <img
                 :src="renderConversation(selectedConversation).profile_pic"
                 :alt="renderConversation(selectedConversation).first_name"
@@ -697,7 +727,7 @@ const MarkCompleted = async () => {
             </div>
           </div>
           <div>
-            <div class="flex items-center text-[#101011] gap-8 mb-1">
+            <div class="flex items-center text-[#101011] gap-3 lg:gap-8 mb-1">
               <span class="text-sm  satoshiB">{{ renderConversation(selectedConversation).first_name }} {{
                 renderConversation(selectedConversation).last_name }}</span>
               <div class="flex items-center gap-2">
@@ -713,7 +743,6 @@ const MarkCompleted = async () => {
               </div>
             </div>
             <div
-              v
               class="text-sm"
             >
               {{ selectedConversation?.service ? selectedConversation.service.name : selectedConversation?.listing.title
@@ -724,10 +753,36 @@ const MarkCompleted = async () => {
         <!-- Pop Up -->
         <div
           role="alert"
-          class="alert bg-neutral-800 text-white justify-center flex p-3"
+          class="hidden alert bg-neutral-800 text-white justify-center lg:flex p-3"
         >
-          <span class="text-center w-full  block">Keep all dealings on valmon to ensure safety</span>
+          <span class="text-center text-sm lg:base w-full  block">Keep all dealings on valmon to ensure safety</span>
         </div>
+        <!-- This is for mobile -->
+        <div
+          v-if="isMobile"
+          class="lg:hidden card bg-base-100  shadow-xl"
+        >
+          <div class="px-2 py-6">
+            <h2 class="card-title mb-1">
+              Service Cost
+            </h2>
+            <p class="mb-3">
+              NGN 12343
+            </p>
+            <div class="card-actions ">
+              <button class="btn bg-darkGold text-white btn-md ">
+                <span class="text-sm">  Accept & Buy</span>
+              </button>
+              <button class="btn btn-neutral">
+                <span class="text-sm">  Negotiate</span>
+              </button>
+              <button class="btn btn-outline btn-error">
+                Reject  & Close
+              </button>
+            </div>
+          </div>
+        </div>
+
         <p
           v-if="selectedConversation"
           class="text-[#4A4A4E] text-sm text-center mt-5"
@@ -744,7 +799,7 @@ const MarkCompleted = async () => {
           <!-- User A :chat-start UserB : chat-end -->
           <p
             v-if="allMessages.length === 0"
-            class="text-[#4A4A4E] text-sm text-center mt-5"
+            class="text-[#4A4A4E] text-xs lg:text-sm text-center mt-5"
           >
             Start A Conversation
           </p>
@@ -756,7 +811,7 @@ const MarkCompleted = async () => {
           >
             <div
               v-if="mesg.type === 'text'"
-              class="chat-bubble  text-black chat_adjustment"
+              class="chat-bubble  text-black chat_adjustment "
               :class="mesg.user_id == store.UserAccount.id ? 'bg-[#F0F2F5]' : 'bg-[#FEFDDA]'"
             >
               {{ mesg.content }}
@@ -791,9 +846,9 @@ const MarkCompleted = async () => {
           </div>
         </div>
         <!-- Button and chat box -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 lg:auto w-[90%]">
           <!-- chat box -->
-          <label class="input input-bordered flex items-center gap-2 grow">
+          <label class="w-full input px-3 lg:px-4 input-bordered flex items-center gap-1 grow">
             <a
               href="javascript:void(0)"
               class="w-fit p-1 bg-darkGold rounded-md"
@@ -802,7 +857,7 @@ const MarkCompleted = async () => {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="#ffff"
-                class="size-5"
+                class="size-4"
               >
                 <path
                   fill-rule="evenodd"
@@ -814,7 +869,7 @@ const MarkCompleted = async () => {
             <input
               v-model.trim="message"
               type="text"
-              class="grow"
+              class="grow "
               placeholder="New Message"
               @keyup.enter="sendMessage"
             >
@@ -825,7 +880,7 @@ const MarkCompleted = async () => {
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="size-7"
+                class="size-5 relative right-[40px]"
               >
                 <path
                   stroke-linecap="round"
@@ -839,14 +894,14 @@ const MarkCompleted = async () => {
           <!-- Send button -->
           <a
             href="javascript:void(0)"
-            class="w-fit p-2 bg-darkGold rounded-full"
+            class="w-fit p-2 bg-darkGold rounded-full absolute right-[12px]"
             @click="sendMessage"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="#ffff"
-              class="size-6"
+              class="lg:size-6 size-3"
             >
               <path
                 d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"
@@ -857,8 +912,9 @@ const MarkCompleted = async () => {
         </div>
       </div>
     </div>
+
     <!-- card 3 -->
-    <div class="card bg-base-100 w-96 shadow-xl flex-2 h-fit pb-10">
+    <div class="hidden lg:card bg-base-100 w-96 shadow-xl flex-2 h-fit pb-10">
       <div class="card-body">
         <!-- For Marketplace listings -->
         <div v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">

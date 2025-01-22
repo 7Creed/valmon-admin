@@ -20,7 +20,7 @@
           Look through our large collection of service providers. find the right match
         </p>
         <!-- search input -->
-        <div class="rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-white">
+        <div class="hidden lg:block rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-white">
           <label class="h-10 input input-bordered flex items-center gap-2 bg-inherit search">
             <svg
               xmlns="http://www.w3.org/2000/svg"

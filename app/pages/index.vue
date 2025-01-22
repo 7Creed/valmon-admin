@@ -31,7 +31,7 @@ const Features = [
   },
 ]
 
-const Skills = ['Tutor', 'Shoe Expert', 'Tailor', 'Barber', 'Cleaner', 'Hair Dresser', 'Gardener mechanic']
+const Skills = ['Fashion designer', 'Real estate agent', 'Web developer', 'Solar energy technician', 'Mechanic', 'Graphic designer', 'Hair stylist', 'Music producer', 'Electrician', 'Online tutor', 'Photographer', 'Makeup artist', 'Dancer', 'Interior decorator', 'Stone mason']
 
 const loading = ref(false)
 const CategoryServices = ref([])

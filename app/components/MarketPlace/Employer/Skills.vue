@@ -172,7 +172,7 @@ onUnmounted(() => {
             v-show="props.page === 'employer'"
             class="skill_header text-white"
           >
-            <h2 class="text-lg font-semibold">
+            <h2 class="lg:text-lg font-semibold">
               {{ props.skill }}
             </h2>
             <p class="text-sm">
@@ -191,7 +191,7 @@ onUnmounted(() => {
             </p>
           </div>
           <!-- search input -->
-          <div class="rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-white w-1/3">
+          <div class="hidden rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-white w-1/3">
             <label class="h-10 input input-bordered flex items-center gap-2 bg-inherit search">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +269,7 @@ onUnmounted(() => {
         v-if="filter === true"
         class="container mx-auto mt-4"
       >
-        <div class="mb-4 flex justify-around">
+        <div class="mb-4 flex justify-around gap-4 ">
           <!-- first column -->
           <div class="">
             <h3 class="text-white text-base font-semibold mb-2">
@@ -278,7 +278,7 @@ onUnmounted(() => {
             <div
               v-for="(items, index) in 5"
               :key="index"
-              class="flex items-center gap-6"
+              class="flex items-center md:gap-6 gap-2"
             >
               <div
                 class="form-control w-20"
@@ -290,10 +290,10 @@ onUnmounted(() => {
                     checked="checked"
                     class="checkbox border-white"
                   >
-                  <span class="label-text text-white">{{ index + 1 }} Star</span>
+                  <span class="lg:label-text text-white text-xs">{{ index + 1 }} Star</span>
                 </label>
               </div>
-              <div class="badge badge-white px-3 rounded-md">
+              <div class="lg:text-sm badge text-xs badge-white px-3 rounded-md">
                 15678
               </div>
             </div>
@@ -329,7 +329,7 @@ onUnmounted(() => {
               Country
             </h3>
             <div
-              class="flex items-center gap-6"
+              class="flex items-center md:gap-6"
             >
               <div
                 class="form-control "
@@ -381,7 +381,7 @@ onUnmounted(() => {
       <!-- Client Card -->
       <div
         v-if="activeTab === 'job' || props.page === 'employer'"
-        class="flex flex-wrap gap-6 mb-10"
+        class="flex flex-wrap justify-center gap-6 mb-10"
       >
         <MarketPlaceEmployerClientCard
           :service-by-users="userByServices"
@@ -399,8 +399,8 @@ onUnmounted(() => {
         />
       </div>
       <div class="divider mb-1" />
-      <div class="pagination flex items-center justify-between text-[#727376]">
-        <div class="flex items-baseline w-[28rem] justify-between">
+      <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center justify-between text-[#727376] ">
+        <div class="flex flex-wrap items-baseline lg:w-[28rem] justify-between">
           <span class="text-sm">Number Of Items displayed per page</span>
           <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
             <option>16</option>

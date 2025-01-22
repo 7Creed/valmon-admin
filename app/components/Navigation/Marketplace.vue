@@ -117,7 +117,7 @@ onMounted(fetchNotifications)
 
 <template>
   <nav
-    class="bg-stone-950 fixed w-full z-[1000]"
+    class="bg-stone-950 fixed w-full z-[1000] hidden lg:block"
   >
     <div class="mx-auto max-w-full px-2 sm:px-6 lg:px-8">
       <div class="relative flex h-20 items-center justify-between">

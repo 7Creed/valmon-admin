@@ -49,40 +49,40 @@ const isAdmin = computed(() => {
         <div
           v-for="(item, index) in displayGigs"
           :key="index"
-          class="card card-compact bg-base-100 shadow-md px-6 py-4 mb-6"
+          class="card card-compact bg-base-100 shadow-md px-2 md:px-6 py-4 mb-6"
         >
           <!-- row -->
-          <div className="bg-white rounded-lg overflow-hidden">
-            <div className="px-6 py-4 flex items-center gap-6">
-              <div className="font-bold text-xl mb-2">
+          <div class="bg-white rounded-lg overflow-hidden">
+            <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
+              <div class="font-bold text-base md:text-xl mb-2 md:mb-0 w-full md:w-1/6">
                 {{ item.title }}
               </div>
               <div class="flex-1">
-                <div className="px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
-                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    <span>Title</span> <span class="satoshiM inline-block ml-2"> {{ item.title }}</span>
+                <div class="px-4 md:px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
+                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
+                    <span>Title:</span> <span class="satoshiM ml-2"> {{ item.title }}</span>
                   </span>
-                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    <span>Pricing Type</span> <span class="satoshiM inline-block ml-2">{{ item.pricing_type }}</span>
+                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
+                    <span>Pricing Type:</span> <span class="satoshiM ml-2">{{ item.pricing_type }}</span>
                   </span>
-                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    <span>Price</span> <span class="satoshiM inline-block ml-2">NGN {{ item.price }}</span>
+                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
+                    <span>Price:</span> <span class="satoshiM ml-2">NGN {{ item.price }}</span>
                   </span>
                 </div>
-                <p className="text-gray-700 text-base ">
+                <p class="text-gray-700 text-sm md:text-base">
                   {{ item.description }}
                 </p>
               </div>
-              <div class="">
+              <div class="flex flex-col md:flex-row gap-2 md:gap-4">
                 <div v-if="props.type != 'profile'">
                   <a
                     href="javascript:void(0)"
-                    class="text-darkGold text-sm font-semibold block mb-5"
+                    class="text-darkGold text-sm md:text-base font-semibold block mb-2 md:mb-0"
                     @click="EditService(index)"
                   >Edit</a>
                   <a
                     href="javascript:void(0)"
-                    class="text-red-600 text-sm font-semibold block"
+                    class="text-red-600 text-sm md:text-base font-semibold block"
                     @click="deleteService(index)"
                   >Delete</a>
                 </div>
@@ -93,9 +93,9 @@ const isAdmin = computed(() => {
                 >
                   <a
                     href="javascript:void(0)"
-                    class="text-darkGold text-base font-semibold block mb-5 satoshiM"
+                    class="text-darkGold text-sm md:text-base font-semibold block mb-2 md:mb-0 satoshiM"
                     @click="hire(item)"
-                  >Hire </a>
+                  >Hire</a>
                 </div>
               </div>
             </div>

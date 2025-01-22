@@ -146,7 +146,7 @@ const selectServices = (id, name) => {
 }
 
 const openChat = () => {
-  store.updateNewConversationDetails(store.userIdForProfileCheck, selectedServiceId.value )
+  store.updateNewConversationDetails(store.userIdForProfileCheck, selectedServiceId.value)
   store.newConversationDetails.gig = null
   navigateTo('/chat')
 }
@@ -156,15 +156,22 @@ const openChatForListing = () => {
   store.newConversationDetails.gig = null
   navigateTo('/chat')
 }
-
 const isOnline = ref(false)
 
-const checkOnlineStatus = () => {
+const deriveLastSeenAt = (lastSeenAt) => {
+  if (!lastSeenAt) return
   const lastSeen = new Date(lastSeenAt)
   const now = new Date()
   const diffInMinutes = (now - lastSeen) / (1000 * 60)
-  isOnline.value = diffInMinutes <= 30
+  isOnline.value = diffInMinutes >= 30
 }
+
+watch(userInfo, (newVal, oldVal) => {
+  if (newVal) {
+    deriveLastSeenAt(newVal.last_seen_at)
+  }
+})
+
 // User Online Presence
 
 const userStatus = ref('') // Holds the user's status
@@ -259,7 +266,7 @@ const restore = async (id) => {
 
 <template>
   <div
-    class="flex gap-8 pb-20 px-20 relative"
+    class="flex flex-col  lg:flex-row gap-8 pb-20 xxl:px-20 relative"
     :class="{ 'flex-col': store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin' }"
   >
     <NuxtLink
@@ -403,7 +410,7 @@ const restore = async (id) => {
     <!-- General View -->
     <template v-if="!(store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin')">
       <aside class="">
-        <div class="card card-compact bg-base-100 w-72 shadow-xl">
+        <div class="card card-compact bg-base-100 sm:w-3/4 lg:w-72 shadow-xl mx-auto">
           <div class="card-body">
             <div class="card-header mb-1 flex items-center justify-between">
               <a
@@ -478,7 +485,7 @@ const restore = async (id) => {
             </div>
             <!-- body -->
 
-            <div class="alert mb-2 block">
+            <div class=" alert  mb-2 block">
               <h3 class="font-bold mb-2">
                 About Me
               </h3>
@@ -514,7 +521,7 @@ const restore = async (id) => {
             <!-- Online Presence -->
             <div class="relative flex gap-2">
               <span>
-                <span class="hidden">
+                <template v-if="isOnline">
                   <svg
                     width="18"
                     height="18"
@@ -545,8 +552,8 @@ const restore = async (id) => {
                       fill="#0CA408"
                     />
                   </svg>
-                </span>
-                <span>
+                </template>
+                <template v-else>
                   <svg
                     width="18"
                     height="18"
@@ -577,11 +584,12 @@ const restore = async (id) => {
                       fill="#FF0000 "
                     />
                   </svg>
-                </span>
+                </template>
               </span>
               <span
-                class="text-sm font-bold text-green-500"
-                v-text="!store.userOnline ? 'Online' : 'Offline'"
+                class="text-sm font-bold"
+                :class="isOnline ? 'text-green-500' : 'text-red-500'"
+                v-text="isOnline ? 'Online' : 'Offline'"
               />
             </div>
 
@@ -611,7 +619,7 @@ const restore = async (id) => {
     <!-- main -->
     <section class="flex-1 ">
       <!-- Tab -->
-      <div class="flex bg-white p-3 rounded-xl w-1/2 items-center justify-evenly mb-6">
+      <div class="flex  bg-white p-3 rounded-xl lg:w-3/4 xl:w-1/2 items-center gap-4 sm:gap-0 justify-center sm:justify-evenly mb-6 ">
         <a
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
@@ -639,7 +647,7 @@ const restore = async (id) => {
         <a
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
-          :class="{ border_b: workerTab === 'marketplace' }"
+          :class="{ border_b: workerTab === 'marketplace' } "
           @click="toggleTab('marketplace')"
         >Marketplace Listings </a>
       </div>
@@ -656,6 +664,7 @@ const restore = async (id) => {
         v-if="workerTab === 'gallery'"
         :profile-gallery="allGallery"
         type="profile"
+        class="mx-auto"
       />
       <MarketPlaceEmployerServices
         v-if="workerTab === 'service'"
@@ -728,5 +737,9 @@ const restore = async (id) => {
 <style>
 .border_b {
   @apply border-b-darkGold pb-1 !important;
+}
+.alert {
+  text-align: start !important;
+  justify-items: flex-start !important;
 }
 </style>

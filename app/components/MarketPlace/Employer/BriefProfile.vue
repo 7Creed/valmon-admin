@@ -37,7 +37,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
 </script>
 
 <template>
-  <div class="w-[90%]">
+  <div class="md:w-[90%] mx-auto">
     <!-- Carousel Section -->
     <div class="card card-compact bg-base-100 shadow-xl px-4 mb-6">
       <div class="card-body">
@@ -89,7 +89,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
               />
             </svg>
           </div>
-          <div class="carousel rounded-box min-w-5/6 h-[500px] gap-4 relative">
+          <div class="carousel rounded-box min-w-5/6  gap-4 relative">
             <div
               v-for="(item, index) in props?.UserGallery"
               :key="index"
@@ -123,31 +123,31 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
         />
         <div
           v-else
-          class="card-body"
+          class="md:card-body"
         >
           <!-- row -->
           <div
             v-for="(item, index) in props.gigs"
             :key="index"
-            className=" rounded-lg overflow-hidden mb-3 border-gray-200 border"
+            class="rounded-lg overflow-hidden mb-3 border-gray-200 border"
           >
-            <div className="px-6 py-4 flex items-center gap-6">
-              <div className="font-bold text-xl mb-2 w-1/6">
+            <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
+              <div class="font-bold text-base md:text-xl mb-2 md:mb-0 w-full md:w-1/6">
                 {{ item.title }}
               </div>
               <div class="flex-1">
-                <div className="px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
-                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    <span>Title</span> <span class="satoshiM inline-block ml-2"> {{ item.title }}</span>
+                <div class="px-4 md:px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
+                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
+                    <span>Title:</span> <span class="satoshiM ml-2"> {{ item.title }}</span>
                   </span>
-                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    <span>Pricing Type</span> <span class="satoshiM inline-block ml-2">{{ item.pricing_type }}</span>
+                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
+                    <span>Pricing Type:</span> <span class="satoshiM ml-2">{{ item.pricing_type }}</span>
                   </span>
-                  <span className="inline-block text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    <span>Price</span> <span class="satoshiM inline-block ml-2">NGN {{ item.price }}</span>
+                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
+                    <span>Price:</span> <span class="satoshiM ml-2">NGN {{ item.price }}</span>
                   </span>
                 </div>
-                <p className="text-gray-700 text-base ">
+                <p class="text-gray-700 text-sm md:text-base">
                   {{ item.description }}
                 </p>
               </div>
@@ -157,7 +157,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
               >
                 <a
                   href="javascript:void(0)"
-                  class="text-darkGold text-base font-semibold block mb-5 satoshiM"
+                  class="text-darkGold text-sm md:text-base font-semibold block mb-5 satoshiM"
                   @click="hire(item)"
                 >Hire</a>
               </div>

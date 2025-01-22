@@ -88,7 +88,7 @@ setInterval(ping(), 30000)
 </script>
 
 <template>
-  <div class="px-16 h-auto overflow-auto">
+  <div class="px-4 lg:px-16  h-auto overflow-auto">
     <!-- BREADCRUMBS -->
     <div
       v-if="activeComp !== 'chat'"

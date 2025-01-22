@@ -41,16 +41,16 @@ const selectSkill = (option, category, serviceId) => {
     />
     <section
       v-else
-      class="mt-10"
+      class="mt-10 "
     >
       <div
         v-for="category in props.categories"
         :key="category.id"
-        class="flex"
+        class="flex flex-wrap justify-center lg:justify-start"
       >
         <div class="max-w-xs">
           <div
-            class="bg-white p-3  rounded-l-[10px] text-center text-[#171616] font-semibold text-lg"
+            class="bg-white p-3   rounded-l-[10px] text-center text-[#171616] font-semibold text-lg"
           >
             <h4 class="ms-3">
               {{ category.name }}
@@ -58,12 +58,12 @@ const selectSkill = (option, category, serviceId) => {
           </div>
           <div class="max-w-72 max-h-56 p-6">
             <img
-              :src="category.image_url"
+              :src="category.category_image"
               :alt="category.name"
             >
           </div>
         </div>
-        <div class="flex-1 bg-white">
+        <div class="flex-1 bg-white mb-6 lg:mb-0">
           <div
             class="flex flex-row items-center justify-center flex-wrap gap-4 py-14 px-6 grow"
           >
