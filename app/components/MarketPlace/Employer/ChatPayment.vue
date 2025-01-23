@@ -65,6 +65,7 @@ const defaultLoader = ref(false)
 const getMessagesLoader = ref(false)
 const proposalLoader = ref(false)
 const RejectProposalLoader = ref(false)
+const proposalResponse = ref(null)
 const readLoader = ref(false)
 const initiatePaymentLoader = ref(false)
 const message = ref('')
@@ -72,6 +73,14 @@ const allMessages = ref([])
 const conversations = ref([])
 const activeConversation = ref(null)
 
+/* -------------------------- close modal function -------------------------- */
+const ModalBtn = ref(null)
+
+const closeModal = (btn) => {
+  if (btn.value) {
+    btn.value.click()
+  }
+}
 /* ---------------------------- Get conversations --------------------------- */
 const conservationTab = () => {
   if (conversations.value.length > 0) {
@@ -90,6 +99,7 @@ const conservationTab = () => {
   }
 }
 
+/* ---------------------- Manage selected Conversation ---------------------- */
 const selectedConversation = ref(null)
 const fetchConversation = async () => {
   try {
@@ -124,6 +134,7 @@ const renderConversation = ({ user, recipient, user_id }) => {
   return realRecipient
 }
 
+/* ------------------------- Multiple param for api ------------------------- */
 const chatApiWithParams = async (func, userData, id, loader) => {
   loader.value = true
   try {
@@ -149,8 +160,7 @@ const chatApiWithParams = async (func, userData, id, loader) => {
   }
 }
 
-const proposalResponse = ref(null)
-
+/* ---------------- Functional call for api wih single param ---------------- */
 const chatApiWithParam = async (func, userData, loader) => {
   loader.value = true
   try {
@@ -172,17 +182,14 @@ const chatApiWithParam = async (func, userData, loader) => {
         case 'sendProposal':
           // Get Messages
           chatApiWithParam(getMessages, selectedConversation.value.id, getMessagesLoader)
+          closeModal(ModalBtn)
           break
         case 'acceptProposal':
           proposalResponse.value = data.value.data
           console.log('DoneWorker', data.value.data)
           if (store.UserAccount?.account_type === 'employer') {
             const paymentUrl = data.value.data.payment.data.authorization_url
-            window.open(paymentUrl, '_blank')
-            // reloadNuxtApp({
-            //   path: paymentUrl,
-            //   force: true,
-            // })
+            window.open(paymentUrl, '_blank') // open in new tab
           }
           else {
             return
@@ -236,20 +243,24 @@ const screenWidth = ref(window.innerWidth)
 
 const handleResize = () => {
   screenWidth.value = window.innerWidth
+  isMobile.value = screenWidth.value <= 1024
 }
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
+  handleResize() // Call handleResize to set initial value
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-isMobile.value = computed(() => {
-  return screenWidth.value <= 1024
-})
-
+/* -------------------------- Manage User Location -------------------------- */
+const userLocation = (address) => {
+  if (address === null || address === undefined) return 'NA'
+  const userAddress = JSON.parse(address)
+  return userAddress[0]
+}
 /* ---------------------------- Open Conversation --------------------------- */
 const isMobileChat = ref(false)
 const Chat = (conv) => {
@@ -570,12 +581,12 @@ const MarkCompleted = async () => {
   <SharedLoader v-if="conversationLoader" />
   <div
     v-else
-    class="flex gap-10  lg:pt-10 w-full "
+    class="flex gap-2 xl:gap-10 lg:pt-10 w-full "
   >
     <!-- card 1 -->
     <div
-      :class="{ hidden: isMobileChat && isMobile }"
-      class=" card bg-base-100 h-screen lg:h-auto mb-4 lg:mb-0 lg:w-[400px] shadow-xl flex-2 text-[#93939A]"
+      :class="{ hidden: isMobileChat == true && isMobile }"
+      class=" card bg-base-100 h-screen lg:h-auto mb-4 lg:mb-0 w-full lg:w-[400px] shadow-xl flex-2 text-[#93939A]"
     >
       <div class="card-body">
         <!-- tab -->
@@ -717,6 +728,25 @@ const MarkCompleted = async () => {
           v-if="selectedConversation"
           class="flex items-center gap-4 border-b pb-5"
         >
+          <!-- Navigation icon -->
+          <a
+            href="javascript:void(0)"
+            class="lg:hidden"
+            @click="isMobileChat = false"
+          >
+            <svg
+              width="12"
+              height="18"
+              viewBox="0 0 12 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4.43766 8.99998L11.0377 15.6L9.15233 17.4853L0.666992 8.99998L9.15233 0.514648L11.0377 2.39998L4.43766 8.99998Z"
+                fill="#09121F"
+              />
+            </svg>
+          </a>
           <!-- avatar -->
           <div class="avatar">
             <div class="w-12 lg:w-14 rounded-full">
@@ -727,10 +757,12 @@ const MarkCompleted = async () => {
             </div>
           </div>
           <div>
-            <div class="flex items-center text-[#101011] gap-3 lg:gap-8 mb-1">
+            <div class="flex items-center text-[#101011] gap-2 lg:gap-8 mb-1">
               <span class="text-sm  satoshiB">{{ renderConversation(selectedConversation).first_name }} {{
                 renderConversation(selectedConversation).last_name }}</span>
-              <div class="flex items-center gap-2">
+              <!-- <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation(userInfo?.profile?.addresses).city }}, {{
+                userLocation(userInfo?.profile?.addresses).country }}</span> -->
+              <div class="hidden lg:flex items-center gap-2">
                 <div class="rating rating-sm">
                   <input
                     type="radio"
@@ -742,9 +774,7 @@ const MarkCompleted = async () => {
                 <span class="text-sm">(631 Ratings)</span>
               </div>
             </div>
-            <div
-              class="text-sm"
-            >
+            <div class="text-sm">
               {{ selectedConversation?.service ? selectedConversation.service.name : selectedConversation?.listing.title
               }}
             </div>
@@ -757,28 +787,143 @@ const MarkCompleted = async () => {
         >
           <span class="text-center text-sm lg:base w-full  block">Keep all dealings on valmon to ensure safety</span>
         </div>
+
         <!-- This is for mobile -->
         <div
           v-if="isMobile"
-          class="lg:hidden card bg-base-100  shadow-xl"
+          class="lg:hidden card bg-base-100 shadow-xl"
         >
           <div class="px-2 py-6">
             <h2 class="card-title mb-1">
               Service Cost
             </h2>
-            <p class="mb-3">
-              NGN 12343
-            </p>
-            <div class="card-actions ">
-              <button class="btn bg-darkGold text-white btn-md ">
-                <span class="text-sm">  Accept & Buy</span>
+            <!-- Offer amount -->
+            <div class="mb-3">
+              <!-- Job Offer Amount -->
+              <p
+                v-show="jobStatus === '' && activeTab === 'job'"
+                class=""
+              >
+                NGN {{ latestOffer || 0 }}
+              </p>
+
+              <!-- Completed Job Amount -->
+              <p
+                v-show="jobStatus === 'Completed'"
+                class="text-black satoshiB"
+              >
+                NGN {{ latestOrder?.amount ?? 'N/A' }}
+              </p>
+
+              <!-- Marketplace Offer Amount -->
+              <p
+                v-if="selectedConversation?.listing_id"
+              >
+                NGN {{ latestOffer || selectedConversation.listing.price }}
+              </p>
+            </div>
+            <!-- Offer Amount End -->
+
+            <!-- Action buttons -->
+            <div class="card-actions flex flex-wrap gap-3 items-center">
+              <!-- Accept Proposal -->
+              <button
+                v-if="jobStatus === ''"
+                id="start-payment-button"
+                :disabled="allMessages.length === 0 || !latestOffer"
+                type="button"
+                class="btn bg-darkGold text-white"
+                @click="acceptNegotiation"
+              >
+                <span>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
+                  ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
+                    === 'workerService' ? 'Accept Proposal' : 'Accept ' }}</span>
               </button>
-              <button class="btn btn-neutral">
-                <span class="text-sm">  Negotiate</span>
+
+              <!-- Services -->
+              <div
+                v-if="activeTab == 'job'"
+                class="flex justify-center"
+              >
+                <button
+                  v-if="jobStatus === 'Completed'"
+                  :disabled="latestOrder.status != 'in review' && store.UserAccount.account_type == 'employer' || latestOrder.status == 'completed'"
+                  class="btn bg-darkGold text-white"
+                  @click="MarkCompleted"
+                >
+                  <span>{{ latestOrder.status == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
+                </button>
+              </div>
+
+              <!-- MarketPlace Buttons -->
+              <div
+                v-else
+                class="flex justify-center"
+              >
+                <button
+                  v-if="jobStatus === 'Completed' && (_shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered')"
+                  :disabled="_shippingStatus === 'Completed'"
+                  class="btn bg-darkGold text-white"
+                  onclick="my_modal_8.showModal()"
+                >
+                  <span>{{ _shippingStatus }}</span>
+                </button>
+
+                <!-- Buyer View -->
+                <button
+                  v-if="jobStatus === 'Completed' && (_shippingStatus === 'Product Received')"
+                  class="btn bg-darkGold text-white"
+                  onclick="my_modal_5.showModal()"
+                  :disabled="_shippingStatus === 'Product Pending Shipping'"
+                >
+                  <span
+                    v-if="orderLoading && _shippingStatus !== 'Completed'"
+                    class="loading loading-spinner loading-sm"
+                  />
+                  <span v-else>{{ _shippingStatus }}</span>
+                </button>
+              </div>
+
+              <!-- Negotiate Cost -->
+              <button
+                v-if="jobStatus === ''"
+                class="btn btn-neutral"
+                onclick="my_modal_6.showModal()"
+                :disabled="allMessages.length === 0"
+              >
+                Negotiate Cost
               </button>
-              <button class="btn btn-outline btn-error">
-                Reject  & Close
-              </button>
+
+              <!-- Reject Offer or Report -->
+              <div
+                v-if="jobStatus === 'Completed'"
+                class="flex justify-center"
+              >
+                <!-- Report -->
+                <button
+                  v-if="jobStatus === 'Completed'"
+                  class="btn btn-outline btn-error"
+                  type="button"
+                  onclick="my_modal_7.showModal()"
+                >
+                  <span v-if="activeTab === 'job'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Client'
+                    : 'Report Worker' }}</span>
+                  <span v-if="activeTab === 'marketPlace'">{{ store.UserAccount.account_type !== 'employer' ? 'Report Buyer'
+                    : 'Report Seller' }}</span>
+                </button>
+                <button
+                  v-else
+                  class="btn btn-outline btn-error"
+                  type="button"
+                  @click="rejectProposa()"
+                >
+                  <span
+                    v-if="RejectProposalLoader"
+                    class="loading loading-spinner loading-md"
+                  />
+                  <span v-else>Reject Offer</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -835,8 +980,10 @@ const MarkCompleted = async () => {
               <div class="chat-bubble bg-brightGold text-black chat_adjustment text-sm rounded-none">
                 <span v-if="mesg.negotiation.user_id == store.UserAccount.id">You are requesting</span>
                 <span v-else>
-                  <span v-if="activeTab == 'marketPlace'"> {{ store.UserAccount.account_type !== 'employer' ? 'Buyer' : 'Seller' }} is Requesting</span>
-                  <span v-else> {{ store.UserAccount.account_type !== 'employer' ? 'Client' : 'Service Provider' }} is Requesting</span>
+                  <span v-if="activeTab == 'marketPlace'"> {{ store.UserAccount.account_type !== 'employer' ? 'Buyer'
+                    : 'Seller' }} is Requesting</span>
+                  <span v-else> {{ store.UserAccount.account_type !== 'employer' ? 'Client' : 'Service Provider' }} is
+                    Requesting</span>
                 </span>
                 <div class="mt-2 satoshiB">
                   NGN {{ mesg.negotiation.price_offer }}
@@ -931,23 +1078,29 @@ const MarkCompleted = async () => {
             </h2>
           </div>
         </div>
-        <!-- for services -->
-        <h2 class="card-title ">
-          <span v-if="selectedConversation?.service_id"> Service Cost:</span>
+        <!-- Service Cost Section -->
+        <h2 class="card-title">
+          <span v-if="selectedConversation?.service_id">Service Cost:</span>
         </h2>
+
+        <!-- Job Offer Label -->
         <div class="label">
           <span
-            v-if="activeTab == 'job'"
+            v-if="activeTab === 'job'"
             class="label-text"
             v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is Asking for?'"
           />
         </div>
+
+        <!-- Job Offer Amount -->
         <div
-          v-show="jobStatus === '' && activeTab == 'job'"
+          v-show="jobStatus === '' && activeTab === 'job'"
           class="input input-bordered w-full max-w-xs center"
         >
           NGN {{ latestOffer || 0 }}
         </div>
+
+        <!-- Completed Job Amount -->
         <div
           v-show="jobStatus === 'Completed'"
           role="alert"
@@ -957,32 +1110,29 @@ const MarkCompleted = async () => {
             NGN {{ latestOrder?.amount ?? 'N/A' }}
           </div>
         </div>
-        <!-- Marketplace -->
+
+        <!-- Marketplace Offer Label -->
         <label
           v-show="jobStatus === ''"
           class="form-control w-full max-w-xs mb-3"
         >
           <div class="label">
-            <!-- <span
-              v-if="activeTab == 'job'"
-              class="label-text"
-              v-text="store.UserAccount.account_type !== 'employer' ? 'Client is asking for?' : 'Worker is Asking for?'"
-            /> -->
             <span
               v-if="activeTab !== 'job'"
               class="label-text"
               v-text="store.UserAccount.account_type !== 'employer' ? 'Buyer is Asking for?' : 'Seller is Asking for?'"
             />
           </div>
-          <!-- Add for Gigs here -->
+
+          <!-- Marketplace Offer Amount -->
           <div
             v-if="selectedConversation?.listing_id"
             class="input input-bordered w-full max-w-xs center"
-          >NGN {{
-            latestOffer ? latestOffer : selectedConversation.listing.price }}</div>
-
+          >
+            NGN {{ latestOffer || selectedConversation.listing.price }}
+          </div>
         </label>
-        <!-- Marketplace End -->
+
         <!-- accept proposal  -->
         <button
           v-if="jobStatus === ''"
@@ -1011,7 +1161,7 @@ const MarkCompleted = async () => {
             <span>{{ latestOrder.status == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
           </button>
         </div>
-        <!-- Completed/product delivered Button for seller view -->
+        <!-- MarketPlace: Completed/product delivered Button for seller view -->
         <div
           v-else
           class="w-full center"
@@ -1242,7 +1392,10 @@ const MarkCompleted = async () => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button
+            ref="ModalBtn"
+            class="btn"
+          >
             Close
           </button>
         </form>
