@@ -8,7 +8,7 @@ import tikTok from '@/assets/icons/facebook.svg'
 </script>
 
 <template>
-  <footer class="bg-[#151212] text-base-content lg:p-10 lg:px-20 ">
+  <footer class="bg-[#151212] text-base-content pt-10 lg:p-10 lg:px-20  ">
     <nav class="flex flex-col lg:flex-row items-center gap-8 lg:gap-0 lg:justify-between ">
       <a href="/" class=""><img
         :src="brandLogo"

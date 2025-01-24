@@ -105,7 +105,7 @@ watch(UnreadNotifications, (newVal, oldVal) => {
 })
 
 // Fetch Notifications when user is logged in
-if (store.UserAccount.id) {
+if (store?.UserAccount?.id) {
   setInterval(fetchNotifications, 30000)
 }
 else {

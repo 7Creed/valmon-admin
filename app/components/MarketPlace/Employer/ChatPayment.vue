@@ -74,7 +74,9 @@ const conversations = ref([])
 const activeConversation = ref(null)
 
 /* -------------------------- close modal function -------------------------- */
-const ModalBtn = ref(null)
+const ModalBtn = ref(null) // negotiation button
+const reviewModalBtn = ref(null)
+const sendReportBtn = ref(null)
 
 const closeModal = (btn) => {
   if (btn.value) {
@@ -139,17 +141,23 @@ const chatApiWithParams = async (func, userData, id, loader) => {
   loader.value = true
   try {
     const { status, data, error } = await func(userData, id)
-    if (status.value === 'success') {
-      console.log('fetched messages->', data.value.data)
-
-      if (func.name === 'sendMessages') {
-        // Get Messages
-        chatApiWithParam(getMessages, selectedConversation.value.id, getMessagesLoader)
-      }
-    }
-
-    if (status.value === 'error') {
-      handleError('error', error.value.data.message)
+    switch (status.value) {
+      case 'success':
+        console.log('fetched messages->', data.value.data)
+        switch (func.name) {
+          case 'sendMessages':
+            // Get Messages
+            chatApiWithParam(getMessages, selectedConversation.value.id, getMessagesLoader)
+            break
+          case 'createReview':
+            closeModal(reviewModalBtn)
+            fetchConversation()
+            break
+        }
+        break
+      case 'error':
+        handleError('error', error.value.data.message)
+        break
     }
   }
   catch (error) {
@@ -183,6 +191,11 @@ const chatApiWithParam = async (func, userData, loader) => {
           // Get Messages
           chatApiWithParam(getMessages, selectedConversation.value.id, getMessagesLoader)
           closeModal(ModalBtn)
+
+          break
+        case 'createTicket':
+          closeModal(sendReportBtn)
+          handleALert('success', 'Ticket Created')
           break
         case 'acceptProposal':
           proposalResponse.value = data.value.data
@@ -196,6 +209,7 @@ const chatApiWithParam = async (func, userData, loader) => {
           }
           break
       }
+
     }
     if (status.value === 'error') {
       handleError('error', error.value.data.message)
@@ -360,8 +374,9 @@ const MarkAsRead = () => {
 
 // render chat time
 const getTimeDifference = timestamp => getTimeDiff(timestamp)
-
+/* ---------------------------- Proposal Section ---------------------------- */
 const acceptNegotiation = () => {
+  console.log('test')
   if (store.UserAccount.account_type === 'employer') {
     acceptNewProposal()
   }
@@ -421,7 +436,6 @@ const orderLoading = ref(false)
 const productDelivered = async (id) => {
   if (Image.value == null) {
     handleALert('error', 'Upload an Image')
-    return
   }
   else {
     review.value = true
@@ -556,7 +570,7 @@ const report = () => {
 
 const MCloading = ref(false)
 const MarkCompleted = async () => {
-  // MCloading.value = true
+  MCloading.value = true
   const JobStatus = store.UserAccount.account_type == 'employer' ? 'completed' : 'in review'
   try {
     const { status, error } = await markJobAsCompleted(latestOrder.value.id, {
@@ -573,7 +587,9 @@ const MarkCompleted = async () => {
   catch (err) {
     handleError('error', err.message)
   }
-  // finally {}
+  finally {
+    MCloading.value = false
+  }
 }
 </script>
 
@@ -817,7 +833,7 @@ const MarkCompleted = async () => {
 
               <!-- Marketplace Offer Amount -->
               <p
-                v-if="selectedConversation?.listing_id"
+                v-if="selectedConversation?.listing_id && jobStatus != 'Completed'"
               >
                 NGN {{ latestOffer || selectedConversation.listing.price }}
               </p>
@@ -835,7 +851,12 @@ const MarkCompleted = async () => {
                 class="btn bg-darkGold text-white"
                 @click="acceptNegotiation"
               >
-                <span>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
+                <span
+                  v-if="proposalLoader"
+                  class="loading loading-spinner loading-sm"
+                />
+
+                <span v-else>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
                   ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
                     === 'workerService' ? 'Accept Proposal' : 'Accept ' }}</span>
               </button>
@@ -851,7 +872,11 @@ const MarkCompleted = async () => {
                   class="btn bg-darkGold text-white"
                   @click="MarkCompleted"
                 >
-                  <span>{{ latestOrder.status == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
+                  <span
+                    v-if="MCloading"
+                    class="loading loading-spinner loading-sm"
+                  />
+                  <span v-else>{{ latestOrder.status == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
                 </button>
               </div>
 
@@ -1142,7 +1167,11 @@ const MarkCompleted = async () => {
           class="btn bg-darkGold mb-3 text-white w-full"
           @click="acceptNegotiation"
         >
-          <span>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
+          <span
+            v-if="proposalLoader"
+            class="loading loading-spinner loading-md"
+          />
+          <span v-else>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
             ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
               === 'workerService' ? 'Accept Proposal' : 'Accept ' }}</span>
         </button>
@@ -1158,7 +1187,11 @@ const MarkCompleted = async () => {
             class="btn bg-darkGold mb-3 text-white w-full"
             @click="MarkCompleted"
           >
-            <span>{{ latestOrder.status == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
+            <span
+              v-if="MCloading"
+              class="loading loading-spinner loading-sm"
+            />
+            <span v-else>{{ latestOrder.status == 'completed' ? 'Completed' : 'Mark Job as Completed' }}</span>
           </button>
         </div>
         <!-- MarketPlace: Completed/product delivered Button for seller view -->
@@ -1244,7 +1277,7 @@ const MarkCompleted = async () => {
       <div class="card-body p-2">
         <!-- Product delivered -->
         <div
-          v-if="!review && (conversationType !== 'employerService' || conversationType !== 'workerService')"
+          v-if="!review && activeTab != 'job'"
           class=""
         >
           <h1 class="text-2xl font-bold mb-4">
@@ -1282,7 +1315,7 @@ const MarkCompleted = async () => {
 
         <!-- if Job is success -->
         <div
-          v-if="review"
+          v-if="review || activeTab == 'job'"
           class="success"
         >
           <h2 class="card-title text-black font-bold text-2xl text-center center">
@@ -1320,7 +1353,7 @@ const MarkCompleted = async () => {
             @click="sendReviews"
           >
             <span
-              v-if="reviewLoading"
+              v-if="reviewLoader"
               class="loading loading-spinner loading-xs"
             />
             <span v-else> Submit Review</span>
@@ -1330,7 +1363,7 @@ const MarkCompleted = async () => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button class="btn" ref="reviewModalBtn">
             Close
           </button>
         </form>
@@ -1583,7 +1616,7 @@ const MarkCompleted = async () => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button class="btn" ref="sendReportBtn">
             Close
           </button>
         </form>

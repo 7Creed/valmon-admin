@@ -109,7 +109,7 @@ const openProduct = (id) => {
     <div
       v-for="(item, index) in marketListings"
       :key="item.id"
-      class="card card-compact bg-base-100 w-80 shadow-xl"
+      class="card card-compact bg-base-100 w-[280px] md:w-80 shadow-xl"
       @click="productCardFunction(item.id)"
     >
       <div class="absolute right-0 flex items-center gap-2">
@@ -207,7 +207,7 @@ const openProduct = (id) => {
               {{ item.category.name }}
             </p>
 
-            <div class="text-lg text-[#242424] satoshiM">
+            <div class="text-base md:text-lg text-[#242424] satoshiM">
               NGN {{ item.price }}
             </div>
           </div>

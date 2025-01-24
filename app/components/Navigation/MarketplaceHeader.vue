@@ -62,8 +62,8 @@ const popUp = ref(null)
 </script>
 
 <template>
-  <div class="bg-[#C09742] p-8 fixed w-full z-[1000]">
-    <div class="text-black flex items-center justify-between container mx-auto">
+  <div class="bg-[#C09742] p-8 fixed w-full z-[1000] top-[60px]">
+    <div class="hidden text-black lg:flex items-center justify-between container mx-auto">
       <a
         v-for="item in MLCategory"
         :key="item.id"
@@ -74,6 +74,52 @@ const popUp = ref(null)
       >
         {{ item.name }}
       </a>
+    </div>
+    <!-- Mobile View -->
+    <div class="flex items-center justify-center gap-4 lg:hidden">
+      <p class="text-base text-[#242424] satoshiB">
+        Browse Our Product Categories
+      </p>
+      <div class="dropdown dropdown-end  flex">
+        <div
+          tabindex="0"
+          role="button"
+          class="btn btn-circle btn-ghost btn-xs text-info"
+        >
+          <svg
+            width="23"
+            height="23"
+            viewBox="0 0 23 23"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M11.5 0C5.152 0 0 5.152 0 11.5C0 17.848 5.152 23 11.5 23C17.848 23 23 17.848 23 11.5C23 5.152 17.848 0 11.5 0ZM11.5 14.95L6.9 10.35H16.1L11.5 14.95Z"
+              fill="#242424"
+            />
+          </svg>
+        </div>
+        <div
+          tabindex="0"
+          class="card compact dropdown-content bg-base-100 rounded-box z-[1] w-72 shadow"
+        >
+          <div
+            tabindex="0"
+            class="card-body flex-row gap-2"
+          >
+            <a
+              v-for="item in MLCategory"
+              :key="item.id"
+              href="javascript:void(0);"
+              class="text-base w-fit p-2 rounded-lg hover:bg-gray-200"
+              :class="{ activeClass: activeTab === item.name }"
+              @click="changeTab(item.id, item.name)"
+            >
+              {{ item.name }}
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <!-- Rest of your template... -->

@@ -59,7 +59,7 @@ const postListing = async () => {
 
 <template>
   <div class="min-h-screen center bg-white">
-    <div class="card bg-base-100 shadow-xl rounded-sm w-3/6">
+    <div class="card bg-base-100 shadow-xl rounded-sm w-[90%] lg:w-3/6 mt-20 md:mt-0">
       <div class="card-body">
         <h3 class="text-xl font-bold text-center text-[#171616] mb-4 satoshiM">
           Add Listing ({{ activeStep }} of 3)

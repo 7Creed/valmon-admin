@@ -5,7 +5,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <button class="btn bg-darkGold border-darkGold hover:bg-brightGold text-lg font-medium text-white">
+  <button class="btn bg-darkGold border-darkGold hover:bg-brightGold md:text-lg font-medium text-white">
     <span>{{ props.title }}</span>
     <svg
       xmlns="http://www.w3.org/2000/svg"

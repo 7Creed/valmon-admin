@@ -39,25 +39,25 @@ async function openContact(id) {
     <div v-else>
       <div
 
-        class="h-[630px] flex gap-10 container mx-auto mb-8"
+        class=" w-full lg:h-[630px] flex flex-col lg:flex-row gap-10 xl:container items-center mx-auto mb-8"
       >
         <!-- Left -->
-        <div class="card flex-row justify-center items-start card-compact bg-base-100 w-[60%] shadow-xl p-4">
-          <figure class="flex h-full w-full">
+        <div class="card lg:flex-row justify-center items-start flex-col card-compact bg-base-100 w-full  sm:w-[80%] lg:w-[60%] shadow-xl p-4">
+          <figure class="flex h-full w-full xl:w-[60%]">
             <img
               :src="ProductView ?? products?.listing?.images[0]"
               alt="Shoes"
-              class="h-full w-full"
+              class="h-full w-full "
             >
           </figure>
-          <div class="card-body">
+          <div class="card-body flex-row  lg:flex-col">
             <div
               v-for="(item, index) in props.products.listing.images"
               :key="index"
               class="avatar"
               @click="updateProductImage(item)"
             >
-              <div class="w-20 rounded-lg">
+              <div class=" w-10 md:w-20 rounded-lg">
                 <img :src="item">
               </div>
             </div>
@@ -65,7 +65,7 @@ async function openContact(id) {
         </div>
 
         <!-- right -->
-        <div class="card card-compact bg-base-100 w-[40%] shadow-xl text-[#242424]">
+        <div class="card card-compact bg-base-100 w-full sm:w-[80%] lg:w-[40%] shadow-xl text-[#242424]">
           <div class="card-body">
             <!-- header -->
             <div class="flex justify-between items-center mb-3">
@@ -121,7 +121,7 @@ async function openContact(id) {
               </p>
             </div>
             <!-- Profile Details -->
-            <div class="flex items-center justify-between mb-5">
+            <div class="flex flex-wrap items-center justify-between mb-5">
               <div class="flex  items-center gap-3 mb-2">
                 <!-- avatar -->
                 <div class="avatar">
@@ -154,14 +154,15 @@ async function openContact(id) {
               </div>
 
               <button
-                class="btn btn-outline  w-2/4"
+                class="btn btn-outline  sm:w-2/4 mt-4 "
                 @click="openContact(props.products.listing.user.id)"
               >
                 Profile
               </button>
             </div>
+            
             <button
-              class="btn btn-neutral"
+              class="btn btn-neutral "
               @click="openChat(props.products.listing.id, props.products.listing.user.id)"
             >
               Contact
@@ -174,7 +175,7 @@ async function openContact(id) {
         <h1 class="font-extrabold text-xl satoshiM mb-4">
           Similar Listings
         </h1>
-        <div class="flex flex-wrap justify-start gap-4">
+        <div class="flex flex-wrap justify-center items-center lg:justify-start gap-4">
           <MarketPlaceEmployerMarket
             type="featuredListings"
             :other-listings="props.products.similar"

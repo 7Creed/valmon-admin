@@ -3,14 +3,14 @@ import rectanglebg from '@/assets/images/UIElements/Rectangle.png'
 </script>
 
 <template>
-  <div class="hero cover justify-items-start">
-    <div class="relative z-10 ms-[96px]">
+  <div class="hero h-[300px] md:h-[550px] cover justify-items-start">
+    <div class="relative z-10 lg:ms-[96px] px-4 text-white">
       <img
         :src="rectanglebg"
         alt="rectangular back-drop"
         class="absolute -z-10 w-28 rectBg right-[200px] top-[50px] "
       >
-      <p class="text-white text-6xl font-extrabold w-96 leading-[67px]">
+      <p class="text-white text-3xl md:text-6xl font-extrabold w-3/5 md:w-96 md:leading-[67px]">
         Discover
         the Best Deals
         on Valmon
@@ -25,6 +25,5 @@ import rectanglebg from '@/assets/images/UIElements/Rectangle.png'
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat ;
-  height: 550px;
 }
 </style>

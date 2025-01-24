@@ -7,7 +7,7 @@ definePageMeta({
 <template>
   <div class="min-h-screen  bg-primary_bg pb-14">
     <!-- The Header -->
-    <NavigationMarketplaceHeader />
+    <NavigationMarketplaceHeader class="" />
     <!-- Default View -->
     <div class="pt-14">
       <MarketPlaceMarket />

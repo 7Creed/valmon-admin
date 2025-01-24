@@ -77,7 +77,7 @@ fetchMFL()
 
 <template>
   <!-- Hero -->
-  <div class="py-20 px-14 bg-[#F0F2F5]">
+  <div class="py-20 px-4 lg:px-14 bg-[#F0F2F5]">
     <MarketPlaceMarketHero class="rounded-xl mb-16" />
 
     <!-- Featured Listings -->
@@ -107,13 +107,13 @@ fetchMFL()
     </div>
   </div>
 
-  <div class="p-20 pt-0 px-14 bg-[#F0F2F5]">
-    <div class="w-[90%] mx-auto relative">
+  <div class="px-4 pb-14 pt-0 md:px-20 bg-[#F0F2F5]">
+    <div class="w-full mx-auto relative">
       <MarketPlaceMarketSellOnValmon />
       <nuxt-link to="/addlisting">
         <BaseAddButton
           title="Add Listing"
-          class="absolute right-[-60px]"
+          class="absolute right-0 "
         />
       </nuxt-link>
     </div>
