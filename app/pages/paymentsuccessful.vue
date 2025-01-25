@@ -60,7 +60,7 @@ const paymentSuccess = async () => {
         </h2>
 
         <p class=" text-black mb-3 ">
-          Buyer has paid NGN {{ lastJobConversation?.last_job?.amount }} for this product. Please proceed
+          Buyer has paid NGN {{ lastJobConversation?.last_job?.amount || lastJobConversation?.orders[0]?.amount }} for this product. Please proceed
           to delivery
         </p>
       </div>
