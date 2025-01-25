@@ -208,8 +208,10 @@ const chatApiWithParam = async (func, userData, loader) => {
             return
           }
           break
+        case 'initiatePayment':
+          handleALert('success', 'Payment Initiated')
+          break
       }
-
     }
     if (status.value === 'error') {
       handleError('error', error.value.data.message)
@@ -394,7 +396,7 @@ const acceptNewProposal = () => {
 const InitiatePayment = () => {
   chatApiWithParam(initiatePayment, {
     negotiation_id: latestOfferNegotiationId.value,
-  }, initiatePaymentLoader)
+  }, proposalLoader)
 }
 
 const latestOrder = ref(null)
@@ -813,33 +815,46 @@ const MarkCompleted = async () => {
             <h2 class="card-title mb-1">
               Service Cost
             </h2>
-            <!-- Offer amount -->
-            <div class="mb-3">
-              <!-- Job Offer Amount -->
-              <p
-                v-show="jobStatus === '' && activeTab === 'job'"
-                class=""
-              >
-                NGN {{ latestOffer || 0 }}
-              </p>
+            <div class="flex items-center my-3">
+              <!-- Listing Image -->
+              <figure v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">
+                <img
+                  :src="selectedConversation.listing.images[0]"
+                  :alt="selectedConversation.listing.title"
+                  class="w-12"
+                >
+              </figure>
+              <!-- Offer amount -->
+              <div class="">
+                <p class="text-sm ml-2 satoshiB">
+                  {{ selectedConversation.listing.title }}
+                </p>
 
-              <!-- Completed Job Amount -->
-              <p
-                v-show="jobStatus === 'Completed'"
-                class="text-black satoshiB"
-              >
-                NGN {{ latestOrder?.amount ?? 'N/A' }}
-              </p>
+                <!-- Job Offer Amount -->
+                <p
+                  v-show="jobStatus === '' && activeTab === 'job'"
+                  class=""
+                >
+                  NGN {{ latestOffer || 0 }}
+                </p>
 
-              <!-- Marketplace Offer Amount -->
-              <p
-                v-if="selectedConversation?.listing_id && jobStatus != 'Completed'"
-              >
-                NGN {{ latestOffer || selectedConversation.listing.price }}
-              </p>
-            </div>
+                <!-- Completed Job Amount -->
+                <p
+                  v-show="jobStatus === 'Completed'"
+                  class="text-black satoshiB"
+                >
+                  NGN {{ latestOrder?.amount ?? 'N/A' }}
+                </p>
+
+                <!-- Marketplace Offer Amount -->
+                <p
+                  v-if="selectedConversation?.listing_id && jobStatus != 'Completed'"
+                >
+                  NGN {{ latestOffer || selectedConversation.listing.price }}
+                </p>
+              </div>
             <!-- Offer Amount End -->
-
+            </div>
             <!-- Action buttons -->
             <div class="card-actions flex flex-wrap gap-3 items-center">
               <!-- Accept Proposal -->
@@ -1090,18 +1105,14 @@ const MarkCompleted = async () => {
       <div class="card-body">
         <!-- For Marketplace listings -->
         <div v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">
-          <figure class="rounded-lg">
+          <figure class="mb-3">
             <img
               :src="selectedConversation.listing.images[0]"
               :alt="selectedConversation.listing.title"
-              class="w-2/3"
+              class="w-2/3 rounded-lg"
             >
           </figure>
-          <div class="card-body">
-            <h2 class="card-title">
-              {{ selectedConversation.listing.title }}
-            </h2>
-          </div>
+          <p class="text-black text-3xl satoshiB ">  {{ selectedConversation.listing.title }}</p>
         </div>
         <!-- Service Cost Section -->
         <h2 class="card-title">
@@ -1363,7 +1374,10 @@ const MarkCompleted = async () => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn" ref="reviewModalBtn">
+          <button
+            ref="reviewModalBtn"
+            class="btn"
+          >
             Close
           </button>
         </form>
@@ -1616,7 +1630,10 @@ const MarkCompleted = async () => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn" ref="sendReportBtn">
+          <button
+            ref="sendReportBtn"
+            class="btn"
+          >
             Close
           </button>
         </form>
