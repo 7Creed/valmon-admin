@@ -88,13 +88,15 @@ const userAddress = reactive({
   country: 'nigeria',
   postal_code: '520101',
 })
+
 const address = {
   addresses: [
-    ...(store.UserAccount.profile.addresses || [])],
+    ...(store.UserAccount?.profile?.addresses || [])],
 }
 
-watch(() => store.UserAccount.profile.addresses, (newVal) => {
-  if (newVal) {
+watch(() => store?.UserAccount?.profile?.addresses, (newVal) => {
+  console.log('newVal', newVal)
+  if (newVal && newVal.length > 0) {
     address.addresses = [...newVal]
   }
 }, { deep: true })
@@ -119,7 +121,7 @@ const handleAddAddress = async () => {
 // Handle User Location
 const userLocation = computed(() => {
   if (store.UserAccount?.profile?.addresses) {
-    const address = JSON.parse(store.UserAccount.profile.addresses)
+    const address = store.UserAccount?.profile?.addresses
     return address[0]
   }
   return 'NA'
@@ -149,8 +151,7 @@ fetchCountries()
       <div class="avatar">
         <div class="w-24 rounded-full">
           <img
-            :src="store.UserAccount
-              .profile_pic"
+            :src="store?.UserAccount?.profile_pic"
           >
         </div>
         <a

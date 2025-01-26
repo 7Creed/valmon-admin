@@ -133,7 +133,6 @@ const saveEditGig = (index) => {
 }
 const gigIndex = ref(null)
 
-
 const saveGig = async () => {
   GigsLoading.value = true
   addGig.gigs.push(GigsObj)
@@ -161,7 +160,6 @@ const saveGig = async () => {
   }
 }
 
-
 const deleteGig = (index) => {
   addGig.gigs.splice(index, 1)
   updateGig()
@@ -182,17 +180,15 @@ const editGig = (index) => {
     gig.value.click()
   }
 }
-
-
 </script>
 
 <template>
   <div class="">
-    <div class="flex justify-between">
+    <div class="flex justify-center  md:justify-between">
       <!-- Tab -->
       <div
 
-        class="flex bg-white p-3 rounded-xl w-3/6 items-center justify-evenly mb-6"
+        class="flex bg-white p-3 rounded-xl w-full lg:w-3/6 items-center  gap-4 md:justify-evenly mb-6"
       >
         <a
           href="javascript:void(0);"
@@ -221,7 +217,10 @@ const editGig = (index) => {
           @click="toggleTab('listings')"
         >Marketplace Listings</a>
       </div>
-      <RouterLink to="/addlisting">
+      <RouterLink
+        to="/addlisting"
+        class="fixed lg:block bottom-5 right-5 z-50"
+      >
         <button
           v-show="Tab === 'listings'"
           class="btn btn-neutral"
@@ -231,7 +230,7 @@ const editGig = (index) => {
       </RouterLink>
       <button
         v-show="Tab === 'gallery' && store.UserAccount?.account_type === 'worker'"
-        class="btn btn-neutral"
+        class="btn btn-neutral fixed lg:block bottom-5 right-5 z-50"
         onclick="my_modal_1.showModal()"
       >
         Add Image
@@ -239,7 +238,7 @@ const editGig = (index) => {
       <button
         v-show="Tab === 'services' && store.UserAccount?.account_type === 'worker'"
         ref="gig"
-        class="btn btn-neutral"
+        class="btn btn-neutral fixed lg:block bottom-5 right-5 z-50"
         onclick="my_modal_3.showModal()"
       >
         Add Service
@@ -251,9 +250,10 @@ const editGig = (index) => {
     <MarketPlaceEmployerWorkGallery v-if="Tab === 'gallery'" />
     <MarketPlaceEmployerServices
       v-if="Tab === 'services'"
+      type="settings"
       @delete-service="deleteGig($event)"
+
       @edit-service="editGig($event)"
-      type="profile"
     />
   </div>
 

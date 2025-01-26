@@ -15,7 +15,7 @@ const toggleTab = (tab) => {
     <div class="flex justify-between">
       <div
 
-        class="flex bg-white p-3 rounded-xl w-2/6 items-center justify-evenly mb-6"
+        class="flex bg-white p-3 rounded-xl w-full sm:w-2/6 items-center justify-evenly mb-6"
       >
         <a
           href="javascript:void(0);"

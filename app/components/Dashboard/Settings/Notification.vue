@@ -42,7 +42,7 @@ const fetchNotification = async () => {
     const { status, data, error } = await getNotification()
     if (status.value === 'success') {
       console.log(data.value.data)
-      notification.notification = data.value.data.notifications
+      notification.notifications = data.value.data.notifications
       notification.new_report = data.value.data.new_report
       notification.sales_summary = data.value.data.sales_summary
       notification.new_user = data.value.data.new_user

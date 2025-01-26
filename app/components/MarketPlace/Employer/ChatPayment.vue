@@ -77,6 +77,7 @@ const activeConversation = ref(null)
 const ModalBtn = ref(null) // negotiation button
 const reviewModalBtn = ref(null)
 const sendReportBtn = ref(null)
+const submitProofBtn = ref(null)
 
 const closeModal = (btn) => {
   if (btn.value) {
@@ -256,7 +257,7 @@ setInterval(() => {
 const isMobile = ref(false)
 
 const screenWidth = ref(window.innerWidth)
-
+const isMobileChat = ref(false)
 const handleResize = () => {
   screenWidth.value = window.innerWidth
   isMobile.value = screenWidth.value <= 1024
@@ -278,7 +279,7 @@ const userLocation = (address) => {
   return userAddress[0]
 }
 /* ---------------------------- Open Conversation --------------------------- */
-const isMobileChat = ref(false)
+
 const Chat = (conv) => {
   isMobileChat.value = isMobile.value // open chat in mobile view format
   selectedConversation.value = conv
@@ -448,6 +449,7 @@ const productDelivered = async (id) => {
     try {
       const { status, error } = await markAsDelivered(id, formData)
       if (status.value === 'success') {
+        closeModal(submitProofBtn)
         modal5.value.click()
         await fetchConversation()
         return
@@ -603,7 +605,7 @@ const MarkCompleted = async () => {
   >
     <!-- card 1 -->
     <div
-      :class="{ hidden: isMobileChat == true && isMobile }"
+      :class="{ hidden: isMobileChat && isMobile }"
       class=" card bg-base-100 h-screen lg:h-auto mb-4 lg:mb-0 w-full lg:w-[400px] shadow-xl flex-2 text-[#93939A]"
     >
       <div class="card-body">
@@ -737,7 +739,7 @@ const MarkCompleted = async () => {
     </div>
     <!-- card 2 -->
     <div
-      :class="{ hidden: isMobile && !isMobileChat }"
+      :class="{ 'hidden lg:flex': !isMobileChat }"
       class=" card bg-base-100 w-full lg:w-96 shadow-xl flex-1"
     >
       <div class="card-body p-4">
@@ -819,15 +821,15 @@ const MarkCompleted = async () => {
               <!-- Listing Image -->
               <figure v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">
                 <img
-                  :src="selectedConversation.listing.images[0]"
-                  :alt="selectedConversation.listing.title"
+                  :src="selectedConversation?.listing?.images[0]"
+                  :alt="selectedConversation?.listing?.title"
                   class="w-12"
                 >
               </figure>
               <!-- Offer amount -->
               <div class="">
                 <p class="text-sm ml-2 satoshiB">
-                  {{ selectedConversation.listing.title }}
+                  {{ selectedConversation?.listing?.title }}
                 </p>
 
                 <!-- Job Offer Amount -->
@@ -1035,7 +1037,7 @@ const MarkCompleted = async () => {
         <!-- Button and chat box -->
         <div class="flex items-center gap-4 lg:auto w-[90%]">
           <!-- chat box -->
-          <label class="w-full input px-3 lg:px-4 input-bordered flex items-center gap-1 grow">
+          <label class="w-fullff input px-3 lg:px-4 input-bordered flex items-center gap-1 grow">
             <a
               href="javascript:void(0)"
               class="w-fit p-1 bg-darkGold rounded-md"
@@ -1067,7 +1069,7 @@ const MarkCompleted = async () => {
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="size-5 relative right-[40px]"
+                class="size-5 relative "
               >
                 <path
                   stroke-linecap="round"
@@ -1112,7 +1114,9 @@ const MarkCompleted = async () => {
               class="w-2/3 rounded-lg"
             >
           </figure>
-          <p class="text-black text-3xl satoshiB ">  {{ selectedConversation.listing.title }}</p>
+          <p class="text-black text-3xl satoshiB ">
+            {{ selectedConversation.listing.title }}
+          </p>
         </div>
         <!-- Service Cost Section -->
         <h2 class="card-title">
@@ -1226,11 +1230,11 @@ const MarkCompleted = async () => {
             onclick="my_modal_5.showModal()"
             :disabled="_shippingStatus === 'Product Pending Shipping'"
           >
-            <span
+            <!-- <span
               v-if="orderLoading && _shippingStatus !== 'Completed'"
               class="loading loading-spinner loading-sm"
-            />
-            <span v-else>{{ _shippingStatus }}</span>
+            /> -->
+            <span>{{ _shippingStatus }}</span>
           </button>
         </div>
 
@@ -1525,7 +1529,10 @@ const MarkCompleted = async () => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button
+            ref="submitProofBtn"
+            class="btn"
+          >
             Close
           </button>
         </form>

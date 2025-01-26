@@ -27,6 +27,7 @@ const sendNotification = async () => {
   if (status.value === 'success') {
     handleALert('success', 'Notification Updated')
     loading.value = false
+    fetchNotification()
   }
 
   if (status.value === 'error') {
@@ -42,10 +43,10 @@ const fetchNotification = async () => {
     const { status, data, error } = await getNotifications()
     if (status.value === 'success') {
       console.log(data.value.data)
-      notification.email_notification = data.value.data.email_notification
-      notification.message_notification = data.value.data.message_notification
-      notification.push_notification = data.value.data.push_notification
-      notification.payment_notification = data.value.data.payment_notification
+      notification.email_notification = data.value.data.email_notifications
+      notification.message_notification = data.value.data.message_notifications
+      notification.push_notification = data.value.data.push_notifications
+      notification.payment_notification = data.value.data.payment_notifications
     }
 
     if (status.value === 'error') {
@@ -64,7 +65,7 @@ fetchNotification()
 </script>
 
 <template>
-  <div class="card card-compact bg-base-100 w-1/3 shadow-xl">
+  <div class="card card-compact bg-base-100 lg:w-1/3 shadow-xl">
     <div class="card-body">
       <div class="form-control mb-3">
         <label class="label cursor-pointer">

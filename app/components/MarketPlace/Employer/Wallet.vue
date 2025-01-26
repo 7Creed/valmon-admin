@@ -53,7 +53,7 @@ walletTransactions()
 </script>
 
 <template>
-  <div class="flex gap-10 items-center mb-10">
+  <div class="flex flex-wrap justify-center gap-10 lg:items-center mb-10 ">
     <div
       v-if="store.UserAccount.account_type ==='worker'"
       class="card card-compact bg-base-100 w-64  min-h-[9.5rem] shadow-xl"
@@ -62,7 +62,7 @@ walletTransactions()
         <h2 class="card-title text-sm">
           Balance
         </h2>
-        <p class="text-3xl text-darkGold satoshiB">
+        <p class="text-3xl  text-darkGold satoshiB">
           NGN {{ WalletSummaryData.balance }}
         </p>
       </div>
@@ -125,15 +125,16 @@ walletTransactions()
     </div>
   </div>
   <!-- Table -->
-  <div class="card card-compact bg-base-100  shadow-xl">
-    <div class="card-body">
-      <div class="overflow-x-auto">
-        <table class="table">
-          <!-- head -->
-          <thead class="bg-[#FFE3A8] text-sm font-medium satoshiM text-[#292929]">
+  <div class="card card-compact bg-base-100   shadow-xl ">
+    <div class="card-body items-center">
+      <div class="w-[300px] table-container  overflow-x-auto ">
+        <table class=" w-full table-auto border-collapse">
+          <thead class="bg-[#FFE3A8] text-sm font-medium text-[#292929]">
             <tr>
-              <th>S/N</th>
-              <th class="">
+              <th class="p-3 text-left">
+                S/N
+              </th>
+              <th class="p-3 text-left">
                 <span>Date</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +151,7 @@ walletTransactions()
                   />
                 </svg>
               </th>
-              <th class="">
+              <th class="p-3 text-left">
                 <span>Amount</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -167,7 +168,7 @@ walletTransactions()
                   />
                 </svg>
               </th>
-              <th class="">
+              <th class="p-3 text-left">
                 <span>Type</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -184,7 +185,7 @@ walletTransactions()
                   />
                 </svg>
               </th>
-              <th class="">
+              <th class="p-3 text-left">
                 <span>Status</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -201,28 +202,42 @@ walletTransactions()
                   />
                 </svg>
               </th>
-              <th />
+              <th class="p-3 text-left" />
             </tr>
           </thead>
           <tbody>
-            <!-- row 1 -->
             <tr
               v-for="(item, index) in walletTxnData"
               :key="item?.id"
-              class="hover"
+              class="hover:bg-gray-100 border-b"
             >
-              <th>{{ index + 1 }}</th>
-              <td>{{ item?.create_at }}</td>
-              <td>NGN {{ item?.amount }}</td>
-              <td>{{ item?.type }}</td>
+              <td class="p-3">
+                {{ index + 1 }}
+              </td>
+              <td class="p-3">
+                {{ item?.create_at }}
+              </td>
+              <td class="p-3">
+                NGN {{ item?.amount }}
+              </td>
+              <td class="p-3">
+                {{ item?.type }}
+              </td>
               <td
-                class="text-darkGold font-bold satoshiB"
-                :class="{ 'text-red-600': item?.status === 'success', 'text-green-600': item?.status === 'failed' }"
+                class="p-3 font-bold"
+                :class="{
+                  'text-green-600': item?.status === 'success',
+                  'text-red-600': item?.status === 'failed',
+                  'text-darkGold': item?.status !== 'success' && item?.status !== 'failed',
+                }"
               >
                 {{ item?.status }}
               </td>
-              <td>
-                <a href="javascript:void(0)">
+              <td class="p-3">
+                <a
+                  href="javascript:void(0)"
+                  class="inline-block"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -246,39 +261,37 @@ walletTransactions()
   <!-- pagination -->
   <div class="card card-compact bg-base-100 shadow-xl mt-10">
     <div class="card-body">
-      <div class="pagination flex items-center justify-between text-[#727376]">
-        <div class="flex items-baseline w-[28rem] justify-between">
+      <div class="pagination flex flex-col md:flex-row items-center justify-between text-[#727376]">
+        <div class="flex flex-col gap-2 md:flex-row items-center md:w-[28rem] justify-between mb-4 md:mb-0 space-y-2 md:space-y-0">
           <span class="text-sm">Number Of Items displayed per page</span>
-          <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
+          <select class="select select-bordered select-xs w-full md:max-w-14 bg-black text-white">
             <option>16</option>
           </select>
           <span class="text-sm">1-13 of 12,400 items</span>
         </div>
-        <div class="join">
-          <button class="join-item btn btn-sm">
+        <div class="join flex  flex-wrap justify-center space-x-1">
+          <button class="join-item btn btn-sm mb-2 md:mb-0">
             «
           </button>
-          <button class="join-item btn bg-black text-white  btn-sm">
+          <button class="join-item btn bg-black text-white btn-sm mb-2 md:mb-0">
             1
           </button>
-          <button class="join-item btn  btn-sm">
+          <button class="join-item btn btn-sm mb-2 md:mb-0">
             2
           </button>
-          <button class="join-item btn  btn-sm">
+          <button class="join-item btn btn-sm mb-2 md:mb-0">
             3
           </button>
-          <button class="join-item btn  btn-sm">
+          <button class="join-item btn btn-sm mb-2 md:mb-0">
             4
           </button>
-          <span
-            class="join-item btn  btn-sm"
-          >
+          <span class="join-item btn btn-sm mb-2 md:mb-0">
             ...
           </span>
-          <button class="join-item btn  btn-sm">
+          <button class="join-item btn btn-sm mb-2 md:mb-0">
             25
           </button>
-          <button class="join-item btn  btn-sm">
+          <button class="join-item btn btn-sm mb-2 md:mb-0">
             »
           </button>
         </div>
@@ -286,3 +299,12 @@ walletTransactions()
     </div>
   </div>
 </template>
+
+<style scoped>
+  @media (min-width: 445px) {
+    .table-container {
+      width: 100% !important;
+      margin: auto;
+    }
+  }
+</style>

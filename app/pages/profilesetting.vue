@@ -7,7 +7,28 @@ definePageMeta({
 const store = useGlobalStore()
 const activeTab = ref('personal')
 
+const mobileTabContent = ref(false) // on tab switch update to the isMobile current value
+
+const isMobile = ref(false)
+
+const screenWidth = ref(window.innerWidth)
+
+const handleResize = () => {
+  screenWidth.value = window.innerWidth
+  isMobile.value = screenWidth.value <= 1024
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  handleResize() // Call handleResize to set initial value
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
 const toggleTab = (tab) => {
+  mobileTabContent.value = isMobile.value
   activeTab.value = tab
 }
 
@@ -22,18 +43,33 @@ const logOut = async () => {
 
   await navigateTo('/login')
 }
+
+const tabTitle = computed(() => {
+  const tabMap = {
+    personal: 'Personal Information',
+    jobs: 'Active Jobs',
+    payment: 'Payment Information',
+    password: 'Reset Password',
+    notification: 'Notification Settings',
+  }
+  return tabMap[activeTab.value]
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-primary_bg">
     <div class="flex gap-8 pb-20 pt-12 w-[90%] mx-auto">
-      <aside>
-        <div class="card card-compact bg-base-100 w-72 shadow-xl">
+      <!-- Tabs -->
+      <aside
+        :class="{ hidden: isMobile && mobileTabContent }"
+        class="w-full lg:w-auto"
+      >
+        <div class="card card-compact bg-base-100  w-full lg:w-72 shadow-xl">
           <div class="card-body">
             <!-- Row 1 -->
             <a
               href="javascript:void(0);"
-              class="alert hover:bg-valmon_yellow p-3 mb-2"
+              class="flex items-center  gap-3  alert lg:alert hover:bg-valmon_yellow p-3 mb-2"
               :class="{ 'bg-valmon_yellow': activeTab === 'personal' }"
               @click="toggleTab ('personal')"
             >
@@ -57,7 +93,7 @@ const logOut = async () => {
             <!-- Row 2 -->
             <a
               href="javascript:void(0);"
-              class="alert hover:bg-valmon_yellow p-3 mb-2"
+              class="flex items-center  gap-3  lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
               :class="{ 'bg-valmon_yellow': activeTab === 'jobs' }"
               @click="toggleTab ('jobs')"
             >
@@ -81,7 +117,7 @@ const logOut = async () => {
             <!-- Row 3 -->
             <a
               href="javascript:void(0);"
-              class="alert hover:bg-valmon_yellow p-3 mb-2"
+              class="flex items-center  gap-3  lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
               :class="{ 'bg-valmon_yellow': activeTab === 'payment' }"
               @click="toggleTab ('payment')"
             >
@@ -105,7 +141,7 @@ const logOut = async () => {
             <!-- Row 4 -->
             <a
               href="javascript:void(0);"
-              class="alert hover:bg-valmon_yellow p-3 mb-2"
+              class="flex items-center  gap-3  lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
               :class="{ 'bg-valmon_yellow': activeTab === 'password' }"
               @click="toggleTab ('password')"
             >
@@ -129,7 +165,7 @@ const logOut = async () => {
             <!-- Row 2 -->
             <a
               href="javascript:void(0);"
-              class="alert hover:bg-valmon_yellow p-3 mb-2"
+              class="flex items-center  gap-3  lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
               :class="{ 'bg-valmon_yellow': activeTab === 'notification' }"
               @click="toggleTab ('notification')"
             >
@@ -153,7 +189,7 @@ const logOut = async () => {
             <!-- Row 2 -->
             <a
               href="javascript:void(0);"
-              class="alert hover:bg-valmon_yellow p-3 mb-2"
+              class="flex items-center  gap-3  lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
               @click="logOut()"
             >
               <svg
@@ -177,7 +213,30 @@ const logOut = async () => {
         </div>
       </aside>
       <!-- main -->
-      <section class="flex-1 ">
+      <section
+        :class="{ hidden: isMobile && !mobileTabContent }"
+        class="flex-1 lg:block"
+      >
+        <!-- Tab Title for mobile view -->
+        <div class="lg:hidden flex justify-center gap-2">
+          <svg
+            class="cursor-pointer"
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            @click="mobileTabContent = !mobileTabContent"
+          >
+            <path
+              d="M14.4377 16L21.0377 22.6L19.1523 24.4853L10.667 16L19.1523 7.51465L21.0377 9.39998L14.4377 16Z"
+              fill="#09121F"
+            />
+          </svg>
+          <h1 class="text-[#232323] font-bold text-2xl text-center center mb-5 satoshiM ">
+            {{ tabTitle }}
+          </h1>
+        </div>
         <MarketPlaceEmployerPersonalInfo v-if="activeTab === 'personal'" />
         <MarketPlaceEmployerActiveJobs v-if="activeTab === 'jobs'" />
         <MarketPlaceEmployerPaymentInfo v-if="activeTab === 'payment'" />

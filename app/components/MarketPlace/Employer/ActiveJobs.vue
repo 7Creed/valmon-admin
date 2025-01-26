@@ -114,9 +114,9 @@ const reportUser = async (jobId, reportedId) => {
     <div
       v-for="(item, index) in activeJobs"
       :key="index"
-      class="card card-compact bg-base-100 w-4/5 shadow-xl mb-5"
+      class="card card-compact bg-base-100 lg:w-4/5 shadow-xl mb-5"
     >
-      <div class="card-body flex-row items-center justify-between">
+      <div class="card-body flex-row items-center gap-5 flex-wrap">
         <!-- avatar -->
         <div class="avatar">
           <div class="ring-darkGold ring-offset-base-100 w-14 rounded-full ring ring-offset-2">

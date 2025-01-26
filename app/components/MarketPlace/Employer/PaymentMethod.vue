@@ -89,7 +89,7 @@ const WithdrawToBank = async () => {
 </script>
 
 <template>
-  <div class="card card-compact bg-base-100 w-2/4 shadow-xl p-5">
+  <div class="card card-compact bg-base-100 lg:w-2/4 shadow-xl p-5">
     <div class="card-body p-2">
       <label class="form-control w-full mb-3">
         <div class="label">

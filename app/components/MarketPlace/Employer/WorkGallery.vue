@@ -93,7 +93,7 @@ const displayGallery = computed(() => {
 
     <div
       v-else
-      class="flex flex-wrap flex-row gap-10"
+      class="flex flex-wrap flex-row justify-center lg:justify-start gap-10"
     >
       <div
         v-for="(image, index) in displayGallery"
