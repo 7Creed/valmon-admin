@@ -9,16 +9,14 @@ const props = defineProps({
   skill: String,
 })
 // use the useActiveView composables
-const { updateContactView, updateProfileView } = useActiveView()
+const { updateContactView } = useActiveView()
 
 const openProfile = (id) => {
-  updateProfileView('Raman Ismail')
   store.$patch({
     userIdForProfileCheck: id,
   })
 }
 const openContact = (userId, serviceId) => {
-  console.log(userId, serviceId)
   store.updateNewConversationDetails(userId, serviceId)
   updateContactView()
 }
@@ -35,13 +33,13 @@ const openContact = (userId, serviceId) => {
       <div class="flex items-center gap-6 mb-2">
         <!-- avatar -->
         <div class="avatar">
-          <div class="ring-darkGold ring-offset-base-100 w-16 rounded-full ring ring-offset-2">
+          <div class="ring-brightGold ring-offset-base-100 w-16 rounded-full ring ring-offset-2">
             <img :src="item.user.profile_pic">
           </div>
         </div>
         <!-- Profile desc -->
         <div>
-          <h3 class="mb-1 text-[#24242] font-semibold text-sm">
+          <h3 class="mb-1 text-[#24242] font-semibold text-sm satoshiM">
             {{ item.user.first_name }}   {{ item.user.last_name }}
           </h3>
           <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
@@ -49,8 +47,7 @@ const openContact = (userId, serviceId) => {
           </div>
           <div class="flex items-center gap-2">
             <div
-              v-for="(rating, rateIndex) in item.user.rating"
-              :key="rateIndex"
+
               class="rating w-4"
             >
               <input
@@ -60,7 +57,7 @@ const openContact = (userId, serviceId) => {
               >
             </div>
             <span class="text-xs font-bold">{{ item.user.rating }}</span>
-            <span class="text-black text-xs">({{ item.user.rating_count }} Ratings)</span>
+            <span class="text-black text-xs">({{ item.user.ratings_count }} Ratings)</span>
           </div>
         </div>
       </div>
@@ -76,7 +73,7 @@ const openContact = (userId, serviceId) => {
       <div class="card-actions justify-between gap-4">
         <button
           class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
-          @click="openContact(item.user.id, item.primary_service.id)"
+          @click="openContact(item.user.id, item.selected_service_id)"
         >
           Contact
         </button>

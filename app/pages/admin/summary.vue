@@ -101,7 +101,7 @@ fetchSummary()
 </script>
 
 <template>
-  <div class=" bg-primary_bg w-full p-14">
+  <div class=" bg-primary_bg w-full p-8">
     <!-- Select -->
     <div class="bg-black w-fit text-sm p-2 mb-10 px-5 rounded-2xl  text-white  center gap-3">
       <span class=""> Show Result For</span>

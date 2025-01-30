@@ -96,7 +96,7 @@ Fetch(getUsersSummary)
 </script>
 
 <template>
-  <div class="text-card bg-primary_bg w-full p-10 px-14">
+  <div class="text-card bg-primary_bg w-full p-10 px-8">
     <!-- Stats card -->
     <div class=" flex flex-wrap gap-6 mb-10">
       <DashboardStatsCard
@@ -135,9 +135,9 @@ Fetch(getUsersSummary)
             <p>List Of All Customers on The Platform</p>
           </div>
           <!-- Content 2 -->
-          <div class="flex items-center w-1/3 gap-8 justify-between">
+          <div class="flex items-center flex-wrap lg:w-1/3 gap-8 justify-between">
             <!-- Search -->
-            <label class="input input-bordered flex items-center gap-2 flex-1">
+            <label class=" input input-bordered flex items-center gap-2 flex-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -182,7 +182,7 @@ Fetch(getUsersSummary)
         </div>
         <!-- Table -->
         <div class="overflow-x-auto">
-          <table class="table">
+          <table class="table table-auto">
             <!-- head -->
             <thead>
               <tr>
@@ -375,10 +375,10 @@ Fetch(getUsersSummary)
                 <td>{{ item.reported_count ?? 0 }}</td>
                 <td>{{ item.type }}</td>
                 <td>{{ item.last_seen_at === 'Never' ? 'Never' : formatDate(item.last_seen_at) }}</td>
-                <th>
+                <th >
                   <button
                     v-if="item.status === 'ACTIVE'"
-                    class="btn text-[#364254]  btn-xs "
+                    class="btn text-[#364254]  btn-xs"
                   >
                     <span class="inline-block p-1 bg-[#6C778B] rounded-full" />
                     <span>{{ item.status }}</span>

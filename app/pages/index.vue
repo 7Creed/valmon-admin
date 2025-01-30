@@ -78,14 +78,14 @@ featuredListing()
 
 <template>
   <div class="mb-20 lg:mb-30">
-    <HomeHero />
-    <div>
+    <HomeHero class="" />
+    <div class="overflow-hidden">
       <!-- Why Join Us -->
-      <div class="text-center mb-4 md:mb-40 px-2 md:px-0">
+      <div class=" text-center mb-4 md:mb-40 px-2 md:px-0">
         <h1 class="text-white font-bold staoshiM text-2xl lg:mb-10">
           Why Join Valmon
         </h1>
-        <div class="flex flex-wrap ">
+        <div class=" flex flex-wrap ">
           <div
             v-for="(feature, index) in Features"
             :key="index"
@@ -107,7 +107,7 @@ featuredListing()
       </div>
       <!-- Carousel -->
 
-      <div class=" flex items-center justify-evenly w-full overflow-hidden skill-wrapper skill">
+      <div class=" flex items-center justify-evenly w-full skill-wrapper skill">
         <div
           v-for="(items, index) in Skills "
           :key="index"
@@ -180,8 +180,9 @@ featuredListing()
             alt=""
           >
         </div>
-        <SharedLoader v-if="loader"/>
-        <div v-else
+        <SharedLoader v-if="loader" />
+        <div
+          v-else
           class="h-auto rounded-lg w-full lg:w-[80%] xl:w-[65%] flex flex-col lg:flex-row text-base p-4 justify-center mx-auto gap-5 font-bold border border-darkGold"
         >
           <!-- Technical Services Section -->
@@ -284,12 +285,11 @@ featuredListing()
         <h5 class="text-2xl font-bold w-[60%] mx-auto satoshiM mb-5">
           Featured Listings
         </h5>
-     
 
-        <div 
+        <div
           class="lg:w-[80%] xl:w-[65%] flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
         >
-        <SharedLoader v-if="listingLoader"/>
+          <SharedLoader v-if="listingLoader" />
           <HomeFeaturedListing
             :key="index"
             :listings="featuredListings.slice(0, 9)"

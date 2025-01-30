@@ -229,9 +229,6 @@ fetchCountries()
         </div>
         <div class="flex items-center gap-2 mb-1">
           <div
-            v-for="(rate, index) in store.UserAccount
-              .rating"
-            :key="index"
             class="rating w-4"
           >
             <input

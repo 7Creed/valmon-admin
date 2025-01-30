@@ -51,7 +51,7 @@ const signIn = async () => {
 <template>
   <div class="center w-[100%] min-h-screen bg-white">
     <!-- Authentication -->
-    <div class="Login w-1/2 center">
+    <div class="Login w-full lg:w-1/2 center">
       <div class="w-1/2">
         <div class="mb-9 ">
           <h1 class="text-3xl font-bold text-[rgba(35, 35, 35, 1)] mb-2">

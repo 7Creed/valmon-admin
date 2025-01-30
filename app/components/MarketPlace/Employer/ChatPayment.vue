@@ -319,6 +319,8 @@ const conversationType = computed(() => {
 // Define reactive variables
 const latestOffer = ref(null)
 const latestOfferUserId = ref(null)
+// Initiator Latest Negotiation
+const initiatorLatestNeg = ref(null)
 
 const latestOfferNegotiationId = ref(null)
 watch(allMessages, (newVal) => {
@@ -341,6 +343,11 @@ watch(allMessages, (newVal) => {
   latestOffer.value = recipientLatest ? recipientLatest.negotiation?.price_offer : null
 
   latestOfferUserId.value = recipientLatest ? recipientLatest.user.id : null
+
+  // Get the employer's or buyer's latest negotiation message
+  const initiatorMessages = newVal.filter(message => message.type === 'negotiation' && message.user_id == store.UserAccount.id)
+  initiatorLatestNeg.value = initiatorMessages[initiatorMessages.length - 1] || null
+  console.log('Initiator Last Negotiation Message:', initiatorMessages)
 })
 
 /* --------------------------- Handle Negotiations -------------------------- */
@@ -379,14 +386,9 @@ const MarkAsRead = () => {
 const getTimeDifference = timestamp => getTimeDiff(timestamp)
 /* ---------------------------- Proposal Section ---------------------------- */
 const acceptNegotiation = () => {
-  console.log('test')
-  if (store.UserAccount.account_type === 'employer') {
-    acceptNewProposal()
-  }
-  else {
-    InitiatePayment()
-  }
+  initiatorLatestNeg.value.negotiation.accepted ? InitiatePayment() : acceptNewProposal()
 }
+
 const acceptNewProposal = () => {
   chatApiWithParam(acceptProposal, {
     negotiation_id: latestOfferNegotiationId.value,
@@ -1035,7 +1037,10 @@ const MarkCompleted = async () => {
           </div>
         </div>
         <!-- Button and chat box -->
-        <div class="flex items-center gap-4 lg:auto w-[90%]">
+        <div
+          v-if="selectedConversation"
+          class="flex items-center gap-4 lg:auto w-[90%]"
+        >
           <!-- chat box -->
           <label class="w-fullff input px-3 lg:px-4 input-bordered flex items-center gap-1 grow">
             <a
