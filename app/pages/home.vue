@@ -37,6 +37,7 @@ const handleSelectedOption = (option) => {
 // Handle the name of the selected profile
 const profileName = computed(() => state.value.isProfileName)
 
+/* -------------- Fetch All Categories  and Services under them ------------- */
 const loading = ref(false)
 const CategoryServices = ref([])
 const { getCategory_Services } = categoryController()
@@ -61,6 +62,25 @@ const fetchCategoryServices = async () => {
 
 fetchCategoryServices()
 
+/* ------------------------------ Search Filter ----------------------------- */
+const FilteredCS = ref([])
+
+// Watch for changes in the search term
+watch(() => store.ServicesSearchedTerm, (newVal) => {
+  if (newVal == '') FilteredCS.value = []
+  if (newVal != '' && CategoryServices.value.length) {
+    FilteredCS.value = CategoryServices.value.filter(item =>
+      item.name.toLowerCase().includes(newVal.toLowerCase()),
+    )
+    console.log(newVal) // Log the new search term
+  }
+})
+
+// Compute the rendered list based on the filtered results
+const RenderedCSList = computed(() =>
+  FilteredCS.value.length ? FilteredCS.value : CategoryServices.value,
+)
+
 onMounted(() => {
   store.getAccount()
 
@@ -83,8 +103,7 @@ const PingUser = async () => {
 
 PingUser()
 // Ping user at every 30secs
-setInterval(ping(), 30000)
-
+// setInterval(ping(), 30000)
 </script>
 
 <template>
@@ -115,7 +134,7 @@ setInterval(ping(), 30000)
       <SharedLoader v-if="loading" />
       <MarketPlaceEmployer
         v-if="activeComp === 'category' && !loading"
-        :categories="CategoryServices"
+        :categories="RenderedCSList"
         @selected-option="handleSelectedOption"
       />
       <MarketPlaceEmployerSkills

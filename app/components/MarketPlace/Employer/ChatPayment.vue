@@ -1,4 +1,5 @@
 <script setup>
+import { Utilities } from '@vue-leaflet/vue-leaflet'
 import masterCard from '@/assets/images/UIElements/masterCard.png'
 import { useGlobalStore } from '@/store'
 import { accountController } from '~/services/modules/account'
@@ -172,48 +173,49 @@ const chatApiWithParams = async (func, userData, id, loader) => {
 /* ---------------- Functional call for api wih single param ---------------- */
 const chatApiWithParam = async (func, userData, loader) => {
   loader.value = true
+
   try {
     const { status, data, error } = await func(userData)
-    if (status.value === 'success') {
-      console.log(` ${func.name}->`, data.value.data)
 
-      switch (func.name) {
-        case 'createConversation':
-          fetchConversation()
-          break
-        case 'getMessages':
+    if (status.value === 'success') {
+      console.log(`${func.name} ->`, data.value.data)
+
+      // Handle specific actions based on the function name
+      const actions = {
+        createConversation: () => fetchConversation(),
+        getMessages: () => {
           allMessages.value = data.value.data
           fetchConversation()
-          break
-        case 'markAsRead':
-          fetchConversation()
-          break
-        case 'sendProposal':
-          // Get Messages
+        },
+        markAsRead: () => fetchConversation(),
+        sendProposal: () => {
           chatApiWithParam(getMessages, selectedConversation.value.id, getMessagesLoader)
           closeModal(ModalBtn)
-
-          break
-        case 'createTicket':
+        },
+        createTicket: () => {
           closeModal(sendReportBtn)
           handleALert('success', 'Ticket Created')
-          break
-        case 'acceptProposal':
+        },
+        acceptProposal: () => {
           proposalResponse.value = data.value.data
-          console.log('DoneWorker', data.value.data)
           if (store.UserAccount?.account_type === 'employer') {
             const paymentUrl = data.value.data.payment.data.authorization_url
-            window.open(paymentUrl, '_blank') // open in new tab
+            window.open(paymentUrl, '_blank') // Open in new tab
           }
-          else {
-            return
-          }
-          break
-        case 'initiatePayment':
+        },
+        initiatePayment: () => {
           handleALert('success', 'Payment Initiated')
-          break
+          const paymentUrl = data.value.data.payment.data.authorization_url
+          window.open(paymentUrl, '_blank') // Open in new tab
+        },
+      }
+
+      // Execute the action if it exists
+      if (actions[func.name]) {
+        actions[func.name]()
       }
     }
+
     if (status.value === 'error') {
       handleError('error', error.value.data.message)
     }
@@ -382,11 +384,16 @@ const MarkAsRead = () => {
   chatApiWithParam(markAsRead, selectedConversation.value.id, readLoader)
 }
 
-// render chat time
-const getTimeDifference = timestamp => getTimeDiff(timestamp)
-/* ---------------------------- Proposal Section ---------------------------- */
+/* ---------------------------- Proposal Section & Payment ---------------------------- */
 const acceptNegotiation = () => {
-  initiatorLatestNeg.value.negotiation.accepted ? InitiatePayment() : acceptNewProposal()
+  if (initiatorLatestNeg.value && initiatorLatestNeg.value.negotiation.accepted) {
+    console.log('Initiate Payment')
+    InitiatePayment()
+  }
+  else {
+    console.log('accept Payment')
+    acceptNewProposal()
+  }
 }
 
 const acceptNewProposal = () => {
@@ -398,7 +405,7 @@ const acceptNewProposal = () => {
 // Initiate payment
 const InitiatePayment = () => {
   chatApiWithParam(initiatePayment, {
-    negotiation_id: latestOfferNegotiationId.value,
+    negotiation_id: initiatorLatestNeg.value.negotiation_id,
   }, proposalLoader)
 }
 
@@ -419,6 +426,19 @@ watch(selectedConversation, (newVal) => {
   deep: true,
 })
 
+/* -------------------- Computed Properties Or Utilities -------------------- */
+
+// check if there is an offer and if an offer is accepted base on the account type
+const disableAcceptHireBtn = computed(() => {
+  if (store.UserAccount.account_type == 'employer') {
+    return initiatorLatestNeg.value.negotiation.accepted || latestOffer
+  }
+  else {
+    return latestOffer
+  }
+})
+// render chat time
+const getTimeDifference = timestamp => getTimeDiff(timestamp)
 // for marketplace
 const _shippingStatus = computed(() => {
   if (conversationType.value === 'employerListing') {
@@ -427,6 +447,7 @@ const _shippingStatus = computed(() => {
   return conversationType.value === 'workerListing' && latestOrder.value.shipping_status === 'pending' ? 'Product Delivered' : 'Completed'
 })
 
+// For Rendering review or proof delivery Ui (modal sections)
 const review = ref(false)
 
 const submitReview = () => {
@@ -434,6 +455,8 @@ const submitReview = () => {
 }
 
 const modal5 = ref(null)
+
+/* ----------------------------- Managing Orders ---------------------------- */
 // mark as as delivered
 const orderLoading = ref(false)
 // v-if="_shippingStatus === 'Product Received' || _shippingStatus === 'Completed' || _shippingStatus === 'Product Delivered'"
@@ -865,7 +888,7 @@ const MarkCompleted = async () => {
               <button
                 v-if="jobStatus === ''"
                 id="start-payment-button"
-                :disabled="allMessages.length === 0 || !latestOffer"
+                :disabled="allMessages.length === 0 || !disableAcceptHireBtn"
                 type="button"
                 class="btn bg-darkGold text-white"
                 @click="acceptNegotiation"
@@ -1182,7 +1205,7 @@ const MarkCompleted = async () => {
         <button
           v-if="jobStatus === ''"
           id="start-payment-button"
-          :disabled="allMessages.length === 0 || !latestOffer"
+          :disabled="allMessages.length === 0 || !disableAcceptHireBtn"
           type="button"
           class="btn bg-darkGold mb-3 text-white w-full"
           @click="acceptNegotiation"

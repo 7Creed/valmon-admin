@@ -6,7 +6,17 @@ export const servicesController = () => {
 
   // Users
   const getAppServices = () => get(`services`)
-  const getUserByService = (id, query, location, rating) => get(`services/${id}/users?page=${query}?country=${location}&ratings=${rating}`)
+  const getUserByService = (id, query, location, rating) => {
+    let url = `services/${id}/users?page=${query}`
+    if (location) {
+      url += `&country=${location}`
+    }
+    if (rating) {
+      url += `&ratings=${rating}`
+    }
+
+    return get(url)
+  }
 
   // Admin
   const createServices = data => post('admin/create/service', data)

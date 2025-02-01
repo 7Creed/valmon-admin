@@ -1,4 +1,7 @@
 <script setup>
+import { useGlobalStore } from '~/store'
+
+const store = useGlobalStore()
 </script>
 
 <template>
@@ -36,6 +39,7 @@
             </svg>
 
             <input
+              v-model="store.ServicesSearchedTerm"
               type="text"
               class="text-base text-slate-950"
               placeholder="Search"

@@ -4,6 +4,7 @@ import { servicesController } from '~/services/modules/services'
 import { useGlobalStore } from '~/store'
 import { MiscController } from '~/services/modules/misc'
 
+const store = useGlobalStore()
 const props = defineProps({
   page: {
     type: String,
@@ -29,7 +30,7 @@ const toggleTab = (tab) => {
   activeTab.value = tab
 }
 
-// Handles Countries
+/* ---------------------------- Handles Countries --------------------------- */
 const { getCountries } = MiscController()
 
 const CountriesList = ref([])
@@ -43,20 +44,11 @@ const fetchCountries = async () => {
 }
 fetchCountries()
 
-// Handles Filter
-const filter = ref(false)
+/* -----------------------  Fetch Users by Services ----------------------- */
 
-const filterOptions = reactive({
-  country: '',
-  rating: '',
-})
-
-const store = useGlobalStore()
-
-const loading = ref(false)
-const paginationInfo = ref({})
 const { getUserByService } = servicesController()
-
+const paginationInfo = ref({})
+const loading = ref(false)
 const userByServices = ref([])
 const getUsersByServices = async (id, query, location = '', rating = '') => {
   loading.value = true
@@ -81,20 +73,35 @@ const getUsersByServices = async (id, query, location = '', rating = '') => {
   }
 }
 
+/* --------------------------------  Filter ------------------------------- */
+const filter = ref(false)
+const rating = ref('')
+const location = ref('')
+
+const selectedRating = (index) => {
+  rating.value = (index + 1)
+}
+
 const toggleFilter = () => {
   if (!filter.value) {
     filter.value = true
   }
   else {
     // Calls the Api for the filtered data
-    getUsersByServices(store.usersByServices, store.usersByServiceCP, filterOptions.country, filterOptions.rating)
+    getUsersByServices(store.usersByServices, store.usersByServiceCP, location.value, rating.value)
   }
 }
 
 // Handles Pagination
 
+const callUserByService = () => {
+  location.value = ''
+  rating.value = ''
+  getUsersByServices(store.usersByServices, store.usersByServiceCP)
+}
+
 // First Call of the getUserByServices Api using the service id and pagination data
-getUsersByServices(store.usersByServices, store.usersByServiceCP)
+callUserByService()
 
 const pagination = (value) => {
   // Render The pagination contents
@@ -132,7 +139,7 @@ const handlePagination = (value) => {
       items++
       newPaginationList.push(items)
     }
-    else if (value === 'prev') {
+    else if (value === 'prev' && items > 1) {
       items--
       newPaginationList.push(items)
     }
@@ -286,20 +293,21 @@ onUnmounted(() => {
                 <label class="label cursor-pointer">
 
                   <input
-                    type="checkbox"
-                    checked="checked"
+                    name="RadioRating"
+                    type="radio"
                     class="checkbox border-white"
+                    @change="selectedRating(index)"
                   >
                   <span class="lg:label-text text-white text-xs">{{ index + 1 }} Star</span>
                 </label>
               </div>
               <div class="lg:text-sm badge text-xs badge-white px-3 rounded-md">
-                15678
+                {{ index + 1 }}
               </div>
             </div>
           </div>
           <!-- second column -->
-          <div class="hidden">
+          <!-- <div class="hidden">
             <h3 class="text-white text-base font-semibold mb-2">
               Language
             </h3>
@@ -322,7 +330,7 @@ onUnmounted(() => {
                 </label>
               </div>
             </div>
-          </div>
+          </div> -->
           <!-- Third column -->
           <div class="">
             <h3 class="text-white text-base font-semibold mb-2">
@@ -336,13 +344,13 @@ onUnmounted(() => {
               >
                 <label class="label cursor-pointer gap-5">
 
-                  <input
+                  <!-- <input
                     type="checkbox"
                     checked="checked"
                     class="checkbox border-white"
-                  >
+                  > -->
                   <select
-                    v-model="filterOptions.country"
+                    v-model="location"
                     class="select select-bordered w-full max-w-xs "
                   >
                     <option
@@ -357,7 +365,10 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="flex justify-end gap-3">
-          <button class="btn btn-white border-red-600 text-red-500 text-base w-28">
+          <button
+            class="btn btn-white border-red-600 text-red-500 text-base w-28"
+            @click="callUserByService"
+          >
             Reset
           </button>
           <button
@@ -405,7 +416,7 @@ onUnmounted(() => {
           <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
             <option>16</option>
           </select>
-          <span class="text-sm">1-{{ userByServices.length }} of {{ pagination.total }} items</span>
+          <span class="text-sm">{{ paginationInfo.current_page }}-{{ userByServices.length }} of {{ paginationInfo.total }} items</span>
         </div>
         <div class="join">
           <button
@@ -426,11 +437,13 @@ onUnmounted(() => {
           </button>
 
           <span
+            v-if="paginationInfo.total > (16 * 4)"
             class="join-item btn  btn-sm"
           >
             ...
           </span>
           <button
+            v-if="paginationInfo.total > (16 * 4)"
             class="join-item btn  btn-sm"
             @click="pagination(paginationInfo.total)"
           >

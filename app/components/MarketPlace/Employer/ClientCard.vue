@@ -72,6 +72,7 @@ const openContact = (userId, serviceId) => {
       <!-- Footer -->
       <div class="card-actions justify-between gap-4">
         <button
+          v-if="store.UserAccount.account_type == 'employer'"
           class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
           @click="openContact(item.user.id, item.selected_service_id)"
         >

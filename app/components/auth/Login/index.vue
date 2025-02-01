@@ -47,6 +47,7 @@ const signIn = async () => {
     loading.value = false
   }
 }
+
 </script>
 
 <template>

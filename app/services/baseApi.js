@@ -1,4 +1,5 @@
-import { useFetch } from '#app'
+import { useFetch, useCookie } from '#app'
+import { useGlobalStore } from '~/store'
 
 export const useBaseApi = () => {
   //  This function retrieves runtime configuration settings defined in your Nuxt application
@@ -21,9 +22,13 @@ export const useBaseApi = () => {
         }
       },
       onResponseError({ request, response, options }) {
+        const store = useGlobalStore()
         console.log('response', response)
         // Handle errors (e.g., redirect on 401)
         if (response.status === 401) {
+          // Reset the User Information
+          store.UserAccount = null
+
           navigateTo('/login')
         }
         // Redirect on 404
@@ -64,6 +69,6 @@ export const useBaseApi = () => {
     post,
     put,
     del,
-    patch
+    patch,
   }
 }

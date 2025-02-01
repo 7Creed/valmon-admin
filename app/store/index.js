@@ -88,6 +88,11 @@ export const useStore = defineStore('valmon_app_store', {
     // Admin
     adminListingId: null,
     viewAdminChatId: null,
+
+    /* ----------------------------- Filter section ----------------------------- */
+
+    // Home ( parent category and services)
+    ServicesSearchedTerm: '',
   }),
   actions: {
     updateHeader(value) {
