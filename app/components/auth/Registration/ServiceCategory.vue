@@ -15,6 +15,15 @@ const props = defineProps({
 
 })
 
+/* ------------------------------- Close modal ------------------------------ */
+
+const BtnModal = ref(null)
+const closeModal = (btn) => {
+  if (btn.value) {
+    btn.value.click()
+  }
+}
+
 /* ------------------------- Fetch service category ------------------------- */
 const loading = ref(false)
 
@@ -149,6 +158,7 @@ const saveCategoryFromAccount = async () => {
     store.$patch({
       callUserAccount: false,
     })
+    closeModal(BtnModal)
   }
 }
 
@@ -196,6 +206,7 @@ const updateCategoryFromAccount = async () => {
   }
   finally {
     loading.value = false
+    closeModal(BtnModal)
   }
 }
 
@@ -205,7 +216,6 @@ onMounted(() => {
   })
 })
 
-const BtnModal = ref(null)
 // Updates the CategoryData Object
 const saveCategory = () => {
   const isDataComplete = Object.values(addCategoryData).every(value => value !== '')
@@ -400,6 +410,7 @@ const removeServiceCategory = (index) => {
           class="block mb-4"
         />
         <BaseButton
+          :loading="loading"
           title="Save Category"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
@@ -428,7 +439,10 @@ const removeServiceCategory = (index) => {
         <div class="modal-action">
           <form method="dialog">
             <!-- if there is a button in form, it will close the modal -->
-            <button class="btn" ref="BtnModal">
+            <button
+              ref="BtnModal"
+              class="btn"
+            >
               Close
             </button>
           </form>

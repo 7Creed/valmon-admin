@@ -16,11 +16,11 @@ const PERSISTED_KEYS = {
     'listingData',
     'adminUserId',
     'viewAdminChatId',
+    'selectedCurrency'
   ],
   // Should clear on component unmount
   component: [
     'usersByServices',
-    'usersByServiceCP',
     'recipientObjNegotiation',
     'adminUserId',
     'viewAdminChatId',
@@ -32,13 +32,13 @@ const PERSISTED_KEYS = {
     'UserAccount',
     'userIdForProfileCheck',
     'listingId',
+    'Pages',
   ],
 }
 
 export const useStore = defineStore('valmon_app_store', {
   state: () => ({
-    isEmployer: false,
-    isEmployee: true,
+    selectedCurrency: 'NGN',
     activeSideMenu: 'summary',
     viewParentSubCategory: false,
     viewSkills: false,
@@ -48,7 +48,6 @@ export const useStore = defineStore('valmon_app_store', {
     UserAccount: null,
     // Services information used under skills page
     usersByServices: ref(null),
-    usersByServiceCP: 1,
     userIdForProfileCheck: null,
     // Hold selected Service
     selectedService: null,
@@ -93,8 +92,14 @@ export const useStore = defineStore('valmon_app_store', {
 
     // Home ( parent category and services)
     ServicesSearchedTerm: '',
+
+    /* ------------------------------- Pagination ------------------------------- */
+    Pages: {},
   }),
   actions: {
+    updatePages(page, value) {
+      this.Pages[page] = value
+    },
     updateHeader(value) {
       this.marketPlaceHeaderTab = value
     },

@@ -59,7 +59,7 @@ console.log(store.UserAccount.profile.addresses)
         required
       >
         <option
-          v-for="(address, index) in JSON.parse(store.UserAccount.profile.addresses)"
+          v-for="(address, index) in store.UserAccount.profile.addresses"
           :key="index"
         >{{ address.state }}, {{ address.country }}</option>
 

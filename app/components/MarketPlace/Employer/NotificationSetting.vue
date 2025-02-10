@@ -36,17 +36,16 @@ const sendNotification = async () => {
   }
 }
 
-const loadingNotify = ref(false)
 const fetchNotification = async () => {
-  loadingNotify.value = true
+  loading.value = true
   try {
     const { status, data, error } = await getNotifications()
     if (status.value === 'success') {
       console.log(data.value.data)
-      notification.email_notification = data.value.data.email_notifications
-      notification.message_notification = data.value.data.message_notifications
-      notification.push_notification = data.value.data.push_notifications
-      notification.payment_notification = data.value.data.payment_notifications
+      notification.email_notification = data.value.data.email_notification
+      notification.message_notification = data.value.data.message_notification
+      notification.push_notification = data.value.data.push_notification
+      notification.payment_notification = data.value.data.payment_notification
     }
 
     if (status.value === 'error') {
@@ -57,7 +56,7 @@ const fetchNotification = async () => {
     handleError(error)
   }
   finally {
-    loadingNotify.value = true
+    loading.value = false
   }
 }
 
@@ -115,10 +114,13 @@ fetchNotification()
 
       <button
         class="btn bg-black text-white w-full"
-        :disabled="loading"
         @click="sendNotification"
       >
-        {{ loading ? 'Sending...' : 'Send Notification' }}
+        <span
+          v-if="loading"
+          class="loading loading-spinner"
+        />
+        <span v-else>Send Notification</span>
       </button>
     </div>
   </div>

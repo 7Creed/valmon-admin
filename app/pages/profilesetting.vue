@@ -215,7 +215,7 @@ const tabTitle = computed(() => {
       <!-- main -->
       <section
         :class="{ hidden: isMobile && !mobileTabContent }"
-        class="flex-1 lg:block"
+        class="flex-1 lg:block w-full"
       >
         <!-- Tab Title for mobile view -->
         <div class="lg:hidden flex justify-center gap-2">

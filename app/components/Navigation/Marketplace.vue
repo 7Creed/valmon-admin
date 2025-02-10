@@ -36,6 +36,12 @@ const selectedCurrency = reactive({
   id: null,
 })
 
+watch(selectedCurrency, (newVal) => {
+  if (newVal) {
+    store.selectedCurrency = newVal.code
+  }
+})
+
 const selectCurrency = (id) => {
   const selectedCurrencyData = currencies.value.find(currency => currency.id === id)
   // update the selectedCurrency Object
@@ -75,7 +81,7 @@ const toggleNotification = async () => {
 // const popUp = ref(null)
 // onMounted(() => {
 //   setTimeout(() => {
-//     if (popUp.value && store.isEmployee) {
+//     if (popUp.value && store.UserAccount.account_type == 'worker') {
 //       popUp.value.click()
 //     }
 //   }, 1000)
@@ -434,13 +440,13 @@ onMounted(fetchNotifications)
   <!-- New JOb Offer Modal -->
   <!-- Open the modal using ID.showModal() method -->
   <button
-    v-show="store.isEmployee"
+    v-show="store.UserAccount.account_type == 'worker'"
     ref="popUp"
     class="absolute"
     onclick="my_modal_100.showModal()"
   />
   <dialog
-    v-show="store.isEmployee"
+    v-show="store.UserAccount.account_type == 'worker'"
     id="my_modal_100"
     class="modal"
   >

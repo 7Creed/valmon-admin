@@ -1,24 +1,53 @@
 <script setup>
+import { useGlobalStore } from '~/store'
 import { accountController } from '~/services/modules/account'
 
+const store = useGlobalStore()
 // Comp is Used by Employer Registration
 const props = defineProps({
   useType: String,
 
 })
 
+const hourBtn = ref(null)
+
+const closeModal = (btn) => {
+  if (btn.value) {
+    btn.value.click()
+  }
+}
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 
+const IWork24Hrs = ref(false)
+const applyTo = ref(false)
+
+const updateWorkingTime = (event, value) => {
+  console.log('Hors ->', event, value)
+  if (value == '24') {
+    IWork24Hrs.value = event.target.checked
+  }
+  else {
+    applyTo.value = event.target.checked
+  }
+}
 // Handles the check box via the click of the button
 const workingHours = ref([
-  { day: 'Monday', from: '10:00 AM', to: '4:00PM', open: false },
-  { day: 'Tuesday', from: '10:00 AM', to: '4:00PM', open: false },
-  { day: 'Wednesday', from: '10:00 AM', to: '4:00PM', open: false },
-  { day: 'Thursday', from: '10:00 AM', to: '4:00PM', open: false },
-  { day: 'Friday', from: '10:00 AM', to: '4:00PM', open: false },
-  { day: 'Saturday', from: '10:00 AM', to: '4:00PM', open: false },
-  { day: 'Sunday', from: '10:00 AM', to: '4:00PM', open: false },
+  { day: 'Monday', from: '12:00 AM', to: '11:59PM', open: false },
+  { day: 'Tuesday', from: '12:00 AM', to: '11:59PM', open: false },
+  { day: 'Wednesday', from: '12:00 AM', to: '11:59PM', open: false },
+  { day: 'Thursday', from: '12:00 AM', to: '11:59PM', open: false },
+  { day: 'Friday', from: '12:00 AM', to: '11:59PM', open: false },
+  { day: 'Saturday', from: '12:00 AM', to: '11:59PM', open: false },
+  { day: 'Sunday', from: '12:00 AM', to: '11:59PM', open: false },
 ])
+
+// Updates the Workings if it is already set
+const UserWorkingHours = ref(store.UserAccount?.profile?.working_hours)
+onMounted(() => {
+  if (UserWorkingHours.value?.length) {
+    workingHours.value = UserWorkingHours.value
+  }
+})
 
 // Set availability
 const setAvailability = (id) => {
@@ -30,14 +59,15 @@ const setAvailability = (id) => {
 const WorkingId = ref()
 const workingDay = ref('')
 const editWorkingHours = (id, day) => {
-  saveButton.value = 'save'
+  // saveButton.value = 'save'
   WorkingId.value = id
   workingDay.value = day
 }
 
 // Computed the working hours set time into PM Or AM
-const from = ref('')
-const to = ref('')
+const from = ref('0:00 AM')
+const to = ref('23:59PM')
+
 const FromComputed = computed(() => {
   const [Hr, min] = from.value.split(':')
   let selectedTime
@@ -63,7 +93,7 @@ const ToComputed = computed(() => {
 })
 
 // Apply a set or selected working hours to all days
-const applyTo = ref(false)
+
 const applyToAllDays = () => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   // reset the workingHours;
@@ -72,10 +102,11 @@ const applyToAllDays = () => {
     workingHours.value.push({
       day: day,
       from: FromComputed.value,
-      to: FromComputed.value,
+      to: ToComputed.value,
       open: true,
     })
   }
+  closeModal(hourBtn)
 }
 
 // The EditWorkHours function
@@ -83,8 +114,8 @@ const EditWorkHours = () => {
   if (applyTo.value === false) {
     workingHours.value.forEach((e, index) => {
       if (index === WorkingId.value) {
-        e.from = FromComputed.value ?? '10:00 AM'
-        e.to = ToComputed.value ?? '10:00 AM'
+        e.from = FromComputed.value ?? '00:00 AM'
+        e.to = ToComputed.value ?? '23:59 PM'
       }
     })
   }
@@ -230,28 +261,29 @@ const emitEvent = (event) => {
           />
         </div>
 
-        <p class="py-2 text-center text-base text-[rgba(30, 30, 30, 1)]">
-          Or
-        </p>
         <div class="form-control mb-1">
           <label class="label cursor-pointer justify-start">
             <input
+              :checked="applyTo"
               type="checkbox"
-              checked
               class="checkbox border-2 border-[rgba(0, 0, 0, 1)]"
+              @change="updateWorkingTime($event, 'applyAll')"
             >
-            <span class=" ms-2 label-text text-base text-[rgba(35, 35, 35, 1)]">I Work 24 Hours</span>
+            <span class=" ms-2 label-text text-base text-[rgba(35, 35, 35, 1)]">Apply To All Days</span>
           </label>
         </div>
-        <div class="divider mb-1" />
+        <div class="divider">
+          OR
+        </div>
         <div class="form-control mb-7">
           <label class="label cursor-pointer justify-start">
             <input
-              v-model="applyTo"
+              :checked="IWork24Hrs"
               type="checkbox"
               class="checkbox border-2 border-[rgba(0, 0, 0, 1)]"
+              @change="updateWorkingTime($event, '24')"
             >
-            <span class=" ms-2 label-text text-base text-[rgba(35, 35, 35, 1)]">Apply To All Days</span>
+            <span class=" ms-2 label-text text-base text-[rgba(35, 35, 35, 1)]">I Work 24 Hours</span>
           </label>
         </div>
         <div class="center gap-4 ">
@@ -276,7 +308,10 @@ const emitEvent = (event) => {
         <div class="modal-action">
           <form method="dialog">
             <!-- if there is a button in form, it will close the modal -->
-            <button class="btn">
+            <button
+              ref="hourBtn"
+              class="btn"
+            >
               Close
             </button>
           </form>

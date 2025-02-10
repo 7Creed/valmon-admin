@@ -3,10 +3,21 @@ import { useGlobalStore } from '@/store'
 import { accountController } from '~/services/modules/account'
 import { servicesController } from '~/services/modules/services'
 
+/* -------------------------------- Variables ------------------------------- */
 const store = useGlobalStore()
 const { addGallery, addNewGig } = accountController()
 const { getAppServices } = servicesController()
 
+// Manage Modals
+const gigsModal = ref(null)
+const addGalleryModalBtn = ref(null)
+const closeModal = (btn) => {
+  if (btn.value) {
+    btn.value.click()
+  }
+}
+
+/* ------------------------------- Manage Tab ------------------------------- */
 const Tab = ref('profile')
 const toggleTab = (tab) => {
   store.fetchListing = false
@@ -18,6 +29,7 @@ onMounted(() => {
   }
 })
 
+/* ----------------------- Images and Updating Gallery ---------------------- */
 const loading = ref(false)
 const refreshV = ref(false)
 // selected Image url
@@ -39,6 +51,7 @@ function handleClick() {
   input.click()
 }
 
+// API CALL (Gallery)
 const saveImage = async () => {
   loading.value = true
   const formData = new FormData()
@@ -50,6 +63,7 @@ const saveImage = async () => {
       if (status.value === 'success') {
         handleALert('success', data.value.message)
         refreshV.value = true
+        closeModal(addGalleryModalBtn)
       }
       if (status.value === 'error') {
         handleALert('error', error.value.data.message)
@@ -66,7 +80,7 @@ const saveImage = async () => {
   }
 }
 
-// Fetch service category
+/* ------------------------- Fetch service category ------------------------- */
 const fetchData = ref([])
 const fetchCategory = async () => {
   const { data, status } = await getAppServices()
@@ -83,7 +97,7 @@ const fetchCategory = async () => {
 // Function call
 fetchCategory()
 
-// Handle Gigs
+/* ------------------------------- Handle Gigs ------------------------------ */
 const GigsObj = reactive({
   service_id: null,
   title: '',
@@ -111,6 +125,7 @@ const updateGig = async () => {
     if (status.value === 'success') {
       handleALert('success', data.value.message)
       store.getAccount()
+      closeModal(gigsModal)
     }
     if (status.value === 'error') {
       handleALert('error', error.value.data.message)
@@ -146,6 +161,7 @@ const saveGig = async () => {
       if (status.value === 'success') {
         handleALert('success', data.value.message)
         store.getAccount()
+        closeModal(gigsModal)
       }
       if (status.value === 'error') {
         handleALert('error', error.value.data.message)
@@ -165,15 +181,15 @@ const deleteGig = (index) => {
   updateGig()
 }
 
-/**
- * Edit a gig. This function is called when the user wants to edit a gig.
- * The function takes one argument, `index`, which is the index of the gig in the array.
- * to update the gigs in the store.
- */
-
+// Edit Gigs
 const edit = ref(false)
 const gig = ref(null)
-const editGig = (index) => {
+const editGig = ({ index, item }) => {
+  console.log(item, index)
+  // Update the GigsObj variable
+  for (const gigsItem in item) {
+    GigsObj[gigsItem] = item[gigsItem]
+  }
   edit.value = true
   gigIndex.value = index
   if (gig.value && edit.value) {
@@ -188,7 +204,7 @@ const editGig = (index) => {
       <!-- Tab -->
       <div
 
-        class="flex bg-white p-3 rounded-xl w-full lg:w-3/6 items-center  gap-4 md:justify-evenly mb-6"
+        class="flex bg-white p-3 rounded-xl w-full xl:w-3/6 items-center  gap-4 md:justify-evenly mb-6"
       >
         <a
           href="javascript:void(0);"
@@ -219,7 +235,7 @@ const editGig = (index) => {
       </div>
       <RouterLink
         to="/addlisting"
-        class="fixed lg:block bottom-5 right-5 z-50"
+        class="fixed lg:static block bottom-5 right-5 z-50"
       >
         <button
           v-show="Tab === 'listings'"
@@ -230,7 +246,7 @@ const editGig = (index) => {
       </RouterLink>
       <button
         v-show="Tab === 'gallery' && store.UserAccount?.account_type === 'worker'"
-        class="btn btn-neutral fixed lg:block bottom-5 right-5 z-50"
+        class="btn btn-neutral fixed lg:static block bottom-5 right-5 z-50"
         onclick="my_modal_1.showModal()"
       >
         Add Image
@@ -238,7 +254,7 @@ const editGig = (index) => {
       <button
         v-show="Tab === 'services' && store.UserAccount?.account_type === 'worker'"
         ref="gig"
-        class="btn btn-neutral fixed lg:block bottom-5 right-5 z-50"
+        class="btn btn-neutral fixed  lg:static block bottom-5 right-5 z-50"
         onclick="my_modal_3.showModal()"
       >
         Add Service
@@ -247,7 +263,11 @@ const editGig = (index) => {
     <!-- Content -->
     <LazyMarketPlaceEmployerBasicInfo v-if="Tab === 'profile'" />
     <MarketPlaceEmployerMarketListingOnProfile v-if="Tab === 'listings'" />
-    <MarketPlaceEmployerWorkGallery v-if="Tab === 'gallery'" />
+    <MarketPlaceEmployerWorkGallery
+      v-if="Tab === 'gallery'"
+      :refresh-v="refreshV"
+      @toggle-refresh="refreshV = false"
+    />
     <MarketPlaceEmployerServices
       v-if="Tab === 'services'"
       type="settings"
@@ -323,7 +343,10 @@ const editGig = (index) => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button
+            ref="addGalleryModalBtn"
+            class="btn"
+          >
             Close
           </button>
         </form>
@@ -417,7 +440,7 @@ const editGig = (index) => {
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
           <button
-            ref="closeMdal"
+            ref="gigsModal"
             class="btn"
           >
             Close

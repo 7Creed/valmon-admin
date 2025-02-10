@@ -9,12 +9,13 @@ const props = defineProps({
   skill: String,
 })
 // use the useActiveView composables
-const { updateContactView } = useActiveView()
+const { updateContactView, updateProfileView } = useActiveView()
 
 const openProfile = (id) => {
   store.$patch({
     userIdForProfileCheck: id,
   })
+  updateProfileView()
 }
 const openContact = (userId, serviceId) => {
   store.updateNewConversationDetails(userId, serviceId)

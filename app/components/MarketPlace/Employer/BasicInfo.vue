@@ -12,6 +12,17 @@ const { getCountries } = MiscController()
 const store = useGlobalStore()
 const { UpdateProfile } = accountController()
 
+/* ------------------------------- Close modal ------------------------------ */
+const uploadBtn = ref(null)
+const addressBtn = ref(null)
+const updateBioBtn = ref(null)
+
+const closeModal = (btn) => {
+  if (btn.value) {
+    btn.value.click()
+  }
+}
+
 store.getAccount()
 
 // selected Image url
@@ -46,6 +57,7 @@ const upload = async () => {
     profile_loading.value = false
     handleALert('success', data.value.message)
     store.getAccount()
+    closeModal(uploadBtn)
   }
   if (success.value === 'error') {
     profile_loading.value = false
@@ -67,6 +79,7 @@ const updateBio = async () => {
     if (status.value === 'success') {
       handleALert('success', data.value.message)
       store.getAccount()
+      closeModal(updateBioBtn)
     }
     if (status.value === 'error') {
       handleALert('error', 'Unable to fetch Account Information')
@@ -111,6 +124,7 @@ const handleAddAddress = async () => {
     handleALert('success', data.value.message)
     addressLoading.value = false
     store.getAccount()
+    closeModal(addressBtn)
   }
   if (status.value === 'error') {
     handleError('error', error.value.data.message)
@@ -122,7 +136,7 @@ const handleAddAddress = async () => {
 const userLocation = computed(() => {
   if (store.UserAccount?.profile?.addresses) {
     const address = store.UserAccount?.profile?.addresses
-    return address[0]
+    return address[address.length - 1]
   }
   return 'NA'
 })
@@ -144,7 +158,7 @@ fetchCountries()
   <!-- main -->
   <div
     v-else
-    class="flex bg-white p-3 rounded-xl w-full lg:w-[800px]  justify-evenly mb-6 gap-8"
+    class="flex bg-white p-3 rounded-xl w-full xl:w-[800px]  justify-evenly mb-6 gap-8"
   >
     <!-- avatar -->
     <div>
@@ -410,7 +424,10 @@ fetchCountries()
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button
+            ref="uploadBtn"
+            class="btn"
+          >
             Close
           </button>
         </form>
@@ -449,7 +466,7 @@ fetchCountries()
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button class="btn" ref="updateBioBtn">
             Close
           </button>
         </form>
@@ -534,7 +551,7 @@ fetchCountries()
         <div class="modal-action h-0">
           <form method="dialog">
             <!-- if there is a button in form, it will close the modal -->
-            <button class="btn">
+            <button class="btn" ref="addressBtn">
               Close
             </button>
           </form>

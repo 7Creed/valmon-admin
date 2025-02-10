@@ -1,5 +1,4 @@
 <script setup>
-
 import { useGlobalStore } from '~/store'
 // Initialization
 const store = useGlobalStore()
@@ -16,7 +15,10 @@ function updateProductImage(image) {
 async function openChat(listingId, userid) {
   // console.log(listingId)
   store.updateNewConversationDetails(userid, null, listingId)
-  navigateTo('/chat')
+  navigateTo({
+    path: '/chat',
+    query: { name: 'marketplace' },
+  })
 }
 
 async function openContact(id) {
@@ -32,11 +34,14 @@ async function openContact(id) {
 
 <template>
   <div class="w-full">
-    <SharedAvailable
+    <SharedLoader
       v-if="!props.products || props.products.length === 0"
-      message="Product"
     />
     <div v-else>
+      <SharedAvailable
+        v-if="!props.products || props.products.length === 0"
+        message="Product"
+      />
       <div
 
         class=" w-full lg:h-[630px] flex flex-col lg:flex-row gap-10 xl:container items-center mx-auto mb-8"
@@ -121,7 +126,10 @@ async function openContact(id) {
               </p>
             </div>
             <!-- Profile Details -->
-            <div class="flex flex-wrap items-center justify-between mb-5">
+            <div
+              v-if="store.UserAccount.id != props?.products?.listing?.user?.id"
+              class="flex flex-wrap items-center justify-between mb-5"
+            >
               <div class="flex  items-center gap-3 mb-2">
                 <!-- avatar -->
                 <div class="avatar">
@@ -160,8 +168,9 @@ async function openContact(id) {
                 Profile
               </button>
             </div>
-            
+
             <button
+              v-if="store.UserAccount.id != props?.products?.listing?.user?.id"
               class="btn btn-neutral "
               @click="openChat(props.products.listing.id, props.products.listing.user.id)"
             >
@@ -171,14 +180,17 @@ async function openContact(id) {
         </div>
       </div>
 
-      <div class="similar-listings container mx-auto">
+      <div
+        v-if="store.UserAccount.id != props?.products?.listing?.user?.id"
+        class="similar-listings container mx-auto"
+      >
         <h1 class="font-extrabold text-xl satoshiM mb-4">
           Similar Listings
         </h1>
         <div class="flex flex-wrap justify-center items-center lg:justify-start gap-4">
           <MarketPlaceEmployerMarket
             type="featuredListings"
-            :other-listings="props.products.similar"
+            :other-listings="props.products.similar.slice(0, 6)"
           />
         </div>
       </div>

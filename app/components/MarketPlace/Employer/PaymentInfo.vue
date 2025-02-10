@@ -38,7 +38,7 @@ const toggleTab = (tab) => {
         >Withdraw</a>
       </div>
       <button
-        v-show="Tab === 'payment' && store.isEmployee"
+        v-show="Tab === 'payment' && store.UserAccount.account_type == 'worker'"
         class="btn btn-neutral hidden"
         onclick="my_modal_2.showModal()"
       >

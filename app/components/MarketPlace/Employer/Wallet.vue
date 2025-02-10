@@ -3,7 +3,7 @@ import { useGlobalStore } from '@/store'
 import { WalletController } from '~/services/modules/wallet'
 
 const store = useGlobalStore()
-const { getWallet, getWalletSummary, getWalletTxn } = WalletController()
+const { getWalletSummary, getWalletTxn } = WalletController()
 
 // Wallet Summary
 const WSLoader = ref(false)
@@ -15,12 +15,12 @@ const walletTxnData = ref([])
 const walletTxnLoader = ref(false)
 
 // Wallet api management
-const WalletApi = async (func, loader) => {
+const WalletApi = async (func, loader, page) => {
   loader.value = true
-  const { status, data, error } = await func()
+  const { status, data, error } = page ? await func(page) : await func()
 
   if (status.value === 'success') {
-    console.log(func.name, data.value.data)
+    loader.value = false
     switch (func.name) {
       case 'getWalletSummary':
         WalletSummaryData.value = data.value.data
@@ -46,14 +46,79 @@ const walletSummary = () => {
 walletSummary()
 
 // get Wallet Txn
-const walletTransactions = () => {
-  WalletApi(getWalletTxn, walletTxnLoader)
+const walletTransactions = (page) => {
+  WalletApi(getWalletTxn, walletTxnLoader, page)
 }
-walletTransactions()
+walletTransactions(store.walletTxn)
+
+/* ------------------------------- Pagination ------------------------------- */
+// set pagination page number
+store.Pages['walletTx'] = store.Pages['walletTx'] ? store.Pages['walletTx'] : 1
+
+const pagination = (value) => {
+  // Render The pagination contents
+  handlePagination(value)
+  let currPage = store.Pages.walletTxs
+  switch (value) {
+    case 'prev':
+      if (currPage > 1) {
+        currPage--
+        walletTransactions(currPage)
+        store.updatePages('walletTx', currPage)
+      }
+      break
+    case 'next':
+      if (currPage < walletTxn.value.last_page) {
+        currPage++
+        walletTransactions(currPage)
+        store.updatePages('walletTx', currPage)
+      }
+      break
+
+    default:
+      walletTransactions(value)
+      break
+  }
+}
+// Handles Pagination template Rendering
+let tempList = [1, 2, 3]
+const paginationList = ref([1, 2, 3])
+const handlePagination = (value) => {
+  const newPaginationList = []
+  for (let items of tempList) {
+    if (value === 'next') {
+      items++
+      newPaginationList.push(items)
+    }
+    else if (value === 'prev' && items > 1) {
+      items--
+      newPaginationList.push(items)
+    }
+    else if (typeof value === Number) {
+      const derivedPC = (value) - (paginationList[-1])
+      const deriveItem = items + (derivedPC)
+      newPaginationList.push(deriveItem)
+    }
+    else {
+      return
+    }
+  }
+  const lastItem = paginationInfo.value?.last_page
+  if (lastItem > 3 || value == 'prev') {
+    tempList = newPaginationList
+    paginationList.value = newPaginationList
+  }
+  else {
+    tempList = newPaginationList
+    paginationList.value = [1, 2, 3]
+  }
+}
+
+handlePagination(store.Pages.walletTx)
 </script>
 
 <template>
-  <div class="flex flex-wrap justify-center gap-10 lg:items-center mb-10 ">
+  <div class="flex flex-wrap justify-center lg:justify-start  gap-10 lg:items-center mb-10 ">
     <div
       v-if="store.UserAccount.account_type ==='worker'"
       class="card card-compact bg-base-100 w-64  min-h-[9.5rem] shadow-xl"
@@ -63,7 +128,11 @@ walletTransactions()
           Balance
         </h2>
         <p class="text-3xl  text-darkGold satoshiB">
-          NGN {{ WalletSummaryData.balance }}
+          <span
+            v-if="WSLoader"
+            class="loading loading-spinner "
+          />
+          <span v-else>{{ store.selectedCurrency }} {{ WalletSummaryData.balance }}</span>
         </p>
       </div>
     </div>
@@ -77,7 +146,11 @@ walletTransactions()
           Income
         </h2>
         <p class="text-3xl text-green-600 satoshiB">
-          NGN {{ WalletSummaryData.income }}
+          <span
+            v-if="WSLoader"
+            class="loading loading-spinner "
+          />
+          <span v-else>{{ store.selectedCurrency }} {{ WalletSummaryData.income }}</span>
         </p>
       </div>
     </div>
@@ -91,7 +164,11 @@ walletTransactions()
           Withdrawn
         </h2>
         <p class="text-3xl text-red-600 satoshiB">
-          NGN {{ WalletSummaryData.withdrawals }}
+          <span
+            v-if="WSLoader"
+            class="loading loading-spinner "
+          />
+          <span v-else> {{ store.selectedCurrency }} {{ WalletSummaryData.withdrawals }}</span>
         </p>
       </div>
     </div>
@@ -105,7 +182,11 @@ walletTransactions()
           Escrow Held
         </h2>
         <p class="text-3xl text-[#22292F] satoshiB">
-          NGN {{ WalletSummaryData.escrow }}
+          <span
+            v-if="WSLoader"
+            class="loading loading-spinner "
+          />
+          <span v-else>{{ store.selectedCurrency }} {{ WalletSummaryData.escrow }}</span>
         </p>
       </div>
     </div>
@@ -119,7 +200,11 @@ walletTransactions()
           Amount Spent
         </h2>
         <p class="text-3xl text-[#22292F] satoshiB">
-          NGN {{ WalletSummaryData.amount_spent }}
+          <span
+            v-if="WSLoader"
+            class="loading loading-spinner "
+          />
+          <span v-else>{{ store.selectedCurrency }} {{ WalletSummaryData.amount_spent }}</span>
         </p>
       </div>
     </div>
@@ -215,10 +300,10 @@ walletTransactions()
                 {{ index + 1 }}
               </td>
               <td class="p-3">
-                {{ item?.create_at }}
+                {{ formatDate(item?.created_at) }}
               </td>
               <td class="p-3">
-                NGN {{ item?.amount }}
+                {{ store.selectedCurrency }} {{ item?.amount }}
               </td>
               <td class="p-3">
                 {{ item?.type }}
@@ -259,43 +344,51 @@ walletTransactions()
     </div>
   </div>
   <!-- pagination -->
-  <div class="card card-compact bg-base-100 shadow-xl mt-10">
-    <div class="card-body">
-      <div class="pagination flex flex-col md:flex-row items-center justify-between text-[#727376]">
-        <div class="flex flex-col gap-2 md:flex-row items-center md:w-[28rem] justify-between mb-4 md:mb-0 space-y-2 md:space-y-0">
-          <span class="text-sm">Number Of Items displayed per page</span>
-          <select class="select select-bordered select-xs w-full md:max-w-14 bg-black text-white">
-            <option>16</option>
-          </select>
-          <span class="text-sm">1-13 of 12,400 items</span>
-        </div>
-        <div class="join flex  flex-wrap justify-center space-x-1">
-          <button class="join-item btn btn-sm mb-2 md:mb-0">
-            «
-          </button>
-          <button class="join-item btn bg-black text-white btn-sm mb-2 md:mb-0">
-            1
-          </button>
-          <button class="join-item btn btn-sm mb-2 md:mb-0">
-            2
-          </button>
-          <button class="join-item btn btn-sm mb-2 md:mb-0">
-            3
-          </button>
-          <button class="join-item btn btn-sm mb-2 md:mb-0">
-            4
-          </button>
-          <span class="join-item btn btn-sm mb-2 md:mb-0">
-            ...
-          </span>
-          <button class="join-item btn btn-sm mb-2 md:mb-0">
-            25
-          </button>
-          <button class="join-item btn btn-sm mb-2 md:mb-0">
-            »
-          </button>
-        </div>
-      </div>
+  <div class="divider mb-1" />
+  <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center justify-between text-[#727376] ">
+    <div class="flex flex-wrap items-baseline lg:w-[28rem] justify-between">
+      <span class="text-sm">Number Of Items displayed per page</span>
+      <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
+        <option>{{ walletTxn.per_page }}</option>
+      </select>
+      <span class="text-sm">{{ walletTxn?.current_page }}-{{ walletTxn.data?.length }} of {{ walletTxn?.total }} items</span>
+    </div>
+    <div class="join">
+      <button
+        class="join-item btn btn-sm"
+        @click="pagination('prev')"
+      >
+        «
+      </button>
+      <button
+        v-for="(count, index) of paginationList?.slice(0, walletTxn?.last_page)"
+        :key="index"
+
+        class="join-item btn bg-black text-white  btn-sm"
+        @click="pagination(count)"
+      >
+        {{ count }}
+      </button>
+
+      <span
+
+        class="join-item btn-sm"
+      >
+        ...
+      </span>
+      <button
+
+        class="join-item btn  btn-sm"
+        @click="pagination(walletTxn?.last_page)"
+      >
+        {{ walletTxn?.last_page }}
+      </button>
+      <button
+        class="join-item btn  btn-sm"
+        @click="pagination('next')"
+      >
+        »
+      </button>
     </div>
   </div>
 </template>

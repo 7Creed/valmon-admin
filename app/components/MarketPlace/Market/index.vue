@@ -5,16 +5,16 @@ const { getAppListing, getListingCategories, getFeaturedListings } = Marketplace
 
 // Get Listing category
 const MLCategoryList = ref({})
+const MFLCloader = ref(false)
 
 // Fetch by category
-const MFLCloader = ref(false)
 const fetchMFLByCategory = async (category) => {
   MFLCloader.value = true
   const { status, data, error } = await getAppListing({ category })
   if (status.value === 'success') {
+    MFLCloader.value = false
     // console.log('MFLC', data.value.data)
     if (data.value.data.length === 0 || !data.value.data) {
-      MFLCloader.value = false
       return
     }
     else {
@@ -27,8 +27,6 @@ const fetchMFLByCategory = async (category) => {
         // console.log(MLCategoryList.value)
       }
     }
-
-    MFLCloader.value = false
   }
   if (status.value === 'error') {
     handleALert('error', error.value.data.message)
@@ -37,8 +35,10 @@ const fetchMFLByCategory = async (category) => {
 }
 
 const fetchMLCategoryList = async () => {
+  MFLCloader.value = true
   const { status, data, error } = await getListingCategories()
   if (status.value === 'success') {
+    MFLCloader.value = false
     // console.log('MFLs', data.value.data)
     const categoryData = {}
     // Assuming data.value.data is an array
@@ -55,20 +55,27 @@ const fetchMLCategoryList = async () => {
     MLCategoryList.value = categoryData
   }
   if (status.value === 'error') {
+    MFLCloader.value = false
+
     console.log(error.value)
   }
 }
 
 fetchMLCategoryList()
 
+// Featured Listings
 const MFListing = ref([])
+const MFLoader = ref(false)
 const fetchMFL = async () => {
+  MFLoader.value = true
   const { status, data, error } = await getFeaturedListings()
   if (status.value === 'success') {
+    MFLoader.value = false
     // console.log('MFL', data.value.data)
     MFListing.value = data.value.data
   }
   if (status.value === 'error') {
+    MFLoader.value = false
     handleALert('error', error.value.data.message)
   }
 }
@@ -81,10 +88,17 @@ fetchMFL()
     <MarketPlaceMarketHero class="rounded-xl mb-16" />
 
     <!-- Featured Listings -->
+    <SharedLoader v-if="MFLoader" />
     <div
+      v-else
       class="w-full mx-auto"
     >
+      <SharedAvailable
+        v-if="!MFListing || MFListing.length === 0"
+        message="Product"
+      />
       <MarketPlaceMarketFeaturedListings
+        v-else
         type="featuredListings"
         header-title="Featured Listings"
         :list-data="MFListing"
@@ -93,17 +107,20 @@ fetchMFL()
   </div>
   <!-- Renders featured category -->
   <div class="p-20 px-14 bg-[#F0F2F5]">
-    <div
-      v-for="item in Object.values(MLCategoryList).slice(0, 3)"
-      :key="item.id"
-      class="w-full  mx-auto"
-    >
-      <MarketPlaceMarketFeaturedListings
-        type="featuredListings"
-        :header-title="item.name"
-        :list-data="item.Items"
-        class="mb-20"
-      />
+    <SharedLoader v-if="MFLCloader" />
+    <div v-else>
+      <div
+        v-for="item in Object.values(MLCategoryList).slice(0, 3)"
+        :key="item.id"
+        class="w-full  mx-auto"
+      >
+        <MarketPlaceMarketFeaturedListings
+          type="featuredListings"
+          :header-title="item.name"
+          :list-data="item.Items"
+          class="mb-20"
+        />
+      </div>
     </div>
   </div>
 

@@ -88,7 +88,7 @@ const toggleFilter = () => {
   }
   else {
     // Calls the Api for the filtered data
-    getUsersByServices(store.usersByServices, store.usersByServiceCP, location.value, rating.value)
+    getUsersByServices(store.usersByServices, store.Pages.skills, location.value, rating.value)
   }
 }
 
@@ -97,44 +97,52 @@ const toggleFilter = () => {
 const callUserByService = () => {
   location.value = ''
   rating.value = ''
-  getUsersByServices(store.usersByServices, store.usersByServiceCP)
+  getUsersByServices(store.usersByServices, store.Pages.skills)
 }
 
 // First Call of the getUserByServices Api using the service id and pagination data
 callUserByService()
-
+// set pagination page number
+store.Pages['skills'] = store.Pages['skills'] ? store.Pages['skills'] : 1
 const pagination = (value) => {
   // Render The pagination contents
   handlePagination(value)
-  let currPage = store.usersByServiceCP
+  let currPage = store.Pages.skills
   switch (value) {
-    case 'prev' && currPage > 1:
-      currPage--
-      getUserByService(store.usersByServices, currPage)
-      store.$patch({
-        usersByServiceCP: currPage,
-      })
+    case 'prev':
+      if (currPage > 1) {
+        currPage--
+
+        getUserByService(store.Pages.skills, currPage)
+        store.updatePages('skills', currPage)
+      }
       break
-    case 'next' && currPage < paginationInfo.value.total:
-      currPage++
-      getUserByService(store.usersByServices, currPage)
-      store.$patch({
-        usersByServiceCP: currPage,
-      })
+    case 'next':
+      if (currPage < paginationInfo.value.last_page) {
+        currPage++
+        getUserByService(store.Pages.skills, currPage)
+        store.updatePages('skills', currPage)
+      }
       break
 
     default:
-      getUserByService(store.usersByServices, value)
+      getUserByService(store.Pages.skills, value)
 
       break
   }
 }
 
+// const generateList = (digit) => {
+//   const myList = Array.from({ length: parseInt(digit) }, (_, i) => i + 1) // Create array [1, 2, 3, 4, 5]
+//   return myList(-3)
+// }
+
 // Handles Pagination template Rendering
-const paginationList = ref([1, 2, 3, 4])
+let tempList = [1, 2, 3]
+const paginationList = ref([1, 2, 3])
 const handlePagination = (value) => {
   const newPaginationList = []
-  for (let items of paginationList.value) {
+  for (let items of tempList) {
     if (value === 'next') {
       items++
       newPaginationList.push(items)
@@ -152,15 +160,22 @@ const handlePagination = (value) => {
       return
     }
   }
-  paginationList.value = newPaginationList
+  const lastItem = paginationInfo.value?.last_page
+  if (lastItem > 3 || value == 'prev') {
+    tempList = newPaginationList
+    paginationList.value = newPaginationList
+  }
+  else {
+    tempList = newPaginationList
+    paginationList.value = [1, 2, 3]
+  }
 }
 
-handlePagination(store.usersByServiceCP)
+handlePagination(store.Pages.skills)
 
 // Clear relevant state when component unmounts
 onUnmounted(() => {
   store.clearState('usersByServices')
-  store.clearState('usersByServiceCP')
   store.clearState('recipientObjNegotiation')
 })
 </script>
@@ -426,28 +441,27 @@ onUnmounted(() => {
             «
           </button>
           <button
-            v-for="(item, index) of paginationList"
+            v-for="(count, index) of paginationList.slice(0, paginationInfo?.last_page)"
             :key="index"
 
             class="join-item btn bg-black text-white  btn-sm"
-            g
-            @click="pagination(item)"
+            @click="pagination(count)"
           >
-            {{ item }}
+            {{ count }}
           </button>
 
           <span
-            v-if="paginationInfo.total > (16 * 4)"
-            class="join-item btn  btn-sm"
+
+            class="join-item btn-sm"
           >
             ...
           </span>
           <button
-            v-if="paginationInfo.total > (16 * 4)"
+
             class="join-item btn  btn-sm"
-            @click="pagination(paginationInfo.total)"
+            @click="pagination(paginationInfo.last_page)"
           >
-            {{ paginationInfo.total }}
+            {{ paginationInfo.last_page }}
           </button>
           <button
             class="join-item btn  btn-sm"

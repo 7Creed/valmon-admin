@@ -9,25 +9,16 @@ const { getListingCategories } = MarketplaceController()
 
 // Update Tab
 const activeTab = ref(null)
+
 const MLCategory = ref([])
 
+const routeId = useRoute().query.id
 // Get Listing category with proper initialization
 const fetchMLCategory = async () => {
   const { status, data, error } = await getListingCategories()
   if (status.value === 'success') {
     MLCategory.value = data.value.data
-    // Set first category as active if none selected
-    if (!store.activeHeaderTab && MLCategory.value.length > 0) {
-      const firstCategory = MLCategory.value[0]
-      activeTab.value = firstCategory.name
-      store.$patch({
-        activeHeaderTab: firstCategory.name,
-        marketPlaceHeaderTab: firstCategory.name, // Also update this for consistency
-      })
-    }
-    else {
-      activeTab.value = store.activeHeaderTab
-    }
+    activeTab.value = store.activeHeaderTab
     console.log('Categories loaded:', MLCategory.value)
   }
   if (status.value === 'error') {
@@ -51,7 +42,7 @@ onMounted(async () => {
   await fetchMLCategory()
   // Show popup if needed
   setTimeout(() => {
-    if (popUp.value && store.isEmployee) {
+    if (popUp.value && store.UserAccount.account_type == 'worker') {
       popUp.value.click()
     }
   }, 1000)
@@ -69,7 +60,7 @@ const popUp = ref(null)
         :key="item.id"
         href="javascript:void(0);"
         class="text-base w-fit p-2 rounded-lg"
-        :class="{ activeClass: activeTab === item.name }"
+        :class="{ activeClass: activeTab == item.id || (routeId == item.id) }"
         @click="changeTab(item.id, item.name)"
       >
         {{ item.name }}

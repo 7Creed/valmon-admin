@@ -1,6 +1,7 @@
 <script setup>
 import { MarketplaceController } from '~/services/modules/marketplace'
 import { useGlobalStore } from '@/store'
+import RangeSlider from '~/components/MarketPlace/Employer/RangeSlider.vue'
 
 // const { state } = useActiveView()
 // const headerTab = computed(() => state.value.marketPlaceHeaderTab)
@@ -55,8 +56,9 @@ watch(() => store.listingId, (newVal) => {
 })
 // Get app listings
 const MPAppListings = ref([])
-const fetchAppListings = async (category) => {
-  const { status, data, error } = await getAppListing({ category })
+const paginationInfo = ref({})
+const fetchAppListings = async (params) => {
+  const { status, data, error } = await getAppListing(params)
   if (status.value === 'success') {
     console.log('MFLC', data.value.data)
     if (data.value.data.length === 0 || !data.value.data) {
@@ -66,6 +68,7 @@ const fetchAppListings = async (category) => {
     else {
       console.log('HereApp', data.value.data.data)
       MPAppListings.value = data.value.data.data
+      paginationInfo.value = data.value.data
     }
   }
   if (status.value === 'error') {
@@ -74,13 +77,13 @@ const fetchAppListings = async (category) => {
 }
 
 if (selectedListingsCategoryId.value) {
-  fetchAppListings(selectedListingsCategoryId.value)
+  fetchAppListings({ category: selectedListingsCategoryId.value })
 }
 
 // watch for route query changes and recall the api function
 watch(() => route.query.id, (newVal) => {
   if (newVal) {
-    fetchAppListings(newVal)
+    fetchAppListings({ category: newVal })
     view.value = ''
   }
   else {
@@ -89,9 +92,99 @@ watch(() => route.query.id, (newVal) => {
 })
 
 const activeTab = ref('categories')
-// filter
+store.Pages['product'] = store.Pages['product'] ? store.Pages['product'] : 1
 
-const filterOption = ref('')
+/* --------------------------------- Filter --------------------------------- */
+const brandColors = ['red', 'black', 'yellow', 'white', 'blue', 'gold']
+// filter
+const params = reactive({
+  page: store.Pages.product,
+  category: selectedListingsCategoryId.value,
+  location: '',
+  minPrice: '',
+  maxPrice: '',
+  color: '',
+  condition: '',
+})
+
+const updateRangeValues = (rangeValues) => {
+  params.minPrice = (parseInt(rangeValues.min) * 1000)
+  params.maxPrice = (parseInt(rangeValues.max) * 1000)
+}
+
+const updatedFilter = (value) => {
+  params.color = value
+}
+
+const applyFilter = () => {
+  const notAllEmpty = Object.values(params).some(e => e != '')
+  if (!notAllEmpty) return
+  fetchAppListings(params)
+}
+
+// set pagination page number
+const pagination = (value) => {
+  // Render The pagination contents
+  handlePagination(value)
+  let currPage = store.Pages.product
+  switch (value) {
+    case 'prev':
+      if (currPage > 1) {
+        currPage--
+
+        fetchAppListings({ page: currPage, ...params })
+        store.updatePages('product', currPage)
+      }
+      break
+    case 'next':
+      if (currPage < paginationInfo.value.last_page) {
+        currPage++
+        fetchAppListings({ page: currPage, ...params })
+        store.updatePages('product', currPage)
+      }
+      break
+
+    default:
+      console.log({ page: value, ...params })
+      fetchAppListings({ page: value, ...params })
+
+      break
+  }
+}
+
+// Handles Pagination template Rendering
+let tempList = [1, 2, 3]
+const paginationList = ref([1, 2, 3])
+const handlePagination = (value) => {
+  const newPaginationList = []
+  for (let items of tempList) {
+    if (value === 'next') {
+      items++
+      newPaginationList.push(items)
+    }
+    else if (value === 'prev' && items > 1) {
+      items--
+      newPaginationList.push(items)
+    }
+    else if (typeof value === Number) {
+      const derivedPC = (value) - (paginationList[-1])
+      const deriveItem = items + (derivedPC)
+      newPaginationList.push(deriveItem)
+    }
+    else {
+      return
+    }
+  }
+  const lastItem = paginationInfo.value?.last_page
+  if (lastItem > 3 || value == 'prev') {
+    tempList = newPaginationList
+    paginationList.value = newPaginationList
+  }
+  else {
+    tempList = newPaginationList
+    paginationList.value = [1, 2, 3]
+  }
+}
 </script>
 
 <template>
@@ -99,7 +192,7 @@ const filterOption = ref('')
     <!-- The Header -->
     <NavigationMarketplaceHeader />
     <div
-    v-if="view === ''"
+      v-if="view === ''"
       role="tablist"
       class="tabs tabs-boxed pt-[90px] mb-10 gap-2 lg:hidden w-[90%] mx-auto"
     >
@@ -193,7 +286,7 @@ const filterOption = ref('')
       <div
         v-if="view === ''"
         class="filter-container w-full lg:w-80 text-black"
-        :class="{ hidden: activeTab !== 'filter' }"
+        :class="{ 'hidden lg:block': activeTab !== 'filter' }"
       >
         <h1 class="text-xl font-extrabold mb-3">
           Filter List
@@ -219,19 +312,8 @@ const filterOption = ref('')
               </svg>
             </div>
           </div>
-          <!-- drop down content -->
-          <div class="flex flex-col justify-between  bg-white shadow-sm p-5">
-            <input
-              type="range"
-              min="50000"
-              max="150000"
-              value=""
-              class="range range-xs mb-3"
-            >
-            <p class="text-sm">
-              Price:<strong class="ms-2">50,000 — 150,500</strong>
-            </p>
-          </div>
+          <!-- Price Range with Min and Max Sliders -->
+          <RangeSlider @range-values="updateRangeValues" />
         </div>
 
         <!-- Price -->
@@ -255,143 +337,142 @@ const filterOption = ref('')
               </svg>
             </div>
           </div>
-          <!-- drop down content -->
-          <div class="flex flex-col justify-between  bg-white shadow-sm p-5">
-            <div class="form-control mb-4">
-              <label class="label cursor-pointer justify-start">
-
-                <input
-                  type="checkbox"
-                  checked="checked"
-                  class="checkbox"
-                >
-                <span class="label-text ms-3">Red</span>
-              </label>
-            </div>
-            <div class="form-control mb-3">
-              <label class="label cursor-pointer justify-start">
-
-                <input
-                  type="checkbox"
-                  checked="checked"
-                  class="checkbox"
-                >
-                <span class="label-text ms-3">Yellow</span>
-              </label>
-            </div>
-            <div class="form-control mb-3">
-              <label class="label cursor-pointer justify-start">
-
-                <input
-                  type="checkbox"
-                  checked="checked"
-                  class="checkbox"
-                >
-                <span class="label-text ms-3">Black</span>
-              </label>
-            </div>
-            <div class="form-control mb-3">
-              <label class="label cursor-pointer justify-start">
-
-                <input
-                  type="checkbox"
-                  checked="checked"
-                  class="checkbox"
-                >
-                <span class="label-text ms-3">White</span>
-              </label>
-            </div>
-            <div class="form-control mb-3">
-              <label class="label cursor-pointer justify-start">
-
-                <input
-                  type="checkbox"
-                  checked="checked"
-                  class="checkbox"
-                >
-                <span class="label-text ms-3">Blue</span>
-              </label>
-            </div>
-            <div class="form-control mb-3">
-              <label class="label cursor-pointer justify-start">
-
-                <input
-                  type="checkbox"
-                  checked="checked"
-                  class="checkbox"
-                >
-                <span class="label-text ms-3">Gold</span>
-              </label>
-            </div>
-          </div>
-        </div>
-        <!-- Location -->
-        <div class="flex justify-between  bg-white shadow-sm p-2 border-[1.5px] mb-3">
-          <h2 class="font-semibold">
-            location
-          </h2>
-          <div class="bg-black center p-1 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#ffff"
-              class="size-4"
+          <!-- Radio Button Group -->
+          <div class="flex flex-col justify-between bg-white shadow-sm p-5">
+            <div
+              v-for="color, index in brandColors"
+              :key="index"
+              class="form-control mb-4"
             >
-              <path
-                fill-rule="evenodd"
-                d="M11.47 7.72a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 1 1-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 0 1-1.06-1.06l7.5-7.5Z"
-                clip-rule="evenodd"
-              />
-            </svg>
+              <label class="label cursor-pointer justify-start">
+                <input
+                  type="radio"
+                  name="color"
+                  class="radio"
+                  @change="updatedFilter(color.toLowerCase(), 'color')"
+                >
+                <span class="label-text ms-3">{{ color.charAt(0).toUpperCase() + color.slice(1, color.length) }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <!-- Location Select -->
+        <div class="flex justify-between items-center bg-white shadow-sm p-2 border-[1.5px] mb-3">
+          <span class="font-semibold">Location</span>
+          <div class="relative w-40">
+            <select
+              id="location"
+              v-model="params.location"
+              class="block appearance-none w-full bg-white text-gray-700 py-1 px-3 pr-8 rounded focus:outline-none"
+            >
+              <option
+                selected
+                disabled
+              >
+                Select location
+              </option>
+              <option>Lagos</option>
+              <option>Abuja</option>
+              <option>Port Harcourt</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10 13L14 9H6L10 13ZM10 20C8.61667 20 7.31667 19.7373 6.1 19.212C4.88334 18.6867 3.825 17.9743 2.925 17.075C2.025 16.1757 1.31267 15.1173 0.788001 13.9C0.263335 12.6827 0.000667933 11.3827 1.26582e-06 10C-0.000665401 8.61733 0.262001 7.31733 0.788001 6.1C1.314 4.88267 2.02633 3.82433 2.925 2.925C3.82367 2.02567 4.882 1.31333 6.1 0.788C7.318 0.262667 8.618 0 10 0C11.382 0 12.682 0.262667 13.9 0.788C15.118 1.31333 16.1763 2.02567 17.075 2.925C17.9737 3.82433 18.6863 4.88267 19.213 6.1C19.7397 7.31733 20.002 8.61733 20 10C19.998 11.3827 19.7353 12.6827 19.212 13.9C18.6887 15.1173 17.9763 16.1757 17.075 17.075C16.1737 17.9743 15.1153 18.687 13.9 19.213C12.6847 19.739 11.3847 20.0013 10 20Z"
+                  fill="black"
+                />
+              </svg>
+            </div>
           </div>
         </div>
 
-        <!-- Condition -->
-        <div class="flex justify-between  bg-white shadow-sm p-2 border-[1.5px] mb-3">
-          <h2 class="font-semibold">
-            Condition
-          </h2>
-          <div class="bg-black center p-1 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#ffff"
-              class="size-4"
+        <!-- Condition Select -->
+        <div class="flex justify-between items-center bg-white shadow-sm p-2 border-[1.5px] mb-3">
+          <span class="font-semibold">Condition</span>
+          <div class="relative w-40">
+            <select
+              id="condition"
+              v-model="params.condition"
+              class="block appearance-none w-full bg-white text-gray-700 py-1 px-3 pr-8 rounded focus:outline-none"
             >
-              <path
-                fill-rule="evenodd"
-                d="M11.47 7.72a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 1 1-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 0 1-1.06-1.06l7.5-7.5Z"
-                clip-rule="evenodd"
-              />
-            </svg>
+              <option
+                selected
+                disabled
+              >
+                Select condition
+              </option>
+              <option>New</option>
+              <option>Used</option>
+              <option>Refurbished</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10 13L14 9H6L10 13ZM10 20C8.61667 20 7.31667 19.7373 6.1 19.212C4.88334 18.6867 3.825 17.9743 2.925 17.075C2.025 16.1757 1.31267 15.1173 0.788001 13.9C0.263335 12.6827 0.000667933 11.3827 1.26582e-06 10C-0.000665401 8.61733 0.262001 7.31733 0.788001 6.1C1.314 4.88267 2.02633 3.82433 2.925 2.925C3.82367 2.02567 4.882 1.31333 6.1 0.788C7.318 0.262667 8.618 0 10 0C11.382 0 12.682 0.262667 13.9 0.788C15.118 1.31333 16.1763 2.02567 17.075 2.925C17.9737 3.82433 18.6863 4.88267 19.213 6.1C19.7397 7.31733 20.002 8.61733 20 10C19.998 11.3827 19.7353 12.6827 19.212 13.9C18.6887 15.1173 17.9763 16.1757 17.075 17.075C16.1737 17.9743 15.1153 18.687 13.9 19.213C12.6847 19.739 11.3847 20.0013 10 20Z"
+                  fill="black"
+                />
+              </svg>
+            </div>
           </div>
         </div>
-        <!-- Brand -->
-        <div class="flex justify-between  bg-white shadow-sm p-2 border-[1.5px] mb-3">
-          <h2 class="font-semibold">
-            Brand
-          </h2>
-          <div class="bg-black center p-1 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#ffff"
-              class="size-4"
+
+        <!-- Brand Select -->
+        <div class="hidden justify-between items-center bg-white shadow-sm p-2 border-[1.5px] mb-3">
+          <span class="font-semibold">Brand</span>
+          <div class="relative w-40">
+            <select
+              id="brand"
+              class="block appearance-none w-full bg-white text-gray-700 py-1 px-3 pr-8 rounded focus:outline-none"
             >
-              <path
-                fill-rule="evenodd"
-                d="M11.47 7.72a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 1 1-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 0 1-1.06-1.06l7.5-7.5Z"
-                clip-rule="evenodd"
-              />
-            </svg>
+              <option
+                selected
+                disabled
+              >
+                Select brand
+              </option>
+              <option>Apple</option>
+              <option>Samsung</option>
+              <option>Sony</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10 13L14 9H6L10 13ZM10 20C8.61667 20 7.31667 19.7373 6.1 19.212C4.88334 18.6867 3.825 17.9743 2.925 17.075C2.025 16.1757 1.31267 15.1173 0.788001 13.9C0.263335 12.6827 0.000667933 11.3827 1.26582e-06 10C-0.000665401 8.61733 0.262001 7.31733 0.788001 6.1C1.314 4.88267 2.02633 3.82433 2.925 2.925C3.82367 2.02567 4.882 1.31333 6.1 0.788C7.318 0.262667 8.618 0 10 0C11.382 0 12.682 0.262667 13.9 0.788C15.118 1.31333 16.1763 2.02567 17.075 2.925C17.9737 3.82433 18.6863 4.88267 19.213 6.1C19.7397 7.31733 20.002 8.61733 20 10C19.998 11.3827 19.7353 12.6827 19.212 13.9C18.6887 15.1173 17.9763 16.1757 17.075 17.075C16.1737 17.9743 15.1153 18.687 13.9 19.213C12.6847 19.739 11.3847 20.0013 10 20Z"
+                  fill="black"
+                />
+              </svg>
+            </div>
           </div>
         </div>
+        <a
+          href="javascript:void(0)"
+          class="btn btn-outline text-lg font-extrabold mb-3 w-full"
+          @click="applyFilter"
+        > Apply Filter</a>
       </div>
       <!-- PRODUCTS -->
       <div
         v-if="view === ''"
         class="product flex-1"
-        :class="{ hidden: activeTab !== 'categories' }"
+        :class="{ 'hidden lg:block': activeTab !== 'categories' }"
       >
         <!-- Component -->
         <div>
@@ -406,6 +487,53 @@ const filterOption = ref('')
               :other-listings="MPAppListings"
               @click="viewProduct('viewProduct')"
             />
+          </div>
+          <div class="divider mb-1 mt-10" />
+          <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center justify-between text-[#727376] ">
+            <div class="flex flex-wrap items-baseline lg:w-[28rem] justify-between">
+              <span class="text-sm">Number Of Items displayed per page</span>
+              <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
+                <option>{{ paginationInfo.per_page }}</option>
+              </select>
+              <span class="text-sm">{{ paginationInfo.current_page }}-{{ MPAppListings.length }} of {{ paginationInfo.total }} items</span>
+            </div>
+            <div class="join">
+              <button
+                class="join-item btn btn-sm"
+                @click="pagination('prev')"
+              >
+                «
+              </button>
+              <button
+                v-for="(count, index) of paginationList.slice(0, paginationInfo?.last_page)"
+                :key="index"
+
+                class="join-item btn bg-black text-white  btn-sm"
+                @click="pagination(count)"
+              >
+                {{ count }}
+              </button>
+
+              <span
+
+                class="join-item btn-sm"
+              >
+                ...
+              </span>
+              <button
+
+                class="join-item btn  btn-sm"
+                @click="pagination(paginationInfo.last_page)"
+              >
+                {{ paginationInfo.last_page }}
+              </button>
+              <button
+                class="join-item btn  btn-sm"
+                @click="pagination('next')"
+              >
+                »
+              </button>
+            </div>
           </div>
         </div>
       </div>

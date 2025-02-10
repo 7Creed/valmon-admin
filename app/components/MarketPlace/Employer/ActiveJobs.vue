@@ -10,13 +10,19 @@ const store = useGlobalStore()
 const activeJobs = ref([])
 const paginationInfo = ref({})
 
+const closeReportBtn = ref(null)
+
+const closeModal = (btn) => {
+  if (btn.value) {
+    btn.value.click()
+  }
+}
 const fetchJobsLoader = ref(false)
 const fetchActiveJobs = async (page) => {
   fetchJobsLoader.value = true
   const { status, data, error } = await getActiveJobs(page)
   if (status.value === 'success') {
     fetchJobsLoader.value = false
-    console.log('active jobs', data.value.data.jobs)
     activeJobs.value = data.value.data.jobs
     paginationInfo.value = data.value.data.pagination
   }
@@ -26,7 +32,7 @@ const fetchActiveJobs = async (page) => {
   }
 }
 
-fetchActiveJobs(1)
+fetchActiveJobs(store.activeJob)
 
 // selected Image url
 const draggedFile = ref(null)
@@ -62,7 +68,7 @@ const markAsCompleted = async (id) => {
     handleALert('error', error.value)
   }
 }
-
+/* --------------------------------- Report --------------------------------- */
 const reportData = reactive({
   user_id: store.UserAccount.id || null,
   reported_id: null,
@@ -82,26 +88,92 @@ watch(selectedJob, (newVal) => {
   }
 })
 const reportLoader = ref(false)
-const reportUser = async (jobId, reportedId) => {
+const reportUser = async () => {
   reportLoader.value = true
   const formdata = new FormData()
   formdata.append('image', Image.value)
   formdata.append('user_id', reportData.user_id)
-  formdata.append('reported_id', reportedId)
+  formdata.append('reported_id', reportData.reported_id)
   formdata.append('reason', reportData.reason)
-  formdata.append('job_id', jobId)
+  formdata.append('job_id', reportData.job_id)
   formdata.append('description', reportData.description)
 
   const { status, error } = await createTicket(formdata)
   if (status.value === 'success') {
     reportLoader.value = false
     handleALert('success', 'Report sent successfully')
+    closeModal(closeReportBtn)
   }
   if (status.value === 'error') {
     handleALert('error', error.value)
     reportLoader.value = false
   }
 }
+
+/* ------------------------------- Pagination ------------------------------- */
+// set pagination page number
+store.Pages['activeJob'] = store.Pages['activeJob'] ? store.Pages['activeJob'] : 1
+
+const pagination = (value) => {
+  // Render The pagination contents
+  handlePagination(value)
+  let currPage = store.Pages.activeJobs
+  switch (value) {
+    case 'prev':
+      if (currPage > 1) {
+        currPage--
+        fetchActiveJobs(currPage)
+        store.updatePages('activeJob', currPage)
+      }
+      break
+    case 'next':
+      if (currPage < paginationInfo.value.last_page) {
+        currPage++
+        fetchActiveJobs(currPage)
+        store.updatePages('activeJob', currPage)
+      }
+      break
+
+    default:
+      fetchActiveJobs(value)
+      break
+  }
+}
+// Handles Pagination template Rendering
+let tempList = [1, 2, 3]
+const paginationList = ref([1, 2, 3])
+const handlePagination = (value) => {
+  const newPaginationList = []
+  for (let items of tempList) {
+    if (value === 'next') {
+      items++
+      newPaginationList.push(items)
+    }
+    else if (value === 'prev' && items > 1) {
+      items--
+      newPaginationList.push(items)
+    }
+    else if (typeof value === Number) {
+      const derivedPC = (value) - (paginationList[-1])
+      const deriveItem = items + (derivedPC)
+      newPaginationList.push(deriveItem)
+    }
+    else {
+      return
+    }
+  }
+  const lastItem = paginationInfo.value?.last_page
+  if (lastItem > 3 || value == 'prev') {
+    tempList = newPaginationList
+    paginationList.value = newPaginationList
+  }
+  else {
+    tempList = newPaginationList
+    paginationList.value = [1, 2, 3]
+  }
+}
+
+handlePagination(store.Pages.activeJob)
 </script>
 
 <template>
@@ -166,8 +238,55 @@ const reportUser = async (jobId, reportedId) => {
         </button>
       </div>
     </div>
+    <div class="divider mb-1" />
+    <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center justify-between text-[#727376] ">
+      <div class="flex flex-wrap items-baseline lg:w-[28rem] justify-between">
+        <span class="text-sm">Number Of Items displayed per page</span>
+        <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
+          <option>{{ paginationInfo?.per_page }}</option>
+        </select>
+        <span class="text-sm">{{ paginationInfo?.current_page }}-{{ activeJobs?.length }} of {{ paginationInfo?.total }} items</span>
+      </div>
+      <div class="join">
+        <button
+          class="join-item btn btn-sm"
+          @click="pagination('prev')"
+        >
+          «
+        </button>
+        <button
+          v-for="(item, index) of paginationList?.slice(0, paginationInfo?.last_page)"
+          :key="index"
+
+          class="join-item btn bg-black text-white  btn-sm"
+          @click="pagination(item)"
+        >
+          {{ item }}
+        </button>
+
+        <span
+
+          class="join-item btn-sm"
+        >
+          ...
+        </span>
+        <button
+
+          class="join-item btn  btn-sm"
+          @click="pagination(paginationInfo?.last_page)"
+        >
+          {{ paginationInfo?.last_page }}
+        </button>
+        <button
+          class="join-item btn  btn-sm"
+          @click="pagination('next')"
+        >
+          »
+        </button>
+      </div>
+    </div>
   </div>
-  <!-- Repport Worker -->
+  <!-- Report Worker -->
   <dialog
     id="my_modal_7"
     class="modal"
@@ -189,6 +308,7 @@ const reportUser = async (jobId, reportedId) => {
             v-model="reportData.reason"
             class="select select-bordered"
           >
+            <!-- Further information should be provided -->
             <option>Terrible services</option>
 
           </select>
@@ -261,7 +381,10 @@ const reportUser = async (jobId, reportedId) => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button
+            ref="closeReportBtn"
+            class="btn"
+          >
             Close
           </button>
         </form>

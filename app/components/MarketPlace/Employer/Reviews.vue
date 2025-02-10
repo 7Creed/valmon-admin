@@ -8,18 +8,27 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
   return parseInt(RP)
 }
 
-const loader = ref(true)
-
-watch(props?.reviews, () => {
-  loader.value = false
-})
+const startIndex = ref(0)
+const endIndex = ref(1)
+const pagination = (value) => {
+  console.log(value)
+  startIndex.value = value.start
+  endIndex.value = value.end
+}
 </script>
 
 <template>
   <!-- Reviews -->
   <section>
     <div class="card card-compact bg-base-100 shadow-xl px-6 py-4">
-      <div class="card-body flex-col gap-5">
+      <SharedAvailable
+        v-if="!props?.reviews?.average "
+        message="Reviews"
+      />
+      <div
+        v-else
+        class="card-body flex-col gap-5"
+      >
         <div class="flex items-center px-8 gap-8">
           <div class="flex flex-col gap-2 items-center">
             <!-- rating -->
@@ -64,7 +73,7 @@ watch(props?.reviews, () => {
         <!-- Review comment -->
         <div>
           <div
-            v-for="(item, index) in props?.reviews?.data"
+            v-for="(item, index) in props?.reviews?.data?.slice(startIndex, endIndex)"
             :key="index"
             role="alert"
             class="alert bg-white rounded-none items-start gap-3 mb-6 ms-10"
@@ -99,5 +108,9 @@ watch(props?.reviews, () => {
         </div>
       </div>
     </div>
+    <SharedPagination
+      :item="props?.reviews?.data?.length"
+      @slice-index="pagination"
+    />
   </section>
 </template>

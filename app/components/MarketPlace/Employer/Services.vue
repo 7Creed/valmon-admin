@@ -12,8 +12,8 @@ const props = defineProps({
 const deleteService = (index) => {
   emit('deleteService', index)
 }
-const EditService = (index) => {
-  emit('editService', index)
+const EditService = (index, item) => {
+  emit('editService', { index: index, item: item })
 }
 
 // Display Gigs based on type
@@ -35,6 +35,14 @@ const hire = (item) => {
 const isAdmin = computed(() => {
   return store?.UserAccount?.role == 'admin' || store?.UserAccount?.role == 'super_admin'
 })
+
+const startIndex = ref(0)
+const endIndex = ref(14)
+const pagination = (value) => {
+  console.log(value)
+  startIndex.value = value.start
+  endIndex.value = value.end
+}
 </script>
 
 <template>
@@ -47,29 +55,29 @@ const isAdmin = computed(() => {
       />
       <div v-else>
         <div
-          v-for="(item, index) in displayGigs"
+          v-for="(item, index) in displayGigs.slice(startIndex, endIndex)"
           :key="index"
           class="card card-compact bg-base-100 shadow-md px-2 md:px-6 py-4 mb-6"
         >
           <!-- row -->
           <div class="bg-white rounded-lg overflow-hidden">
             <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
-              <div class="font-bold text-base md:text-xl mb-2 md:mb-0 w-full md:w-1/6">
+              <div class="font-bold text-xl mb-2 md:mb-0 w-full md:w-1/6">
                 {{ item.title }}
               </div>
-              <div class="flex-1">
-                <div class="px-4 md:px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
-                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
-                    <span>Title:</span> <span class="satoshiM ml-2"> {{ item.title }}</span>
+              <div class=" w-full lg:flex-1">
+                <div class="flex justify-between px-4 md:px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
+                  <span class="block text-base  text-gray-700 mb-2">
+                    <span>Title:</span> <span class="satoshiM ml-2 font-semibold"> {{ item.title }}</span>
                   </span>
-                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
-                    <span>Pricing Type:</span> <span class="satoshiM ml-2">{{ item.pricing_type }}</span>
+                  <span class="block text-base  text-gray-700 mb-2">
+                    <span>Pricing Type:</span> <span class="satoshiM ml-2 font-semibold">{{ item.pricing_type }}</span>
                   </span>
-                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
-                    <span>Price:</span> <span class="satoshiM ml-2">NGN {{ item.price }}</span>
+                  <span class="block text-base  text-gray-700 mb-2">
+                    <span>Price:</span> <span class="satoshiM ml-2 font-semibold">NGN {{ item.price }}</span>
                   </span>
                 </div>
-                <p class="text-gray-700 text-sm md:text-base">
+                <p class="text-gray-700 text-base">
                   {{ item.description }}
                 </p>
               </div>
@@ -77,8 +85,8 @@ const isAdmin = computed(() => {
                 <div v-if="props.type != 'profile'">
                   <a
                     href="javascript:void(0)"
-                    class="text-darkGold text-sm md:text-base font-semibold block mb-2 md:mb-0"
-                    @click="EditService(index)"
+                    class="mb-3 text-darkGold text-sm md:text-base font-semibold block"
+                    @click="EditService(index, item)"
                   >Edit</a>
                   <a
                     href="javascript:void(0)"
@@ -93,7 +101,7 @@ const isAdmin = computed(() => {
                 >
                   <a
                     href="javascript:void(0)"
-                    class="text-darkGold text-sm md:text-base font-semibold block mb-2 md:mb-0 satoshiM"
+                    class="text-darkGold text-base font-semibold block mb-2 md:mb-0 satoshiM"
                     @click="hire(item)"
                   >Hire</a>
                 </div>
@@ -102,6 +110,10 @@ const isAdmin = computed(() => {
           </div>
         </div>
       </div>
+      <SharedPagination
+        :item="displayGigs?.length"
+        @slice-index="pagination"
+      />
     </div>
   </section>
 </template>

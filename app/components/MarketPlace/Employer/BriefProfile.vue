@@ -131,33 +131,26 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
             :key="index"
             class="rounded-lg overflow-hidden mb-3 border-gray-200 border"
           >
-            <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
-              <div class="font-bold text-base md:text-xl mb-2 md:mb-0 w-full md:w-1/6">
-                {{ item.title }}
+            <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="w-full flex flex-col sm:flex-row sm:items-center flex-wrap gap-2 sm:gap-6">
+                <span class="text-sm md:text-base font-semibold text-gray-700">
+                  <span class="text-gray-500">Title:</span> <span class="satoshiM ml-1">{{ item.title }}</span>
+                </span>
+                <span class="text-sm md:text-base font-semibold text-gray-700">
+                  <span class="text-gray-500">Pricing Type:</span> <span class="satoshiM ml-1">{{ item.pricing_type }}</span>
+                </span>
+                <span class="text-sm md:text-base font-semibold text-gray-700">
+                  <span class="text-gray-500">Price:</span> <span class="satoshiM ml-1">NGN {{ item.price }}</span>
+                </span>
               </div>
-              <div class="flex-1">
-                <div class="px-4 md:px-6 pt-2 pb-2 bg-[#FFF3D5] rounded-xl mb-3">
-                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
-                    <span>Title:</span> <span class="satoshiM ml-2"> {{ item.title }}</span>
-                  </span>
-                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
-                    <span>Pricing Type:</span> <span class="satoshiM ml-2">{{ item.pricing_type }}</span>
-                  </span>
-                  <span class="block text-sm md:text-base font-semibold text-gray-700 mb-2">
-                    <span>Price:</span> <span class="satoshiM ml-2">NGN {{ item.price }}</span>
-                  </span>
-                </div>
-                <p class="text-gray-700 text-sm md:text-base">
-                  {{ item.description }}
-                </p>
-              </div>
+
               <div
-                v-show="store.UserAccount?.role != 'admin' || store.UserAccount?.role != 'super_admin'"
-                class=""
+                v-show="store.UserAccount?.role !== 'admin' && store.UserAccount?.role !== 'super_admin'"
+                class="w-full sm:w-auto text-center sm:text-left"
               >
                 <a
                   href="javascript:void(0)"
-                  class="text-darkGold text-sm md:text-base font-semibold block mb-5 satoshiM"
+                  class="text-darkGold text-sm md:text-base font-semibold satoshiM transition duration-300 hover:text-gold hover:underline"
                   @click="hire(item)"
                 >Hire</a>
               </div>

@@ -100,6 +100,11 @@ const PingUser = async () => {
     console.log(error.value.data.message)
   }
 }
+// Update to services flow
+const serviceRoute = useRoute()
+if (serviceRoute.name == 'home') {
+  store.marketPlaceTab = false
+}
 
 PingUser()
 // Ping user at every 30secs

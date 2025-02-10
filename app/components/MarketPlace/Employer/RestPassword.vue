@@ -17,7 +17,6 @@ const resetPassword = async () => {
   try {
     const { status, data, error } = await ResetPassword(userData)
     if (status.value === 'success') {
-      console.log('notifications', notifications.value)
       handleALert('success', 'Password Updated')
     }
     if (status.value === 'error') {
@@ -35,7 +34,7 @@ const resetPassword = async () => {
 </script>
 
 <template>
-  <div class="card card-compact bg-base-100 lg:w-1/2 shadow-xl p-5">
+  <div class="card card-compact bg-base-100 w-full xl:w-4/6 xxl:w-1/2 shadow-xl p-5">
     <div class="card-body">
       <h1 class="hidden lg:block text-[#232323] text-3xl font-bold satoshiM text-center">
         Password Reset

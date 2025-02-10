@@ -9,6 +9,7 @@ import { TicketController } from '~/services/modules/Admin/Tickets'
 const { createConversation, getConversation, getMessages, sendMessages, sendProposal, rejectProposal, acceptProposal, markAsRead, initiatePayment, markAsDelivered, orderCompleted } = chatController()
 const { createReview, getReviews, markJobAsCompleted } = accountController()
 const { createTicket } = TicketController()
+const route = useRoute()
 
 const props = defineProps({
   chatType: String,
@@ -19,6 +20,11 @@ const store = useGlobalStore()
 // active tag
 const activeTab = ref('job')
 
+onMounted(() => {
+  if (route.query.name == 'marketplace') {
+    activeTab.value = 'marketPlace'
+  }
+})
 // Function to toggle  the tag
 const toggleTab = (tab) => {
   activeTab.value = tab
@@ -293,8 +299,6 @@ watch(selectedConversation, (newVal) => {
 })
 
 // after payment successful redirect should open the active chat
-const route = useRoute()
-
 onMounted(() => {
   if (route.query.id && conversations.value.length > 0) {
     selectedConversation.value = conversations.value.find(conv => conv.id == route.query.id)
@@ -427,19 +431,20 @@ watch(selectedConversation, (newVal) => {
 })
 
 /* -------------------- Computed Properties Or Utilities -------------------- */
-
 // check if there is an offer and if an offer is accepted base on the account type
 const disableAcceptHireBtn = computed(() => {
-  if (store.UserAccount.account_type == 'employer') {
-    return initiatorLatestNeg.value.negotiation.accepted || latestOffer
+  if (store.UserAccount.account_type === 'employer') {
+    // Use optional chaining and nullish coalescing to avoid null errors
+    return !!(initiatorLatestNeg.value?.negotiation?.accepted ?? latestOffer)
   }
   else {
-    return latestOffer
+    return !!latestOffer.value
   }
 })
 // render chat time
 const getTimeDifference = timestamp => getTimeDiff(timestamp)
-// for marketplace
+
+/* ----------------------------- for marketplace ---------------------------- */
 const _shippingStatus = computed(() => {
   if (conversationType.value === 'employerListing') {
     return latestOrder.value.shipping_status === 'delivered' ? 'Product Received' : 'Product Pending Shipping'
@@ -1134,7 +1139,7 @@ const MarkCompleted = async () => {
     <div class="hidden lg:card bg-base-100 w-96 shadow-xl flex-2 h-fit pb-10">
       <div class="card-body">
         <!-- For Marketplace listings -->
-        <div v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">
+        <div v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0 ">
           <figure class="mb-3">
             <img
               :src="selectedConversation.listing.images[0]"
@@ -1181,7 +1186,7 @@ const MarkCompleted = async () => {
 
         <!-- Marketplace Offer Label -->
         <label
-          v-show="jobStatus === ''"
+          v-show="jobStatus === ''&& activeTab !== 'job'"
           class="form-control w-full max-w-xs mb-3"
         >
           <div class="label">
@@ -1194,18 +1199,19 @@ const MarkCompleted = async () => {
 
           <!-- Marketplace Offer Amount -->
           <div
-            v-if="selectedConversation?.listing_id"
+            v-if="selectedConversation?.listing_id "
             class="input input-bordered w-full max-w-xs center"
           >
-            NGN {{ latestOffer || selectedConversation.listing.price }}
+            NGN {{ latestOffer || 0 }}
           </div>
         </label>
 
         <!-- accept proposal  -->
+        <!-- This disable check if there is offer or latest offer for the client or if both cases exist due to a new gig offer if the previous offer has be concluded -->
         <button
           v-if="jobStatus === ''"
           id="start-payment-button"
-          :disabled="allMessages.length === 0 || !disableAcceptHireBtn"
+          :disabled=" disableAcceptHireBtn && !latestOffer"
           type="button"
           class="btn bg-darkGold mb-3 text-white w-full"
           @click="acceptNegotiation"
@@ -1216,7 +1222,7 @@ const MarkCompleted = async () => {
           />
           <span v-else>{{ conversationType === 'employerService' ? 'Accept & Hire' : conversationType === 'employerListing'
             ? 'Accept & Buy' : conversationType === 'workerListing' ? 'Accept offer' : conversationType
-              === 'workerService' ? 'Accept Proposal' : 'Accept ' }}</span>
+              === 'workerService' ? 'Accept Proposal' : 'Accept ' }}  </span>
         </button>
 
         <!-- Services -->
@@ -1431,22 +1437,22 @@ const MarkCompleted = async () => {
         <label class="form-control w-full mb-2">
           <div class="label">
             <span
-              v-show="store.isEmployer"
+              v-show="store.UserAccount.account_type == 'employer'"
               class="label-text"
             >What are you willing to pay</span>
             <span
-              v-show="store.isEmployee"
+              v-show="store.UserAccount.account_type == 'worker'"
               class="label-text"
             >Ask Client To Pay</span>
           </div>
           <input
             v-model.number="negotiationPrice"
-            type="text"
+            type="number"
+            minlength="10000"
             class="input input-bordered w-full"
           >
         </label>
         <div
-          v-show="store.isEmployee"
           class="text-center"
         >
           <p class="mb-3">
@@ -1681,7 +1687,7 @@ const MarkCompleted = async () => {
   <!-- Open the modal using ID.showModal() method -->
   <!-- Await Confirmation  for worker flow -->
   <dialog
-    v-show="store.isEmployee"
+    v-show="store.UserAccount.account_type == 'worker'"
     id="my_modal_88"
     class="modal hidden"
   >

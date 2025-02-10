@@ -7,7 +7,13 @@ export const WalletController = () => {
   // Users
   const getWallet = () => get(`account/wallet`)
   const getWalletSummary = () => get(`account/wallet/summary`)
-  const getWalletTxn = () => get(`account/wallet/transactions`)
+  const getWalletTxn = (page) => {
+    let url = `account/wallet/transactions`
+    if (page) {
+      url += `?page=${page}`
+    }
+    return get(url)
+  }
   const withdraw = data => post(`account/wallet/withdraw`, data)
   const withdrawOtp = () => post(`/account/wallet/withdraw/otp`)
 

@@ -25,11 +25,13 @@ const viewAll = (tab) => {
   workerTab.value = tab
 }
 
+// Updates to market place  flow
 onMounted(() => {
   if (store.marketPlaceTab) {
     workerTab.value = 'marketplace'
   }
 })
+
 const History = () => {
   handleGeneralHistory()
   navigateTo('/home')
@@ -74,6 +76,7 @@ const FetchID = async (func, id, loader = null, alert = true) => {
       case 'SingleUserAccount':
         userInfo.value = data.value.data // Update userInfo with the fetched data
         gigs.value = data.value.data.profile.gigs
+        reviews.value = data.value.data.reviews
         break
       case 'singleGallery':
         allGallery.value = data.value.data // Update userInfo with the fetched data
@@ -88,13 +91,6 @@ const FetchID = async (func, id, loader = null, alert = true) => {
   }
   // Reset loader to false after the operation
   if (loader) loader.value = false
-}
-
-// Handle User Location
-const userLocation = (address) => {
-  if (address === null || address === undefined) return 'NA'
-  const userAddress = JSON.parse(address)
-  return userAddress[0]
 }
 
 const fetchUsers = async (id) => {
@@ -151,11 +147,6 @@ const openChat = () => {
   navigateTo('/chat')
 }
 
-const openChatForListing = () => {
-  store.updateNewConversationDetails(store.userIdForProfileCheck, null, store.listingId)
-  store.newConversationDetails.gig = null
-  navigateTo('/chat')
-}
 const isOnline = ref(false)
 
 const deriveLastSeenAt = (lastSeenAt) => {
@@ -265,8 +256,15 @@ const restore = async (id) => {
 </script>
 
 <template>
+  <!-- <div class="breadcrumbs text-sm my-4">
+    <ul>
+      <li><a>Home</a></li>
+      <li><a>Ca</a></li>
+      <li>Add Document</li>
+    </ul>
+  </div> -->
   <div
-    class="flex flex-col  lg:flex-row gap-8 pb-20 xxl:px-20 relative"
+    class="flex flex-col  lg:flex-row gap-8 pb-20 xxl:px-20 relative pt-5"
     :class="{ 'flex-col': store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin' }"
   >
     <NuxtLink
@@ -319,8 +317,8 @@ const restore = async (id) => {
                       alt="Location icon"
                       class="h-5"
                     >
-                    <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation(adminUsers?.profile?.addresses).city
-                    }}, {{ userLocation(adminUsers?.profile?.addresses).country }}</span>
+                    <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.city }}, {{
+                      userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.country }}</span>
                   </div>
                   <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
                     <img
@@ -447,14 +445,14 @@ const restore = async (id) => {
             <!-- Header -->
             <div class="flex items-center gap-6 mb-2">
               <!-- avatar -->
-              <div class="avatar">
+              <div class="avatar align-self-start">
                 <div class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2">
                   <img :src="userInfo.profile_pic">
                 </div>
               </div>
               <!-- Profile desc -->
               <div class="w-full">
-                <h3 class="mb-1 text-[#24242A] font-semibold text-sm">
+                <h3 class="mb-1 text-[#24242A] font-semibold text-sm satoshiM">
                   {{ userInfo.first_name }} {{ userInfo.last_name }}
                 </h3>
                 <div class="flex items-center flex-wrap gap-2 my-2">
@@ -468,8 +466,6 @@ const restore = async (id) => {
                 </div>
                 <div class="flex items-center gap-2 ">
                   <div
-                    v-for="(rate, index) in userInfo.ratings"
-                    :key="index"
                     class="rating w-4"
                   >
                     <input
@@ -495,11 +491,11 @@ const restore = async (id) => {
             </div>
             <div class="flex justify-between items-center text-[#404145] text-xs mb-1">
               <span class="font-medium">Inbox response time</span>
-              <span class="font-bold">{{ userInfo.inbox_response_time }} Mins</span>
+              <span class="font-bold  satoshiM">{{ userInfo.inbox_response_time }} Mins</span>
             </div>
             <div class="flex justify-between items-center text-[#404145] text-xs mb-1">
               <span class="font-medium">Inbox response rate</span>
-              <span class="font-bold">{{ userInfo.inbox_response_rate }} %</span>
+              <span class="font-bold  satoshiM">{{ userInfo.inbox_response_rate }} %</span>
             </div>
             <div class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1">
               <img
@@ -507,8 +503,8 @@ const restore = async (id) => {
                 alt="Location icon"
                 class="h-5"
               >
-              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userLocation(userInfo?.profile?.addresses).city }}, {{
-                userLocation(userInfo?.profile?.addresses).country }}</span>
+              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.city }}, {{
+                userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.country }}</span>
             </div>
             <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
               <img
@@ -516,7 +512,7 @@ const restore = async (id) => {
                 alt="copy-success icon"
                 class="h-5"
               >
-              <span class="text-[rgba(0,0,0,1)] font-medium">0 jobs Completed</span>
+              <span class="text-[rgba(0,0,0,1)] font-medium">{{ userInfo?.profile?.completed_jobs }} jobs Completed</span>
             </div>
             <!-- Online Presence -->
             <div class="relative flex gap-2">
@@ -594,20 +590,13 @@ const restore = async (id) => {
             </div>
 
             <!-- Footer -->
-            <div class="card-actions justify-between gap-4">
+            <div
+              class="card-actions justify-between gap-4"
+            >
               <button
-                v-if="!store.marketPlaceTab"
+                v-if="store.UserAccount.account_type == 'employer'"
                 onclick="my_modal_1.showModal()"
                 class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
-              >
-                Contact
-              </button>
-
-              <!-- for listings -->
-              <button
-                v-else
-                class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
-                @click="openChatForListing"
               >
                 Contact
               </button>
