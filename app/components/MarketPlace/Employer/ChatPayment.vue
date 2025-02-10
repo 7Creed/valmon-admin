@@ -432,6 +432,14 @@ watch(selectedConversation, (newVal) => {
 
 /* -------------------- Computed Properties Or Utilities -------------------- */
 // check if there is an offer and if an offer is accepted base on the account type
+const disableNegotiationBtn = computed(() => {
+  if (activeTab.value == 'job') {
+    return allMessages.value?.length === 0
+  }
+  else {
+    return (selectedConversation.value?.listing?.negotiable)
+  }
+})
 const disableAcceptHireBtn = computed(() => {
   if (store.UserAccount.account_type === 'employer') {
     // Use optional chaining and nullish coalescing to avoid null errors
@@ -1211,7 +1219,7 @@ const MarkCompleted = async () => {
         <button
           v-if="jobStatus === ''"
           id="start-payment-button"
-          :disabled=" disableAcceptHireBtn && !latestOffer"
+          :disabled="disableAcceptHireBtn || !latestOffer"
           type="button"
           class="btn bg-darkGold mb-3 text-white w-full"
           @click="acceptNegotiation"
@@ -1276,7 +1284,7 @@ const MarkCompleted = async () => {
           v-if="jobStatus === ''"
           class="btn btn-neutral mb-3"
           onclick="my_modal_6.showModal()"
-          :disabled="allMessages.length === 0"
+          :disabled="disableNegotiationBtn"
         >
           Negotiate Cost
         </button>

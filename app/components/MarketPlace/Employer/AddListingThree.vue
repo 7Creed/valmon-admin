@@ -49,7 +49,7 @@ watch(imageFiles, (newVal, oldVal) => {
       class="text-[#6E7191]"
     >
       <h1 class="mb-2 satoshiM ">
-        Upload Image
+        Select previous relevant work images
       </h1>
       <a
         href="javascript:void(0);"

@@ -75,8 +75,9 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
       <div class="max-w-4xl mx-auto flex flex-wrap justify-center items-center gap-8">
         <div class="mr-8">
           <img
-            src="../assets/images/UIElements/dusin.png"
+            src="../assets/images/UIElements/dusin.jpeg"
             alt="Oluwadunsin Ajibade"
+            class="w-48"
           >
         </div>
         <div class="flex-1">

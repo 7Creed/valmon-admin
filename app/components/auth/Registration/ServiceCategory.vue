@@ -306,7 +306,7 @@ const removeServiceCategory = (index) => {
 
       <button
         ref="addCategoryBtn"
-        class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full md:w-1/2"
+        class=" btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-full md:w-1/2"
         :class="{ 'mx-auto': props?.useType !== 'account' }"
         onclick="my_modal_9.showModal()"
         @click="fetchCategory"
@@ -401,14 +401,14 @@ const removeServiceCategory = (index) => {
         >
           You can add a custom category below
         </p>
-        <BaseInput
+        <!-- <BaseInput
           v-model="custom"
           label="Add Custom"
           type="text"
           :icon="false"
           :required="true"
-          class="block mb-4"
-        />
+          class="block mb-4 "
+        /> -->
         <BaseButton
           :loading="loading"
           title="Save Category"
