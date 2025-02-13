@@ -433,29 +433,33 @@ watch(selectedConversation, (newVal) => {
 /* -------------------- Computed Properties Or Utilities -------------------- */
 // check if there is an offer and if an offer is accepted base on the account type
 const disableNegotiationBtn = computed(() => {
-  if (activeTab.value == 'job') {
-    return allMessages.value?.length === 0
+  if (activeTab.value === 'job') {
+    return allMessages.value?.length === 0 && !selectedConversation.value
   }
-  else {
-    return (selectedConversation.value?.listing?.negotiable)
-  }
+  return !(selectedConversation.value?.listing?.negotiable)
 })
-const disableAcceptHireBtn = computed(() => {
-  if (store.UserAccount.account_type === 'employer') {
-    // Use optional chaining and nullish coalescing to avoid null errors
-    return !!(initiatorLatestNeg.value?.negotiation?.accepted ?? latestOffer)
-  }
-  else {
-    return !!latestOffer.value
-  }
-})
+
+// const disableAcceptHireBtn = computed(() => {
+//   if (store.UserAccount.account_type === 'employer') {
+//     // Use optional chaining and nullish coalescing to avoid null errors
+//     if (initiatorLatestNeg.value?.negotiation && initiatorLatestNeg.value?.negotiation?.accepted) {
+//       return true
+//     }
+//     else {
+//       return !!latestOffer.value
+//     }
+//   }
+//   else {
+//     return !!latestOffer.value
+//   }
+// })
 // render chat time
 const getTimeDifference = timestamp => getTimeDiff(timestamp)
 
 /* ----------------------------- for marketplace ---------------------------- */
 const _shippingStatus = computed(() => {
   if (conversationType.value === 'employerListing') {
-    return latestOrder.value.shipping_status === 'delivered' ? 'Product Received' : 'Product Pending Shipping'
+    return latestOrder.value.shipping_status === 'delivered' ? 'Product Received' : 'Awaiting shipment'
   }
   return conversationType.value === 'workerListing' && latestOrder.value.shipping_status === 'pending' ? 'Product Delivered' : 'Completed'
 })
@@ -633,6 +637,21 @@ const MarkCompleted = async () => {
     MCloading.value = false
   }
 }
+
+const conversationStarts = () => {
+  const now = new Date()
+  const options = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }
+  return now.toLocaleString('en-US', options)
+}
+
 </script>
 
 <template>
@@ -855,7 +874,7 @@ const MarkCompleted = async () => {
             <h2 class="card-title mb-1">
               Service Cost
             </h2>
-            <div class="flex items-center my-3">
+            <div class="flex items-center my-3 gap-4">
               <!-- Listing Image -->
               <figure v-if="selectedConversation?.listing?.images && selectedConversation?.listing?.images.length > 0">
                 <img
@@ -866,7 +885,7 @@ const MarkCompleted = async () => {
               </figure>
               <!-- Offer amount -->
               <div class="">
-                <p class="text-sm ml-2 satoshiB">
+                <p class="text-sm satoshiB">
                   {{ selectedConversation?.listing?.title }}
                 </p>
 
@@ -890,7 +909,7 @@ const MarkCompleted = async () => {
                 <p
                   v-if="selectedConversation?.listing_id && jobStatus != 'Completed'"
                 >
-                  NGN {{ latestOffer || selectedConversation.listing.price }}
+                  NGN {{ latestOffer || 0 }}
                 </p>
               </div>
             <!-- Offer Amount End -->
@@ -901,7 +920,7 @@ const MarkCompleted = async () => {
               <button
                 v-if="jobStatus === ''"
                 id="start-payment-button"
-                :disabled="allMessages.length === 0 || !disableAcceptHireBtn"
+                :disabled="!latestOffer"
                 type="button"
                 class="btn bg-darkGold text-white"
                 @click="acceptNegotiation"
@@ -951,10 +970,10 @@ const MarkCompleted = async () => {
 
                 <!-- Buyer View -->
                 <button
-                  v-if="jobStatus === 'Completed' && (_shippingStatus === 'Product Received')"
+                  v-if="jobStatus === 'Completed' && conversationType ==='employerListing'"
                   class="btn bg-darkGold text-white"
                   onclick="my_modal_5.showModal()"
-                  :disabled="_shippingStatus === 'Product Pending Shipping'"
+                  :disabled="_shippingStatus === 'Awaiting shipment'"
                 >
                   <span
                     v-if="orderLoading && _shippingStatus !== 'Completed'"
@@ -969,7 +988,7 @@ const MarkCompleted = async () => {
                 v-if="jobStatus === ''"
                 class="btn btn-neutral"
                 onclick="my_modal_6.showModal()"
-                :disabled="allMessages.length === 0"
+                :disabled="disableNegotiationBtn"
               >
                 Negotiate Cost
               </button>
@@ -1010,14 +1029,14 @@ const MarkCompleted = async () => {
 
         <p
           v-if="selectedConversation"
-          class="text-[#4A4A4E] text-sm text-center mt-5"
+          class="text-[#4A4A4E] text-xs text-center mt-5 sticky-2"
         >
           Your conversation with {{ renderConversation(selectedConversation).first_name }} starts here
         </p>
 
         <!-- divider -->
         <div class="divider text-sm satoshiB text-black">
-          June 1, 2020
+          {{ conversationStarts() }}
         </div>
         <!-- Chat container -->
         <div class="h-96 overflow-auto">
@@ -1219,7 +1238,7 @@ const MarkCompleted = async () => {
         <button
           v-if="jobStatus === ''"
           id="start-payment-button"
-          :disabled="disableAcceptHireBtn || !latestOffer"
+          :disabled="!latestOffer"
           type="button"
           class="btn bg-darkGold mb-3 text-white w-full"
           @click="acceptNegotiation"
@@ -1267,10 +1286,10 @@ const MarkCompleted = async () => {
 
           <!-- For buyer view -->
           <button
-            v-if="jobStatus === 'Completed' && (_shippingStatus === 'Product Received')"
+            v-if="jobStatus === 'Completed' && conversationType ==='employerListing'"
             class="btn bg-darkGold mb-3 text-white w-full"
             onclick="my_modal_5.showModal()"
-            :disabled="_shippingStatus === 'Product Pending Shipping'"
+            :disabled="_shippingStatus === 'Awaiting shipment'"
           >
             <!-- <span
               v-if="orderLoading && _shippingStatus !== 'Completed'"

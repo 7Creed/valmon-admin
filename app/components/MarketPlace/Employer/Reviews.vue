@@ -27,9 +27,9 @@ const pagination = (value) => {
       />
       <div
         v-else
-        class="card-body flex-col gap-5"
+        class="card-body flex-col flex-wrap  gap-5 "
       >
-        <div class="flex items-center px-8 gap-8">
+        <div class="flex flex-wrap justify-center items-center lg:px-8 gap-8">
           <div class="flex flex-col gap-2 items-center">
             <!-- rating -->
             <span class="text-black flex items-center gap-3">
@@ -47,7 +47,7 @@ const pagination = (value) => {
               {{ props.reviews.data.length }} Reviews
             </button>
           </div>
-          <div class="rating_container ms-20 ">
+          <div class="rating_container lg:ms-20 ">
             <div
               v-for="(rating, index) in Object.values(props.reviews.ratings) "
               :key="index"
@@ -71,12 +71,12 @@ const pagination = (value) => {
           </div>
         </div>
         <!-- Review comment -->
-        <div>
+        <div >
           <div
             v-for="(item, index) in props?.reviews?.data?.slice(startIndex, endIndex)"
             :key="index"
             role="alert"
-            class="alert bg-white rounded-none items-start gap-3 mb-6 ms-10"
+            class=" alert bg-white rounded-none items-start gap-3 mb-6 lg:ms-10 flex-wrap w-full"
           >
             <!-- avatar -->
             <div class="avatar ">

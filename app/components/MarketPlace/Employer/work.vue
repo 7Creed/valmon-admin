@@ -70,7 +70,6 @@ const FetchID = async (func, id, loader = null, alert = true) => {
   // Handle success case
   if (status.value === 'success') {
     console.log(func.name, data.value.data) // Log the fetched data for debugging purposes
-    if (alert) handleALert('success', data.value.message) // Show success alert if alert is true
     // Update the individual details to a variable based on the function name
     switch (func.name) {
       case 'SingleUserAccount':
@@ -87,7 +86,7 @@ const FetchID = async (func, id, loader = null, alert = true) => {
   }
   // Handle error case
   if (status.value === 'error') {
-    if (alert) handleALert('error', error.value.data.message) // Show error alert if alert is true
+    if (alert) console.log('error', error.value.data.message) // Show error alert if alert is true
   }
   // Reset loader to false after the operation
   if (loader) loader.value = false
@@ -461,7 +460,7 @@ const restore = async (id) => {
                     :key="index"
                     class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm  w-fit "
                   >
-                    <span class=" text-black">{{ service.service.name }}</span>
+                    <span class=" text-black">{{ service.service?.name }}</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-2 ">
@@ -474,8 +473,8 @@ const restore = async (id) => {
                       class="mask mask-star"
                     >
                   </div>
-                  <span class="text-xs font-bold">{{ userInfo.rating }}</span>
-                  <span class="text-black text-xs">({{ userInfo.ratings_count }} Ratings)</span>
+                  <span class="text-xs font-bold">{{ userInfo?.rating }}</span>
+                  <span class="text-black text-xs">({{ userInfo?.ratings_count }} Ratings)</span>
                 </div>
               </div>
             </div>
@@ -491,11 +490,11 @@ const restore = async (id) => {
             </div>
             <div class="flex justify-between items-center text-[#404145] text-xs mb-1">
               <span class="font-medium">Inbox response time</span>
-              <span class="font-bold  satoshiM">{{ userInfo.inbox_response_time }} Mins</span>
+              <span class="font-bold  satoshiM">{{ userInfo?.inbox_response_time }} Mins</span>
             </div>
             <div class="flex justify-between items-center text-[#404145] text-xs mb-1">
               <span class="font-medium">Inbox response rate</span>
-              <span class="font-bold  satoshiM">{{ userInfo.inbox_response_rate }} %</span>
+              <span class="font-bold  satoshiM">{{ userInfo?.inbox_response_rate }} %</span>
             </div>
             <div class="flex gap-2 items-center text-[#62646A] text-xs w-1/2 mb-1">
               <img

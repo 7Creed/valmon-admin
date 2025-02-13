@@ -91,7 +91,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
           </div>
           <div class="carousel rounded-box min-w-5/6  gap-4 relative">
             <div
-              v-for="(item, index) in props?.UserGallery"
+              v-for="(item, index) in props?.UserGallery.slice(0, 5)"
               :key="index"
               class="carousel-item"
             >
@@ -127,7 +127,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
         >
           <!-- row -->
           <div
-            v-for="(item, index) in props.gigs"
+            v-for="(item, index) in props.gigs.slice(0, 5)"
             :key="index"
             class="rounded-lg overflow-hidden mb-3 border-gray-200 border"
           >
@@ -172,7 +172,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
           >View All</a>
         </div>
 
-        <div class="card-body flex-row gap-5">
+        <div class="card-body flex-row gap-5 flex-wrap">
           <SharedAvailable
             v-if="!props.reviews.data || props.reviews.data.length === 0"
             message="Review"
@@ -181,7 +181,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
             v-else
             class="center"
           >
-            <div class="flex flex-col gap-2 items-center border-r-4 w-[300px] pe-[40px]">
+            <div class="flex flex-col flex-wrap gap-2 items-center border-r-4 w-[300px] pe-[40px]">
               <!-- rating -->
               <span class="text-black flex items-center gap-3">
                 <span class="font-extrabold satoshiB text-7xl">{{ props.reviews.average }}</span>
@@ -223,7 +223,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
           <!-- Review comment -->
           <div>
             <div
-              v-for="(item, index) in props?.reviews?.data"
+              v-for="(item, index) in props?.reviews?.data.slice(0, 5)"
               :key="index"
               role="alert"
               class="alert bg-white rounded-none items-start gap-3 mb-6"
