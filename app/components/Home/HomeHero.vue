@@ -35,7 +35,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
   </div>
 </template>
 
-<style>
+<style scoped>
 .hero {
   background-image: url('../../assets/images/UIElements/Hero.png');
 }

@@ -97,13 +97,13 @@ const getRouteName = () => {
         <div
           class="flex items-center justify-center sm:items-stretch sm:justify-start"
         >
-          <div class="flex flex-shrink-0 items-center">
+          <a href="/" class="flex flex-shrink-0 items-center">
             <img
               class="w-auto"
               :src="brandLogo"
               alt="Valmon Brand Logo"
             >
-          </div>
+          </a>
         </div>
         <span class="text-white ms-10 font-bold">{{ getRouteName() }}</span>
         <!-- Left side  -->

@@ -10,7 +10,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
       <div class="hero-overlay bg-opacity-1" />
       <div class="hero-content text-neutral-content text-center">
         <div class="">
-          <p class="mb-5 heroTitle lg:text-lg lg:text-4xl font-bold satoshiM">
+          <p class="mb-5 heroTitle text-2xl lg:text-4xl font-bold satoshiM">
             Valmon: Empowering Employment and Connecting Communities
           </p>
         </div>
@@ -60,14 +60,30 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
       </section>
     </div>
 
-    <div class="max-w-4xl mx-auto mt-8 p-6 border border-darkGold rounded-lg">
-      <div class=" text-white text-center">
-        <h2 class="text-xl lg:text-2xl  font-bold mb-2">
-          Motto
-        </h2>
-        <p class="lg:text-lg font-bold">
-          Adding value to people's lives
-        </p>
+    <div class="flex max-w-4xl mx-auto gap-4">
+      <div class="flex-1 mx-auto mt-8 p-6 border border-darkGold rounded-lg">
+        <div class=" text-white text-center">
+          <h2 class="text-xl lg:text-2xl  font-bold mb-2">
+            Motto
+          </h2>
+          <p class="md:text-2xl font-bold">
+            Adding value to people's lives
+          </p>
+        </div>
+      </div>
+      <div class="flex-1 mx-auto mt-8 p-6 border border-darkGold rounded-lg">
+        <div class=" text-white text-center">
+          <h2 class="text-xl md:text-2xl  font-bold mb-2">
+            Our Core Values
+          </h2>
+          <ul class="text-sm md:text-2xl font-bold flex flex-wrap gap-4 list-disc list-inside">
+            <li>Empowerment</li>
+            <li>Value</li>
+            <li>Positivity</li>
+            <li>Trust</li>
+            <li>Integrity</li>
+          </ul>
+        </div>
       </div>
     </div>
 

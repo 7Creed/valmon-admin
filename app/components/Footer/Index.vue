@@ -10,7 +10,10 @@ import tikTok from '@/assets/icons/facebook.svg'
 <template>
   <footer class="bg-[#151212] text-base-content pt-10 lg:p-10 lg:px-20  ">
     <nav class="flex flex-col lg:flex-row items-center gap-8 lg:gap-0 lg:justify-between ">
-      <a href="/" class=""><img
+      <a
+        href="/"
+        class=""
+      ><img
         :src="brandLogo"
         alt="brand logo"
       ></a>
@@ -25,9 +28,12 @@ import tikTok from '@/assets/icons/facebook.svg'
           to="terms"
           class="link link-hover"
         >
-          Our Team
+          Our Terms
         </NuxtLink>
-        <a class="link link-hover">Support</a>
+        <a
+          href="mailto:support@valmonvalues.com"
+          class="link link-hover"
+        >Support</a>
         <NuxtLink
           to="faq"
           class="link link-hover"

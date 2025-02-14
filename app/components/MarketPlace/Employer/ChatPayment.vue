@@ -301,6 +301,7 @@ watch(selectedConversation, (newVal) => {
 // after payment successful redirect should open the active chat
 onMounted(() => {
   if (route.query.id && conversations.value.length > 0) {
+    console.log(route.query, conversations.value)
     selectedConversation.value = conversations.value.find(conv => conv.id == route.query.id)
     Chat(selectedConversation.value)
   }

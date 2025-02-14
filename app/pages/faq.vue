@@ -9,15 +9,30 @@ const openAcc = (accIndex) => {
 </script>
 
 <template>
-  <div class="  bg-stone-950 min-h-screen  relative mb-20 lg:mb-30">
-    <h1 class="text-3xl lg:text-5xl font-bold text-white text-center pt-20 mb-12 relative w-fit mx-auto z-10 satoshiM">
-      Valmon FAQs
-      <img
-        :src="rectangle"
-        alt="rectangular-background"
-        class="w-16 top-[5rem] right-[3rem] absolute -z-10"
-      >
-    </h1>
+  <div class="  bg-stone-950 min-h-[800px]  relative mb-20 lg:mb-30">
+    <div class="hero  min-h-auto">
+      <div class="hero-content text-center">
+        <div class="max-w-md">
+          <h1 class="text-3xl lg:text-5xl font-bold text-white text-center pt-20 mb-12 relative w-fit mx-auto z-10 satoshiM">
+            Valmon FAQs
+            <img
+              :src="rectangle"
+              alt="rectangular-background"
+              class="w-16 top-[5rem] right-[3rem] absolute -z-10"
+            >
+          </h1>
+          <h6 class="py-6 text-2xl text-white">
+            All concerns should be emailed to <span class="text-brightGold">support@valmonvalues.com</span> and we will get back to you
+          </h6>
+          <a
+            href="mailto:support@valmonvalues.com"
+            class="btn btn-outline border-white text-white"
+          >
+            Email Us
+          </a>
+        </div>
+      </div>
+    </div>
     <div class=" mx-auto mt-8 p-10 rounded-lg flex flex-wrap gap-4 container">
       <!-- Card left -->
       <div class="card card-compact bg-base-100  w-full lg:w-72 mb-20 lg:mb-5 shadow-xl bg-inherit border border-darkGold h-fit ">
