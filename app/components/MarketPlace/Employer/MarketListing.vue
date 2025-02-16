@@ -2,6 +2,9 @@
 import { accountController } from '~/services/modules/account'
 import { useGlobalStore } from '@/store'
 
+const props = defineProps({
+  listing: Array,
+})
 const store = useGlobalStore()
 const { singleListingCategory } = accountController()
 
@@ -20,8 +23,12 @@ const fetchSingleListing = async (id) => {
     loader.value = false
   }
 }
-
-fetchSingleListing(store.userIdForProfileCheck)
+if (store.UserAccount?.role == 'Admin' || store.UserAccount?.role == 'super_admin') {
+  marketListings.value = props?.listing
+}
+else {
+  fetchSingleListing(store.userIdForProfileCheck)
+}
 
 const startIndex = ref(0)
 const endIndex = ref(14)

@@ -3,11 +3,11 @@
 </script>
 
 <template>
-  <div>
+  <div class="w-full">
     <NavigationDashboardNavigation />
-    <div class="flex min-h-screen w-full relative sidebarwithMian">
-      <NavigationSideNavigation class="" />
-      <slot />
+    <div class="flex min-h-screen relative sidebarwithMian">
+      <NavigationSideNavigation class=" w-[270px]" />
+      <slot class="" />
     </div>
   </div>
 </template>

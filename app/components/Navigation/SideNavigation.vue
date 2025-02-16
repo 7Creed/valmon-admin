@@ -32,7 +32,7 @@ function changeActiveMenu(menu) {
 </script>
 
 <template>
-  <div class="bg-[#232222] text-white w-[270px] relative px-3 py-20">
+  <div class="bg-[#232222] text-white relative px-3 py-20">
     <div>
       <!-- Summary -->
       <nuxt-link

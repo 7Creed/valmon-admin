@@ -35,17 +35,44 @@ const emitEvent = (id) => {
 
   emit('products')
 }
+
+/* ------------------------------- Pagination ------------------------------- */
+
+const searchTerm = ref('')
+
+const filteredTxList = computed(() => {
+  // Ensure transactions and all_transactions exist
+  if (!listingSummary.value?.all_listings) return []
+
+  // Filter the list based on searchTerm
+  const searchTermLower = searchTerm.value.toLowerCase() // Convert once
+  const filteredList = listingSummary.value?.all_listings.filter(
+    item => item.name.toLowerCase().includes(searchTermLower),
+  )
+
+  // Return filteredList if it has items, otherwise return the full list
+  return filteredList.length ? filteredList : listingSummary.value?.all_listings
+})
+
+const startIndex = ref(0)
+const endIndex = ref(14)
+const pagination = (value) => {
+  console.log(value)
+  startIndex.value = value.start
+  endIndex.value = value.end
+}
 </script>
 
 <template>
-  <div class="text-card">
+  <div class="text-card w-full">
     <!-- Stats card -->
-    <div class=" flex flex-wrap gap-6 mb-10">
+    <div class=" flex  flex-wrap  w-4/5  gap-6 mb-10">
       <DashboardStatsCard
         title="Total Listings"
         :value="listingSummary?.totalListingCount"
         :icon="shop"
         icon-bg="bg-[#5EA6F41A]"
+        class=""
       />
       <DashboardStatsCard
         title="Listed Value"
@@ -67,7 +94,7 @@ const emitEvent = (id) => {
       />
     </div>
     <!-- Table -->
-    <div class="card card-compact bg-base-100 w-full shadow-xl">
+    <div class="card card-compact bg-base-100 w-full table_adjustment shadow-xl">
       <div class="card-body">
         <!-- Captions -->
         <div class="card-title justify-between border-b-[1.5px] pb-4">
@@ -80,7 +107,7 @@ const emitEvent = (id) => {
             <p>List Of All Listings on The Platform</p>
           </div>
           <!-- Content 2 -->
-          <div class="flex items-center w-1/3 gap-8 justify-between">
+          <div class="flex items-center gap-8 justify-between">
             <!-- Search -->
             <label class="input input-bordered flex items-center gap-2 flex-1">
               <svg
@@ -99,13 +126,14 @@ const emitEvent = (id) => {
               </svg>
 
               <input
+                v-model="searchTerm"
                 type="text"
                 class="grow"
                 placeholder="Search"
               >
             </label>
             <!-- filter -->
-            <span class="center gap-2">
+            <!-- <span class="center gap-2">
               <svg
                 width="21"
                 height="21"
@@ -122,12 +150,19 @@ const emitEvent = (id) => {
                 />
               </svg>
               <span class="text-base text-[#344054]">Filters</span>
-            </span>
+            </span> -->
           </div>
         </div>
         <!-- Table -->
         <div class="overflow-x-auto">
-          <table class="table">
+          <span
+            v-if="!filteredTxList.length || !filteredTxList"
+            class="loading loading-spinner"
+          />
+          <table
+            v-else
+            class="table table-auto"
+          >
             <!-- head -->
             <thead>
               <tr>
@@ -313,7 +348,7 @@ const emitEvent = (id) => {
               <!-- row 1 -->
               <!-- Use this -->
               <tr
-                v-for="(item, index) in listingSummary?.all_listings"
+                v-for="(item, index) in filteredTxList?.slice(startIndex, endIndex)"
                 :key="index"
               >
                 <th>
@@ -389,48 +424,12 @@ const emitEvent = (id) => {
               </tr>
             </tbody>
           </table>
-          <!-- pagination -->
-          <div class="card card-compact bg-base-100 shadow-xl mt-10">
-            <div class="card-body">
-              <div class="pagination flex items-center justify-between text-[#727376]">
-                <div class="flex items-baseline w-[28rem] justify-between">
-                  <span class="text-sm">Number Of Items displayed per page</span>
-                  <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
-                    <option>16</option>
-                  </select>
-                  <span class="text-sm">1-13 of 12,400 items</span>
-                </div>
-                <div class="join">
-                  <button class="join-item btn btn-sm">
-                    «
-                  </button>
-                  <button class="join-item btn bg-black text-white  btn-sm">
-                    1
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    2
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    3
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    4
-                  </button>
-                  <span class="join-item btn  btn-sm">
-                    ...
-                  </span>
-                  <button class="join-item btn  btn-sm">
-                    25
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    »
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
+    <SharedPagination
+      :item="filteredTxList.length"
+      @slice-index="pagination"
+    />
   </div>
 </template>

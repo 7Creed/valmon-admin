@@ -58,7 +58,7 @@ const selectSkill = (option, category, serviceId) => {
           </div>
           <div class="max-w-72 max-h-56 p-6">
             <img
-              :src="category.category_image"
+              :src="category.image_url"
               :alt="category.name"
             >
           </div>

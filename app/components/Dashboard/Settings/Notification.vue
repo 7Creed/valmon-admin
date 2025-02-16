@@ -41,7 +41,6 @@ const fetchNotification = async () => {
   try {
     const { status, data, error } = await getNotification()
     if (status.value === 'success') {
-      console.log(data.value.data)
       notification.notifications = data.value.data.notifications
       notification.new_report = data.value.data.new_report
       notification.sales_summary = data.value.data.sales_summary
@@ -72,10 +71,9 @@ fetchNotification()
           <input
             type="checkbox"
             class="toggle"
-            :checked="notification.notification"
-            @change="updateNotification('push_notification')"
+            :checked="notification.notifications"
+            @change="updateNotification('notifications')"
           >
-
         </label>
       </div>
       <div class="form-control mb-3">
@@ -85,7 +83,7 @@ fetchNotification()
             type="checkbox"
             class="toggle"
             :checked="notification.new_report"
-            @change="updateNotification('message_notification')"
+            @change="updateNotification('new_report')"
           >
         </label>
       </div>
@@ -96,7 +94,7 @@ fetchNotification()
             type="checkbox"
             class="toggle"
             :checked="notification.sales_summary"
-            @change="updateNotification('payment_notification')"
+            @change="updateNotification('sales_summary')"
           >
         </label>
       </div>
@@ -107,7 +105,7 @@ fetchNotification()
             type="checkbox"
             class="toggle"
             :checked="notification.new_user"
-            @change="updateNotification('email_notification')"
+            @change="updateNotification('new_user')"
           >
         </label>
       </div>
@@ -117,7 +115,11 @@ fetchNotification()
         :disabled="loading"
         @click="sendNotification"
       >
-        {{ loading ? 'Sending...' : 'Send Notification' }}
+        <span
+          v-if="loading"
+          class="loading loading-spinner"
+        />
+        <span v-else>Send Notification</span>
       </button>
     </div>
   </div>

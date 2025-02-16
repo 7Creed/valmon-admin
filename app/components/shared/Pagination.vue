@@ -24,7 +24,7 @@ const pagination = (value) => {
 
 <template>
   <!-- pagination -->
-  <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center mt-10 text-[#727376] ">
+  <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center mt-10 text-[#727376] w-2/4">
     <div class="join">
       <button
         class="join-item btn btn-sm bg-white"

@@ -22,12 +22,16 @@ function updateProductImage(image) {
 
 async function openChat(conversationId) {
   emit('viewChat', conversationId)
-  // store.$patch({
-  //   viewAdminChatId: id,
-  // })
+  store.$patch({
+    viewAdminChatId: id,
+  })
 }
 
-async function openContact() {
+async function openContact(id) {
+  store.$patch({
+    adminUserId: id,
+    profileChoice: 'listing',
+  })
   navigateTo('/profile')
 }
 
@@ -53,8 +57,11 @@ getListing(store.adminListingId)
 
 <template>
   <div class="w-full">
-    <SharedLoader  v-if="loading"/>
-    <div v-else class="h-[630px] flex gap-10 container mx-auto mb-8">
+    <SharedLoader v-if="loading" />
+    <div
+      v-else
+      class="h-[630px] flex gap-10 container mx-auto mb-8"
+    >
       <!-- Left -->
       <div class="card flex-col justify-center items-start card-compact bg-base-100 w-[50%] shadow-xl p-4">
         <figure class="flex h-full w-full">
@@ -64,7 +71,10 @@ getListing(store.adminListingId)
             class="h-full w-full"
           >
         </figure>
-        <div v-if="listing?.images.length > 1" class="card-body flex-row justify-center w-full">
+        <div
+          v-if="listing?.images.length > 1"
+          class="card-body flex-row justify-center w-full"
+        >
           <div
             v-for="(item, index) in listing?.images"
             :key="index"
@@ -167,7 +177,7 @@ getListing(store.adminListingId)
               <!-- Profile desc -->
               <div>
                 <h3 class="mb-1 text-[#24242] font-semibold text-sm">
-                 {{ listing.user?.first_name }} {{ listing.user?.last_name }}
+                  {{ listing.user?.first_name }} {{ listing.user?.last_name }}
                 </h3>
                 <div class="flex items-center gap-2">
                   <div class="rating w-4">
@@ -185,7 +195,7 @@ getListing(store.adminListingId)
 
             <button
               class="btn btn-outline  w-2/4"
-              @click="openContact()"
+              @click="openContact(listing.user_id)"
             >
               Profile
             </button>

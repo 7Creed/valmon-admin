@@ -42,7 +42,10 @@ export const useStore = defineStore('valmon_app_store', {
     activeSideMenu: 'summary',
     viewParentSubCategory: false,
     viewSkills: false,
+    /* ---------------------------------- Admin --------------------------------- */
     adminUserId: null,
+    profileChoice: 'user',
+    // end
     serviceCategory: [],
     userOnline: ref(false),
     UserAccount: null,

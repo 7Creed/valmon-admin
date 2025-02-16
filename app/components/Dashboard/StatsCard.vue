@@ -22,34 +22,40 @@ const percentageIncrease = (data) => {
 </script>
 
 <template>
-  <div class="card card-compact bg-base-100  shadow-xl">
+  <div class="card card-compact bg-base-100 w-[300px] dw-full shadow-xl">
     <template v-if="!props.secondCard">
-      <div class="card-body gap-1 w-80">
-        <h2 class=" text-sm">
+      <div class="card-body gap-2 p-4 md:p-6">
+        <!-- Title -->
+        <h2 class="text-sm md:text-base">
           {{ props.title }}
         </h2>
-        <div class="text-valmon_menu font-extrabold  text-xl satoshiM flex items-center justify-between ">
-          <span> {{ props.value }}</span>
+
+        <!-- Value and Icon -->
+        <div class="text-valmon_menu font-extrabold text-xl satoshiM flex items-center justify-between">
+          <span>{{ props.value }}</span>
           <!-- Card SVG -->
           <div
             v-if="props.icon"
-            class="w-14 h-14 center rounded-xl"
+            class="w-14 h-14 flex items-center justify-center rounded-xl"
             :class="iconBg"
           >
             <img
               :src="props.icon"
               :alt="props.title"
+              class="w-8 h-8"
             >
           </div>
         </div>
-        <!-- footer -->
+
+        <!-- Footer (Percentage) -->
         <div
           v-if="props.percentage && props.percentage !== 'N/A'"
-          class=" text-valmon_menu flex items-center gap-1 w-full"
+          class="text-valmon_menu flex items-center gap-1"
         >
-          <span class="text-valmon_green flex items-center gap-1" 
-          :class="{ 'text-valmon_green': percentageIncrease(props.percentage) === 'increased', 'text-red-700': percentageIncrease(props.percentage) === 'decreased'}">
-
+          <span
+            class="flex items-center gap-1"
+            :class="{ 'text-valmon_green': percentageIncrease(props.percentage) === 'increased', 'text-red-700': percentageIncrease(props.percentage) === 'decreased' }"
+          >
             <svg
               v-if="percentageIncrease(props.percentage) === 'increased'"
               width="17"
@@ -82,29 +88,34 @@ const percentageIncrease = (data) => {
         </div>
       </div>
     </template>
+
     <template v-else>
-      <div class="card-body flex-row  gap-4 items-center w-full">
+      <div class="card-body flex flex-col md:flex-row gap-4 items-center p-4 md:p-6">
         <!-- Card SVG -->
         <div
           v-if="props.icon"
-          class="w-1/2 center py-3 rounded-xl "
+          class="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-xl"
           :class="iconBg"
         >
           <img
             :src="props.icon"
             :alt="props.title"
+            class="w-10 h-10"
           >
         </div>
-        <div class="text-gray-500 font-extrabold  text-xl  w-full">
-          <h2 class=" text-sm mb-4">
+
+        <!-- Title and Value -->
+        <div class="text-gray-500 font-extrabold text-xl w-full">
+          <h2 class="text-sm md:text-base mb-2 md:mb-4">
             {{ props.title }}
           </h2>
           <span class="text-black satoshiM"> {{ props.value }}</span>
         </div>
-        <!-- footer -->
+
+        <!-- Footer (Percentage) -->
         <div
           v-if="props.percentage"
-          class=" text-valmon_menu fle items-center gap-1 w-full"
+          class="text-valmon_menu flex items-center gap-1 w-full"
         >
           <span class="text-valmon_green flex items-center gap-1">
             <svg

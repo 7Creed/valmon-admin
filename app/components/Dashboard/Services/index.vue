@@ -85,13 +85,38 @@ const saveCategory = async () => {
     loading.value = false
   }
 }
+/* ------------------------------- Pagination ------------------------------- */
+
+const searchTerm = ref('')
+
+const filteredTxList = computed(() => {
+  // Ensure transactions and all_transactions exist
+  if (!PCData.value) return []
+
+  // Filter the list based on searchTerm
+  const searchTermLower = searchTerm.value.toLowerCase() // Convert once
+  const filteredList = PCData.value.filter(
+    item => item.name.toLowerCase().includes(searchTermLower),
+  )
+
+  // Return filteredList if it has items, otherwise return the full list
+  return filteredList.length ? filteredList : PCData.value
+})
+
+const startIndex = ref(0)
+const endIndex = ref(14)
+const pagination = (value) => {
+  console.log(value)
+  startIndex.value = value.start
+  endIndex.value = value.end
+}
 </script>
 
 <template>
   <!-- Table -->
   <div
     v-if="store.viewParentSubCategory === false && store.viewSkills === false"
-    class="card card-compact bg-base-100 w-full shadow-xl"
+    class="card card-compact bg-base-100 w-full shadow-xl table_adjustment"
   >
     <div class="card-body">
       <!-- Captions -->
@@ -124,13 +149,14 @@ const saveCategory = async () => {
             </svg>
 
             <input
+              v-model="searchTerm"
               type="text"
               class="grow"
               placeholder="Search"
             >
           </label>
           <!-- filter -->
-          <span class="center gap-2">
+          <!-- <span class="center gap-2">
             <svg
               width="21"
               height="21"
@@ -152,12 +178,19 @@ const saveCategory = async () => {
               class=""
               onclick="my_modal_1.showModal()"
             />
-          </span>
+          </span> -->
         </div>
       </div>
       <!-- Table -->
       <div class="overflow-x-auto">
-        <table class="table text-center">
+        <span
+          v-if=" !filteredTxList.length || !filteredTxList"
+          class="loading loading-spinner"
+        />
+        <table
+          v-else
+          class="table text-center"
+        >
           <!-- head -->
           <thead>
             <tr>
@@ -285,7 +318,7 @@ const saveCategory = async () => {
           <tbody>
             <!-- row 1 -->
             <tr
-              v-for="(item, index) in PCData"
+              v-for="(item, index) in filteredTxList?.slice(startIndex, endIndex)"
               :key="index"
             >
               <th>
@@ -343,52 +376,14 @@ const saveCategory = async () => {
             </tr>
           </tbody>
         </table>
-        <!-- pagination -->
-        <div class="card card-compact bg-base-100 shadow-xl mt-10">
-          <div class="card-body">
-            <div class="pagination flex items-center justify-between text-[#727376]">
-              <div class="flex items-baseline w-[28rem] justify-between">
-                <span class="text-sm">Number Of Items displayed per page</span>
-                <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
-                  <option>16</option>
-                </select>
-                <span class="text-sm">1-13 of 12,400 items</span>
-              </div>
-              <div class="join">
-                <button class="join-item btn btn-sm">
-                  «
-                </button>
-                <button class="join-item btn bg-black text-white  btn-sm">
-                  1
-                </button>
-                <button class="join-item btn  btn-sm">
-                  2
-                </button>
-                <button class="join-item btn  btn-sm">
-                  3
-                </button>
-                <button class="join-item btn  btn-sm">
-                  4
-                </button>
-                <span
-                  class="join-item btn  btn-sm"
-                >
-                  ...
-                </span>
-                <button class="join-item btn  btn-sm">
-                  25
-                </button>
-                <button class="join-item btn  btn-sm">
-                  »
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
-
+  <SharedPagination
+    v-if="store.viewParentSubCategory === false && store.viewSkills === false"
+    :item="filteredTxList.length"
+    @slice-index="pagination"
+  />
   <!-- Sub-Category -->
   <DashboardServicesSubCategory
     v-if="store.viewParentSubCategory && store.viewSkills === false"

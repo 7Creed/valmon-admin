@@ -26,10 +26,10 @@ const goBackward = () => {
 
 <!-- TODO :Pass Negotiation Id to View Chat  -->
 <template>
-  <div class="text-card bg-primary_bg w-full p-10 px-14">
+  <div class="text-card bg-primary_bg w-5/6 p-10 px-14">
     <div
       v-if="activeComp !== 'viewChat' && activeComp !== 'products'"
-      class="flex bg-white p-3 rounded-xl w-2/4 items-center justify-evenly mb-6"
+      class="flex bg-white p-3 rounded-xl xl:w-2/4 items-center justify-evenly mb-6"
     >
       <a
         href="javascript:void(0);"

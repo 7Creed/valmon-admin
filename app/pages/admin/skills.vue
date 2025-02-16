@@ -42,7 +42,7 @@ getSkillsTxn()
     <div
       v-if="store.viewParentSubCategory === false"
 
-      class="flex bg-white p-3 rounded-xl w-1/4 items-center justify-evenly mb-6"
+      class="flex bg-white p-3 rounded-xl w-2/4 xl:w-2/6 items-center justify-evenly mb-6"
     >
       <a
         href="javascript:void(0);"

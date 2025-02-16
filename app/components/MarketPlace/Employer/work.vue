@@ -18,6 +18,7 @@ const store = useGlobalStore()
 const workerTab = ref('profile')
 const toggleTab = (tab) => {
   workerTab.value = tab
+  if (tab == 'marketplace') fetchUsers(store.adminUserId)
 }
 
 const viewAll = (tab) => {
@@ -124,7 +125,6 @@ const removeUser = async (id) => {
 }
 // Fetch single User Gallery
 if (store.UserAccount?.role == 'Admin' || store.UserAccount?.role == 'super_admin') {
-  console.log('dashbord profile')
   fetchUsers(store.adminUserId)
 }
 else {
@@ -156,13 +156,22 @@ const deriveLastSeenAt = (lastSeenAt) => {
   isOnline.value = diffInMinutes >= 30
 }
 
-watch(userInfo, (newVal, oldVal) => {
-  if (newVal) {
-    deriveLastSeenAt(newVal.last_seen_at)
-  }
-})
+watch(
+  [() => userInfo.value, () => adminUsers.value],
+  ([newUserInfo, newAdminUsers]) => {
+    const isAdmin = store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin'
 
-// User Online Presence
+    if (newUserInfo && !isAdmin) {
+      deriveLastSeenAt(newUserInfo.last_seen_at)
+    }
+
+    if (newAdminUsers && isAdmin) {
+      deriveLastSeenAt(newAdminUsers.last_seen_at)
+    }
+  },
+)
+
+// TODO: User Online Presence
 
 const userStatus = ref('') // Holds the user's status
 
@@ -190,7 +199,7 @@ let interval
 // onUnmounted(() => {
 //   clearInterval(interval) // Clean up
 // })
-
+/* --------------------------------- reviews -------------------------------- */
 const computedReviews = reactive({
   average: 0,
   data: [],
@@ -252,6 +261,14 @@ const restore = async (id) => {
     console.error('Delete User failed:', error.value.data.message)
   }
 }
+const backToAdmin = () => {
+  if (store.profileChoice == 'listing') {
+    navigateTo('/admin/market')
+  }
+  else {
+    navigateTo('/admin/user')
+  }
+}
 </script>
 
 <template>
@@ -263,19 +280,21 @@ const restore = async (id) => {
     </ul>
   </div> -->
   <div
-    class="flex flex-col  lg:flex-row gap-8 pb-20 xxl:px-20 relative pt-5"
-    :class="{ 'flex-col': store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin' }"
+    class="flex  gap-8 pb-20 xxl:px-20 relative pt-5"
+    :class="{ 'flex-col': (store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin') }"
   >
-    <NuxtLink
+    <a
       v-if="store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin'"
-      to="/user"
+      href="javascript:void(0)"
+
+      @click="backToAdmin"
     >
       <BaseBackButton class="absolute top-15 left-[-10px]" />
-    </NuxtLink>
+    </a>
     <!-- Dashboard view -->
     <template v-if="store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin'">
-      <aside class="">
-        <div class="card card-compact bg-base-100 w-3/5 shadow-xl">
+      <aside class="xl:w-3/4">
+        <div class="card card-compact bg-base-100  shadow-xl mx-auto">
           <div class="card-body flex-row gap-20">
             <div class="flex flex-col flex-1">
               <div class="flex justify-between">
@@ -284,7 +303,7 @@ const restore = async (id) => {
                   <!-- avatar -->
                   <div class="avatar">
                     <div class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2">
-                      <img :src="adminUsers.profile_pic">
+                      <img :src="adminUsers?.profile_pic">
                     </div>
                   </div>
                   <!-- Profile desc -->
@@ -293,7 +312,11 @@ const restore = async (id) => {
                       {{ adminUsers.first_name }} {{ adminUsers.last_name }}
                     </h3>
                     <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
-                      <span class="t#62646Aext-black">{{ adminUsers?.profile?.services[0]?.service?.name }}</span>
+                      <span
+                        v-if="adminUsers?.profile?.services"
+                        class="t#62646Aext-black"
+                      >{{ adminUsers?.profile?.services[0]?.service?.name }}</span>
+                      <span v-else>N/A</span>
                     </div>
                     <div class="flex items-center gap-2">
                       <div class="rating w-4">
@@ -316,8 +339,12 @@ const restore = async (id) => {
                       alt="Location icon"
                       class="h-5"
                     >
-                    <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.city }}, {{
-                      userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.country }}</span>
+                    <span
+                      v-if="adminUsers?.profile?.addresses"
+                      class="font-medium text-[rgba(0,0,0,1)]"
+                    >{{ adminUsers?.profile?.addresses[ adminUsers?.profile?.addresses.length -1]?.city }}, {{
+                      adminUsers?.profile?.addresses[ adminUsers?.profile?.addresses.length -1]?.country }} </span>
+                    <span v-else>N/A</span>
                   </div>
                   <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
                     <img
@@ -330,44 +357,77 @@ const restore = async (id) => {
                   </div>
                   <!-- Online Presence -->
                   <div class="relative flex gap-2">
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 18 18"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <circle
-                        opacity="0.2"
-                        cx="9"
-                        cy="9"
-                        r="9"
-                        fill="#0CA408"
-                      />
-                    </svg>
-                    <svg
-                      class="absolute top-[4px] left-[5px]"
-                      width="9"
-                      height="10"
-                      viewBox="0 0 9 10"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <circle
-                        cx="4.5"
-                        cy="5"
-                        r="4.5"
-                        fill="#0CA408"
-                      />
-                    </svg>
+                    <span>
+                      <template v-if="isOnline">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 18 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            opacity="0.2"
+                            cx="9"
+                            cy="9"
+                            r="9"
+                            fill="#0CA408"
+                          />
+                        </svg>
+                        <svg
+                          class="absolute top-[4px] left-[5px]"
+                          width="9"
+                          height="10"
+                          viewBox="0 0 9 10"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            cx="4.5"
+                            cy="5"
+                            r="4.5"
+                            fill="#0CA408"
+                          />
+                        </svg>
+                      </template>
+                      <template v-else>
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 18 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            opacity="0.2"
+                            cx="9"
+                            cy="9"
+                            r="9"
+                            fill="#FF0000 "
+                          />
+                        </svg>
+                        <svg
+                          class="absolute top-[4px] left-[5px]"
+                          width="9"
+                          height="10"
+                          viewBox="0 0 9 10"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            cx="4.5"
+                            cy="5"
+                            r="4.5"
+                            fill="#FF0000 "
+                          />
+                        </svg>
+                      </template>
+                    </span>
                     <span
-                      v-if="userInfo.account_status === 'ACTIVE'"
-                      class="text-sm font-bold text-green-500"
-                    >Online</span>
-                    <span
-                      v-if="!userInfo.account_status === 'ACTIVE'"
-                      class="text-sm font-bold text-green-500"
-                    >Offline</span>
+                      class="text-sm font-bold"
+                      :class="isOnline ? 'text-green-500' : 'text-red-500'"
+                      v-text="isOnline ? 'Online' : 'Offline'"
+                    />
                   </div>
                 </div>
               </div>

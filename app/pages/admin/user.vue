@@ -3,7 +3,7 @@ import profile from '@/assets/icons/cardprofile.svg'
 import { useGlobalStore } from '@/store'
 import { UsersController } from '~/services/modules/Admin/users'
 
-const { showAllUsers, deleteUser, getUsersSummary,  } = UsersController()
+const { showAllUsers, deleteUser, getUsersSummary } = UsersController()
 
 const store = useGlobalStore()
 
@@ -19,27 +19,8 @@ const viewProfile = (id) => {
 }
 
 // Loaders
-const allUsersLoader = ref(false)
-const summaryLoader = ref(false)
-const deleteLoader = ref(false)
-const userLoader = ref(false)
 
-const allUsers = ref({})
 const summary = ref({})
-const FetchID = async (func, id, loader = null, alert = true) => {
-  if (loader) loader.value = true
-  const { status, data, error } = await func(id)
-  if (status.value === 'success') {
-    console.log(data.value.data)
-    if (alert) handleALert('success', data.value.message)
-    if (loader) loader.value = true
-  }
-  if (status.value === 'error') {
-    if (alert) handleALert('error', error.value.data.message)
-    if (loader) loader.value = true
-  }
-}
-
 const Fetch = async (func, loader = null, alert = true) => {
   if (loader) loader.value = true
   const { status, data, error } = await func()
@@ -59,25 +40,29 @@ const Fetch = async (func, loader = null, alert = true) => {
   }
 }
 
-const fetchAllUsers = async (page = 3, search = '') => {
+const allUsersLoader = ref(false)
+const allUsers = ref({})
+const pagination = ref({})
+
+const fetchAllUsers = async (page, perPage, search, pageUrl) => {
   try {
     allUsersLoader.value = true
-    const { status, data, error } = await showAllUsers(page, search)
+    const { status, data, error } = await showAllUsers(page, perPage, search, pageUrl)
     if (status.value === 'success') {
-      allUsersLoader.value = true
-      console.log(data.value.data)
-      allUsers.value = data.value.data
-      handleALert('success', data.value.message)
+      allUsersLoader.value = false
+      allUsers.value = data.value.data.users
+      pagination.value = data.value.data.pagination
     }
     if (status.value === 'error') {
       handleALert('error', error.value.message)
-      allUsersLoader.value = true
+      allUsersLoader.value = false
     }
   }
   catch (error) {
     console.error(error)
   }
 }
+
 const removeUser = async (id) => {
   const { data, error, status } = await deleteUser(id)
 
@@ -90,9 +75,31 @@ const removeUser = async (id) => {
   }
 }
 
-
-fetchAllUsers()
+fetchAllUsers(1, 14, null, null)
 Fetch(getUsersSummary)
+
+/* ------------------------------- Pagination ------------------------------- */
+const searchTerm = ref('')
+const extractUrl = (url) => {
+  const extractedUrl = url.split('admin/')
+  return extractedUrl[1]
+}
+const paginate = (value) => {
+  if (value === 'prev' && pagination.value.prev_page_url) {
+    const url = extractUrl(pagination.value.prev_page_url)
+    fetchAllUsers(null, null, null, url)
+  }
+  if (value === 'next' && pagination.value.next_page_url) {
+    const url = extractUrl(pagination.value.next_page_url)
+    fetchAllUsers(null, null, null, url)
+  }
+}
+
+watch(searchTerm, (newVal, oldVal) => {
+  if (newVal) {
+    fetchAllUsers(1, 14, newVal, null)
+  }
+})
 </script>
 
 <template>
@@ -122,20 +129,20 @@ Fetch(getUsersSummary)
       />
     </div>
     <!-- Table -->
-    <div class="card card-compact bg-base-100 w-full shadow-xl">
+    <div class="card card-compact bg-base-100 table_adjustment shadow-xl">
       <div class="card-body">
         <!-- Captions -->
-        <div class="card-title justify-between border-b-[1.5px] pb-4">
+        <div class="card-title justify-between border-b-[1.5px] pb-4 w-full">
           <!-- content 1 -->
           <div class="text-sm">
             <div class="mb-2">
               <span class="text-valmon_menu font-medium">Customers</span>
-              <span class="inline-block text-valmon_Gold text-xs ms-3">{{ allUsers?.pagination?.total }} Registered</span>
+              <span class="inline-block text-valmon_Gold text-xs ms-3">{{ pagination?.total }} Registered</span>
             </div>
             <p>List Of All Customers on The Platform</p>
           </div>
           <!-- Content 2 -->
-          <div class="flex items-center flex-wrap lg:w-1/3 gap-8 justify-between">
+          <div class=" flex items-center flex-wrap gap-8 justify-between">
             <!-- Search -->
             <label class=" input input-bordered flex items-center gap-2 flex-1">
               <svg
@@ -154,13 +161,14 @@ Fetch(getUsersSummary)
               </svg>
 
               <input
+                v-model="searchTerm"
                 type="text"
                 class="grow"
                 placeholder="Search"
               >
             </label>
             <!-- filter -->
-            <span class="center gap-2">
+            <!-- <span class=" center gap-2">
               <svg
                 width="21"
                 height="21"
@@ -177,12 +185,19 @@ Fetch(getUsersSummary)
                 />
               </svg>
               <span class="text-base text-[#344054]">Filters</span>
-            </span>
+            </span> -->
           </div>
         </div>
         <!-- Table -->
         <div class="overflow-x-auto">
-          <table class="table table-auto">
+          <span
+            v-if="allUsersLoader"
+            class="loading loading-spinner"
+          />
+          <table
+            v-else
+            class="table table-auto"
+          >
             <!-- head -->
             <thead>
               <tr>
@@ -348,7 +363,7 @@ Fetch(getUsersSummary)
             <tbody>
               <!-- Use this -->
               <tr
-                v-for="(item, index) in allUsers?.users"
+                v-for="(item, index) in allUsers"
                 :key="item.id"
               >
                 <th>
@@ -375,7 +390,7 @@ Fetch(getUsersSummary)
                 <td>{{ item.reported_count ?? 0 }}</td>
                 <td>{{ item.type }}</td>
                 <td>{{ item.last_seen_at === 'Never' ? 'Never' : formatDate(item.last_seen_at) }}</td>
-                <th >
+                <th>
                   <button
                     v-if="item.status === 'ACTIVE'"
                     class="btn text-[#364254]  btn-xs"
@@ -420,55 +435,33 @@ Fetch(getUsersSummary)
                         href="javascript:void(0)"
                       >View</a>
                     </li>
-                    <li @click="removeUser(item.id)"><a>Delete</a></li>
+                    <li @click="removeUser(item.id)">
+                      <a>Delete</a>
+                    </li>
                   </ul>
                 </td>
               </tr>
             </tbody>
           </table>
-          <!-- pagination -->
-          <div class="card card-compact bg-base-100 shadow-xl mt-10">
-            <div class="card-body">
-              <div class="pagination flex items-center justify-between text-[#727376]">
-                <div class="flex items-baseline w-[28rem] justify-between">
-                  <span class="text-sm">Number Of Items displayed per page</span>
-                  <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
-                    <option>16</option>
-                  </select>
-                  <span class="text-sm">1-13 of 12,400 items</span>
-                </div>
-                <div class="join">
-                  <button class="join-item btn btn-sm">
-                    «
-                  </button>
-                  <button class="join-item btn bg-black text-white  btn-sm">
-                    1
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    2
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    3
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    4
-                  </button>
-                  <span
-                    class="join-item btn  btn-sm"
-                  >
-                    ...
-                  </span>
-                  <button class="join-item btn  btn-sm">
-                    25
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    »
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
+      </div>
+    </div>
+    <!-- pagination -->
+    <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center mt-10 text-[#727376] ">
+      <div class="join">
+        <button
+          class="join-item btn btn-sm bg-white"
+          @click="paginate('prev')"
+        >
+          «
+        </button>
+
+        <button
+          class="join-item btn btn-sm bg-white"
+          @click="paginate('next')"
+        >
+          »
+        </button>
       </div>
     </div>
   </div>

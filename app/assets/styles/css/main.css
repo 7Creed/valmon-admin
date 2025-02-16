@@ -82,7 +82,7 @@ body {
   margin-bottom: 8rem;
 }
 .skill {
-  animation: scroll 20s linear infinite ;
+  animation: scroll 20s linear infinite;
 }
 /* Infinite scroll animation */
 @keyframes scroll {
@@ -92,4 +92,8 @@ body {
   100% {
     left: -100%;
   }
+}
+
+.table_adjustment {
+  @apply w-[90%] xxl:w-full !important;
 }

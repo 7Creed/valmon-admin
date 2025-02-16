@@ -25,12 +25,12 @@ export const useBaseApi = () => {
         const store = useGlobalStore()
         console.log('response', response)
         // Handle errors (e.g., redirect on 401)
-        if (response.status === 401) {
-          // Reset the User Information
-          store.UserAccount = null
+        // if (response.status === 401) {
+        //   // Reset the User Information
+        //   store.UserAccount = null
 
-          navigateTo('/login')
-        }
+        //   navigateTo('/login')
+        // }
         // Redirect on 404
       },
     }

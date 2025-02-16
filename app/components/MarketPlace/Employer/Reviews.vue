@@ -9,7 +9,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
 }
 
 const startIndex = ref(0)
-const endIndex = ref(1)
+const endIndex = ref(14)
 const pagination = (value) => {
   console.log(value)
   startIndex.value = value.start
@@ -22,14 +22,14 @@ const pagination = (value) => {
   <section>
     <div class="card card-compact bg-base-100 shadow-xl px-6 py-4">
       <SharedAvailable
-        v-if="!props?.reviews?.average "
+        v-if="!props?.reviews?.data.length "
         message="Reviews"
       />
       <div
         v-else
-        class="card-body flex-col flex-wrap  gap-5 "
+        class="card-body flex-col md:flex-row flex-wrap  gap-5 "
       >
-        <div class="flex flex-wrap justify-center items-center lg:px-8 gap-8">
+        <div class="flex flex-col md:flex-wrap justify-center sm:justify-start items-center lg:px-8 gap-8">
           <div class="flex flex-col gap-2 items-center">
             <!-- rating -->
             <span class="text-black flex items-center gap-3">

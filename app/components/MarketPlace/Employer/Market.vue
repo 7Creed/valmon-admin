@@ -16,15 +16,6 @@ const callListing = async () => {
   marketListings.value = props?.otherListings
 }
 
-// Fetch single User Gallery
-if (store.UserAccount?.role == 'Admin' || store.UserAccount?.role == 'super_admin') {
-  console.log('dashbord profile')
-  marketListings.value = props.otherListings
-}
-else {
-  callListing()
-}
-
 watch(props, (newVal) => {
   if (newVal) callListing()
 }, {

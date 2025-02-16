@@ -9,7 +9,6 @@ import { MiscController } from '~/services/modules/misc'
 const { getCurrencies, getBanks } = MiscController()
 const { getWalletSummary, withdraw, withdrawOtp } = WalletController()
 
-
 definePageMeta({
   layout: 'dashboard-layout',
 })
@@ -75,8 +74,6 @@ const fetchCurrencies = async () => {
   }
 }
 fetchCurrencies()
-
-
 
 const Tab = ref('wallet')
 const toggleTab = (tab) => {
@@ -151,6 +148,32 @@ const WithdrawToBank = async () => {
     handleALert('error', error.value.data.message)
     console.log(error.value)
   }
+}
+
+/* ------------------------------- Pagination ------------------------------- */
+
+const searchTerm = ref('')
+
+const filteredTxList = computed(() => {
+  // Ensure transactions and all_transactions exist
+  if (!walletSummary?.value?.transactions) return []
+
+  // Filter the list based on searchTerm
+  const searchTermLower = searchTerm.value.toLowerCase() // Convert once
+  const filteredList = walletSummary?.value?.transactions.filter(
+    item => item.amount.toLowerCase().includes(searchTermLower),
+  )
+
+  // Return filteredList if it has items, otherwise return the full list
+  return filteredList.length ? filteredList : walletSummary?.value?.transactions
+})
+
+const startIndex = ref(0)
+const endIndex = ref(14)
+const pagination = (value) => {
+  console.log(value)
+  startIndex.value = value.start
+  endIndex.value = value.end
 }
 </script>
 
@@ -327,7 +350,7 @@ const WithdrawToBank = async () => {
             <p>List Of All Customers on The Platform</p>
           </div>
           <!-- Content 2 -->
-          <div class="flex items-center w-1/3 gap-8 justify-between">
+          <div class="flex items-center gap-8 justify-between">
             <!-- Search -->
             <label class="input input-bordered flex items-center gap-2 flex-1">
               <svg
@@ -346,13 +369,14 @@ const WithdrawToBank = async () => {
               </svg>
 
               <input
+                v-model="searchTerms"
                 type="text"
                 class="grow"
                 placeholder="Search"
               >
             </label>
             <!-- filter -->
-            <span class="center gap-2">
+            <!-- <span class="center gap-2">
               <svg
                 width="21"
                 height="21"
@@ -369,12 +393,16 @@ const WithdrawToBank = async () => {
                 />
               </svg>
               <span class="text-base text-[#344054]">Filters</span>
-            </span>
+            </span> -->
           </div>
         </div>
         <!-- Table -->
         <div class="overflow-x-auto">
-          <table class="table">
+          <span
+            v-if="!filteredTxList.length || !filteredTxList"
+            class="loading loading-spinner"
+          />
+          <table v-else class="table ">
             <!-- head -->
             <thead>
               <tr>
@@ -481,7 +509,7 @@ const WithdrawToBank = async () => {
             <tbody>
               <!-- Use this -->
               <tr
-                v-for="(item, index) in walletSummary.transactions"
+                v-for="(item, index) in filteredTxList?.slice(startIndex, endIndex)"
                 :key="index"
               >
                 <th>
@@ -534,57 +562,20 @@ const WithdrawToBank = async () => {
               </tr>
             </tbody>
           </table>
-          <!-- pagination -->
-          <div class="card card-compact bg-base-100 shadow-xl mt-10">
-            <div class="card-body">
-              <div class="pagination flex items-center justify-between text-[#727376]">
-                <div class="flex items-baseline w-[28rem] justify-between">
-                  <span class="text-sm">Number Of Items displayed per page</span>
-                  <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
-                    <option>16</option>
-                  </select>
-                  <span class="text-sm">1-13 of 12,400 items</span>
-                </div>
-                <div class="join">
-                  <button class="join-item btn btn-sm">
-                    «
-                  </button>
-                  <button class="join-item btn bg-black text-white  btn-sm">
-                    1
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    2
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    3
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    4
-                  </button>
-                  <span class="join-item btn  btn-sm">
-                    ...
-                  </span>
-                  <button class="join-item btn  btn-sm">
-                    25
-                  </button>
-                  <button class="join-item btn  btn-sm">
-                    »
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-
+    <SharedPagination
+      :item="filteredTxList.length"
+      @slice-index="pagination"
+    />
     <dialog
       id="my_modal_2"
       class="modal"
     >
       <div class="modal-box">
         <h1 class="text-center text-[#232323] text-3xl font-bold mb-5">
-            Withdraw Fund
+          Withdraw Fund
         </h1>
         <!-- card -->
         <div class=" p-5">
