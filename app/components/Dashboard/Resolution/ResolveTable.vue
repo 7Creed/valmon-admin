@@ -110,7 +110,7 @@ const formatedDate = date => formatDate(date)
               >
             </label>
             <!-- filter -->
-            <span class="center gap-2">
+            <!-- <span class="center gap-2">
               <svg
                 width="21"
                 height="21"
@@ -127,7 +127,7 @@ const formatedDate = date => formatDate(date)
                 />
               </svg>
               <span class="text-base text-[#344054]">Filters</span>
-            </span>
+            </span> -->
           </div>
         </div>
         <!-- Table -->

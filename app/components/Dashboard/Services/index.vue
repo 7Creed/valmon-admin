@@ -156,8 +156,8 @@ const pagination = (value) => {
             >
           </label>
           <!-- filter -->
-          <!-- <span class="center gap-2">
-            <svg
+          <span class="center gap-2">
+            <!-- <svg
               width="21"
               height="21"
               viewBox="0 0 21 21"
@@ -172,13 +172,13 @@ const pagination = (value) => {
                 stroke-linejoin="round"
               />
             </svg>
-            <span class="text-base text-[#344054]">Filters</span>
+            <span class="text-base text-[#344054]">Filters</span> -->
             <BaseAddButton
               title="Add New"
               class=""
               onclick="my_modal_1.showModal()"
             />
-          </span> -->
+          </span>
         </div>
       </div>
       <!-- Table -->

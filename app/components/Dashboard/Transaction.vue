@@ -162,8 +162,8 @@ const pagination = (value) => {
               >
             </label>
             <!-- filter -->
-            <!-- <span class="center gap-2">
-              <svg
+            <span class="center gap-2">
+              <!-- <svg
                 width="21"
                 height="21"
                 viewBox="0 0 21 21"
@@ -177,7 +177,7 @@ const pagination = (value) => {
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
-              </svg>
+              </svg> -->
               <span class="text-base text-[#344054]">Filters</span>
               <BaseAddButton
                 v-if="type == 'sub-category'"
@@ -185,7 +185,7 @@ const pagination = (value) => {
                 class=""
                 onclick="my_modal_1.showModal()"
               />
-            </span> -->
+            </span>
           </div>
         </div>
         <!-- Table -->
