@@ -7,6 +7,8 @@ export const SKillsController = () => {
   const parentCategory = () => get('skills/categories')
   const subCategory = id => get(`skills/${id}/sub-categories`)
   const customer = id => get(`skills/${id}/customers`)
+  const deleteSC = id => del(`services/${id}`)
+  const editSC = (id, data) => put(`services/${id}`, data)
 
   // Admin
   const createCategory = data => post('create/category', data)
@@ -20,5 +22,7 @@ export const SKillsController = () => {
     customer,
     createSubCategory,
     createCategory,
+    deleteSC,
+    editSC,
   }
 }

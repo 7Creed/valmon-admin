@@ -90,7 +90,12 @@ export const useStore = defineStore('valmon_app_store', {
     // Admin
     adminListingId: null,
     viewAdminChatId: null,
+    Transaction: {
+      key: '',
+      id: null,
+    },
 
+    NewSubCategory: false,
     /* ----------------------------- Filter section ----------------------------- */
 
     // Home ( parent category and services)
@@ -170,6 +175,10 @@ export const useStore = defineStore('valmon_app_store', {
         title,
         price,
       }
+    },
+    updateTx(key, id) {
+      this.Transaction.key = key
+      this.Transaction.id = id
     },
     // Add method to clear specific state
     clearState(key) {

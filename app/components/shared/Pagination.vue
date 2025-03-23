@@ -5,8 +5,8 @@ const props = defineProps({
 })
 // Pagination
 const startIndex = ref(0)
-const endIndex = ref(1)
-const itemsPerPage = 1
+const endIndex = ref(14)
+const itemsPerPage = 14
 const pagination = (value) => {
   console.log(value, props?.item)
   if (value == 'next' && endIndex.value < props?.item) {

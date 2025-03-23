@@ -4,13 +4,21 @@ import cardwhite from '@/assets/icons/card-pos.svg'
 import cardblack from '@/assets/icons/card-pos-black.svg'
 
 import { SKillsController } from '~/services/modules/Admin/skills'
+import { useGlobalStore } from '~/store'
 
-const { createSubCategory } = SKillsController()
+const store = useGlobalStore()
+const addSubCatBtn = ref(null)
+
+
+store.NewSubCategory = false
+
+const { createSubCategory, editSC } = SKillsController()
 const props = defineProps({
   viewOption: String,
   type: String,
   transactions: Array,
   categoryId: String,
+  txLoader: Boolean,
 })
 const emit = defineEmits(['custom-events'])
 
@@ -18,13 +26,13 @@ const view = (id) => {
   emit('custom-events', id)
 }
 
-const Services = inject('services')
+// const Services = inject('services')
 
-const fileData = ref(null)
-const setFile = (e) => {
-  fileData.value = (e.target).files?.[0]
-  console.log(fileData.value)
-}
+// const fileData = ref(null)
+// const setFile = (e) => {
+//   fileData.value = (e.target).files?.[0]
+//   console.log(fileData.value)
+// }
 
 const subCategory = reactive({
   name: '',
@@ -33,24 +41,46 @@ const subCategory = reactive({
 })
 
 const loader = ref(false)
-const addSubCategory = () => {
+const selectedItemId = ref(null)
+
+const addSubCategory = async () => {
   const formdata = new FormData()
   formdata.append('name', subCategory.name)
   formdata.append('description', subCategory.description)
   formdata.append('service_category_id', subCategory.service_category_id)
-  formdata.append('service_image', fileData.value)
+  // formdata.append('service_image', fileData.value)
 
   loader.value = true
-  const { data, error, status } = createSubCategory(formdata)
+  const { data, error, status } = selectedItemId.value ? await editSC(selectedItemId.value, subCategory) : await createSubCategory(formdata)
   if (status.value === 'success') {
+    store.NewSubCategory = true
     loader.value = false
     handleALert('success', data.value.message)
     console.log(data.value.message)
+    closeModal(addSubCatBtn)
   }
   if (status.value === 'error') {
     loader.value = false
     console.log(error.value.message)
+    closeModal(addSubCatBtn)
   }
+}
+/* -------- Update/delete the Transaction store property for deleting items -------- */
+// EDIT
+const addNew = ref(null)
+
+const addSubCategorySkills = () => {
+  selectedItemId.value = null
+  if (addNew.value) addNew.value.click()
+}
+const edit = (id) => {
+  selectedItemId.value = id
+  if (addNew.value) addNew.value.click()
+}
+
+// DELETE
+const deleteSC = (key, id) => {
+  store.updateTx(key, id)
 }
 /* ------------------------------- Pagination ------------------------------- */
 
@@ -126,7 +156,7 @@ const pagination = (value) => {
                 v-if="type == 'sub-category'"
                 class="inline-block text-valmon_Gold text-xs ms-3"
               >{{
-                transactions?.all_sub_categories?.length }} Sub Categories</span>
+                transactions?.all_sub_categories?.length }}  Sub Categories</span>
             </div>
             <p v-if="type == 'skill'">
               List Of All Transactions on The Platform
@@ -179,20 +209,24 @@ const pagination = (value) => {
                 />
               </svg> -->
               <span class="text-base text-[#344054]">Filters</span>
-              <BaseAddButton
-                v-if="type == 'sub-category'"
-                title="Add New"
-                class=""
-                onclick="my_modal_1.showModal()"
-              />
+              <span v-if="type == 'sub-category'">
+                <BaseAddButton
+                  title="Add New"
+                  @click="addSubCategorySkills"
+                />
+                <span
+                  ref="addNew"
+                  onclick="my_modal_1.showModal()"
+                />
+              </span>
             </span>
           </div>
         </div>
         <!-- Table -->
         <div class="overflow-x-auto">
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto pb-[12rem]">
             <span
-              v-if=" !filteredTxList.length || !filteredTxList"
+              v-if="txLoader || !filteredTxList"
               class="loading loading-spinner"
             />
             <table
@@ -471,7 +505,12 @@ const pagination = (value) => {
                         <li @click="view(item.id)">
                           <a>View</a>
                         </li>
-                        <li><a>Delete</a></li>
+                        <li @click="edit(item.id)">
+                          <a>Edit</a>
+                        </li>
+                        <li @click="deleteSC('subcategory', item.id)">
+                          <a>Delete</a>
+                        </li>
                       </ul>
                     </td>
                   </tr>
@@ -492,8 +531,13 @@ const pagination = (value) => {
       class="modal"
     >
       <div class="modal-box">
-        <h3 class="text-3xl font-bold text-center text-[rgba(35, 35, 35, 1)] mb-4">
-          Sub Category Name
+        <h3
+          class="text-3xl font-bold text-center text-[rgba(35, 35, 35, 1)] mb-4"
+          :class="{ 'text-red-500': selectedItemId }"
+        >
+          <span
+            v-if="selectedItemId"
+          >Edit</span> Sub Category Name
         </h3>
         <BaseInput
           v-model="subCategory.name"
@@ -515,7 +559,7 @@ const pagination = (value) => {
 
         </label>
 
-        <label class="form-control w-full mb-6">
+        <!-- <label class="form-control w-full mb-6">
           <div class="label">
             <span class="label-text text-labels font-medium">Pick a file</span>
 
@@ -525,10 +569,10 @@ const pagination = (value) => {
             class="file-input file-input-bordered w-full "
             @change="setFile"
           >
-        </label>
+        </label> -->
 
         <BaseButton
-          :loading="loading"
+          :loading="loader"
           title="Add"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
@@ -540,7 +584,10 @@ const pagination = (value) => {
         <div class="modal-action">
           <form method="dialog">
             <!-- if there is a button in form, it will close the modal -->
-            <button class="btn">
+            <button
+              ref="addSubCatBtn"
+              class="btn"
+            >
               Close
             </button>
           </form>

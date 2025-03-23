@@ -6,7 +6,7 @@ const emit = defineEmits(['customer-events'])
 const props = defineProps({
   categoryId: String,
 })
-const { subCategory } = SKillsController()
+const { subCategory, deleteSC } = SKillsController()
 
 const store = useGlobalStore()
 
@@ -22,7 +22,7 @@ const setViewSkill = (id) => {
   })
   emit('customer-events', id)
 }
-
+const TxLoader = ref(true)
 const subCategoryData = ref({})
 const fetchSubCategory = async (id) => {
   try {
@@ -35,9 +35,34 @@ const fetchSubCategory = async (id) => {
     }
   }
   catch (error) {
-    handleError(error)
+    console.log(error)
+  }
+  finally {
+    TxLoader.value = false
   }
 }
+// Delete From List after checking update from the store
+
+watch(() => store.Transaction.id, (newVal, oldVal) => {
+  if (newVal && store.Transaction.key == 'subcategory') {
+    deleteSubCategory(newVal)
+  }
+})
+const deleteSubCategory = async (id) => {
+  const { data, error, status } = await deleteSC(id)
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+    fetchSubCategory(props?.categoryId)
+  }
+  if (status.value === 'error') {
+    console.log(error.value.message)
+  }
+}
+watch(() => store.NewSubCategory, (newVal, oldVal) => {
+  if (newVal == true) {
+    fetchSubCategory(props?.categoryId)
+  }
+})
 fetchSubCategory(props?.categoryId)
 </script>
 
@@ -48,8 +73,9 @@ fetchSubCategory(props?.categoryId)
       :view-option="subCategory"
       type="sub-category"
       :transactions="subCategoryData"
+      :category-id="categoryId"
+      :tx-loader="TxLoader"
       @custom-events="setViewSkill"
-      :categoryId="categoryId"
     />
   </div>
 </template>

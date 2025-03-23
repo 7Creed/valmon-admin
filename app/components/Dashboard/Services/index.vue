@@ -10,7 +10,7 @@ const { parentCategory, createCategory } = SKillsController()
 provide('services', 'services')
 
 const loading = ref(false)
-const savedBtn = ref('Save Category')
+const addPCBtn = ref(null)
 // Handle Views
 const PCategoryId = ref(null)
 function viewSubCategory(id) {
@@ -37,8 +37,9 @@ const parentCategoryData = reactive({
 })
 
 const PCData = ref([])
-
+const PCDataLoader = ref(false)
 const fetchParentCategory = async () => {
+  PCDataLoader.value = true
   try {
     const { status, data, error } = await parentCategory()
     if (status.value === 'success') {
@@ -50,6 +51,9 @@ const fetchParentCategory = async () => {
   }
   catch (error) {
     handleError(error)
+  }
+  finally {
+    PCDataLoader.value = false
   }
 }
 
@@ -67,11 +71,6 @@ const saveCategory = async () => {
   try {
     const { status, data, error } = await createCategory(formData)
     if (status.value === 'success') {
-      // Temporal
-      setTimeout(() => {
-        savedBtn.value = 'saved!'
-      }, 500)
-      savedBtn.value = 'Save Category'
       handleALert('success', data.value.message)
     }
     if (status.value === 'error') {
@@ -83,8 +82,10 @@ const saveCategory = async () => {
   }
   finally {
     loading.value = false
+    closeModal(addPCBtn.value)
   }
 }
+
 /* ------------------------------- Pagination ------------------------------- */
 
 const searchTerm = ref('')
@@ -125,7 +126,7 @@ const pagination = (value) => {
         <div class="text-sm">
           <div class="mb-2">
             <span class="text-valmon_menu font-medium">Parent Category List</span>
-            <span class="inline-block text-valmon_Gold text-xs ms-3">3 Parent Categories</span>
+            <span class="inline-block text-valmon_Gold text-xs ms-3">{{ filteredTxList?.length }} Parent Categories</span>
           </div>
           <p>List Of All Customers on The Platform</p>
         </div>
@@ -182,9 +183,9 @@ const pagination = (value) => {
         </div>
       </div>
       <!-- Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto pb-[8rem]">
         <span
-          v-if=" !filteredTxList.length || !filteredTxList"
+          v-if=" PCDataLoader|| !filteredTxList"
           class="loading loading-spinner"
         />
         <table
@@ -370,7 +371,9 @@ const pagination = (value) => {
                   <li @click="viewSubCategory(item.id)">
                     <a>View</a>
                   </li>
-                  <li><a>Delete</a></li>
+                  <li @click="deleteParentCategory(item.id)">
+                    <a>Delete</a>
+                  </li>
                 </ul>
               </td>
             </tr>
@@ -451,7 +454,7 @@ const pagination = (value) => {
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">
+          <button class="btn" ref="addPCBtn">
             Close
           </button>
         </form>

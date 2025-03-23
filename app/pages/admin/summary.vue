@@ -113,6 +113,12 @@ fetchSummary()
           >
             This Year
           </option>
+          <option>
+            This Month
+          </option>
+          <option>
+            This Week
+          </option>
         </select>
       </span>
     </div>
