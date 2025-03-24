@@ -7,7 +7,7 @@ export const useAdminBaseApi = () => {
       baseURL: 'https://valmon.techr.me/admin/',
       key: url,
       watch: false,
-      timeout: 10000,
+      // timeout: 10000,
       ...options,
       onRequest({ request, options }) {
         // Add authorization header
