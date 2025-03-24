@@ -9,7 +9,6 @@ import { useGlobalStore } from '~/store'
 const store = useGlobalStore()
 const addSubCatBtn = ref(null)
 
-
 store.NewSubCategory = false
 
 const { createSubCategory, editSC } = SKillsController()

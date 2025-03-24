@@ -16,6 +16,7 @@ const toggleTab = (tab) => {
   Tab.value = tab
 }
 
+const TxLoader = ref(true)
 const SkillTransactions = ref({})
 const getSkillsTxn = async () => {
   try {
@@ -31,6 +32,9 @@ const getSkillsTxn = async () => {
   }
   catch (error) {
     console.error(error)
+  }
+  finally {
+    TxLoader.value = false
   }
 }
 
@@ -62,6 +66,7 @@ getSkillsTxn()
       v-if="Tab === 'transaction'"
       type="skill"
       :transactions="SkillTransactions"
+      :tx-loader="TxLoader"
     />
     <!--
       1. Renders parent category
