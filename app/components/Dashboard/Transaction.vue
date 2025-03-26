@@ -206,8 +206,8 @@ const pagination = (value) => {
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
-              </svg> -->
-              <span class="text-base text-[#344054]">Filters</span>
+              </svg>
+              <span class="text-base text-[#344054]">Filters</span> -->
               <span v-if="type == 'sub-category'">
                 <BaseAddButton
                   title="Add New"
