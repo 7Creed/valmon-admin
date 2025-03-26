@@ -18,29 +18,36 @@ const userData = reactive({
   password: '',
 })
 
-// emit signup event
 const signIn = async () => {
-  loading.value = true // Set loading to true before making the request
+  loading.value = true
 
   try {
+    // 1. Attempt login with timeout
     const { data, error, status } = await login(userData)
-    if (status.value === 'success') {
-      console.log(data.value.data)
-      tokenCookies.value = {
-        token: data.value.data.token,
-        type: 'Admin',
-      }
-      store.UserAccount = data.value.data.admin
 
+    // 2. Handle successful response
+    if (status.value === 'success') {
+      tokenCookies.value = { token: data.value.data.token, type: 'Admin' }
+      store.UserAccount = data.value.data.admin
       handleALert('success', 'Login successful')
       navigateTo('/admin/summary')
     }
-    if (status.value === 'error') {
-      handleALert('error', error.value)
+    // 3. Handle backend errors (invalid credentials, etc.)
+    else if (status.value === 'error') {
+      handleALert('error', error.value.data?.message || 'Login failed')
     }
   }
   catch (error) {
-    handleError(error)
+    // 4. Handle network errors
+    if (!window.navigator.onLine) {
+      handleALert('error', 'You are offline')
+    }
+    else if (!error.response) {
+      handleALert('error', 'Server unavailable')
+    }
+    else {
+      handleALert('error', 'Login error')
+    }
   }
   finally {
     loading.value = false
@@ -76,13 +83,13 @@ const signIn = async () => {
           icon-type="password"
         />
         <div class="form-control mb-5 flex flex-row items-center justify-between">
-          <label class="label cursor-pointer justify-start">
+          <!-- <label class="label cursor-pointer justify-start">
             <input
               type="checkbox"
               class="checkbox border-2 border-[rgba(0, 0, 0, 1)]"
             >
             <span class=" ms-2 label-text text-base text-[rgba(35, 35, 35, 1)]">Keep me logged in</span>
-          </label>
+          </label> -->
           <NuxtLink
             to="/forgotpassword"
             class="hidden ms-2 label-text text-base text-darkGold hover:underline"

@@ -65,10 +65,10 @@ const top_marketCategory = ref([])
 const top_category = ref([])
 
 const loading = ref(false)
-const fetchSummary = async () => {
+const fetchSummary = async (period) => {
   loading.value = true
   try {
-    const { data, status, error } = await summary()
+    const { data, status, error } = await summary(period)
     if (status.value === 'success') {
       appSummary.data = data.value.data
       top_marketCategory.value = data.value.data.top_marketplace_categories
@@ -97,7 +97,12 @@ const fetchSummary = async () => {
   }
 }
 
-fetchSummary()
+const period = ref('week')
+fetchSummary(period.value)
+
+watch(period, (newVal, oldVal) => {
+  if (newVal) fetchSummary(newVal)
+})
 </script>
 
 <template>
@@ -106,19 +111,28 @@ fetchSummary()
     <div class="bg-black w-fit text-sm p-2 mb-10 px-5 rounded-2xl  text-white  center gap-3">
       <span class=""> Show Result For</span>
       <span class="ring ring-white ring-offset-0 center rounded-sm">
-        <select class="select border  max-w-xs ml-4 bg-black ">
+        <select
+          v-model="period"
+          class="select border  max-w-xs ml-4 bg-black "
+        >
           <option
-            disabled
             selected
+            value="week"
+          >
+            This Week
+          </option>
+          <option
+            value="month"
+          >
+            This Month
+          </option>
+
+          <option
+            value="year"
           >
             This Year
           </option>
-          <option>
-            This Month
-          </option>
-          <option>
-            This Week
-          </option>
+
         </select>
       </span>
     </div>

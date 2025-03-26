@@ -3,9 +3,9 @@ import { useAdminBaseApi } from '../../AdminBaseApi'
 
 export const SummaryController = () => {
   const { get, post, put, del } = useAdminBaseApi()
-  const summary = () => get(`summary`)
+  const summary = period => get(`summary?period=${period}`)
 
   return {
-    summary
+    summary,
   }
 }
