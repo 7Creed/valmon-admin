@@ -15,6 +15,8 @@ export const SKillsController = () => {
 
   const createSubCategory = data => post(`create/service`, data)
 
+  const deleteCategory = data => del(`skills/categories/${data.id}`)
+
   return {
     skillSummary,
     parentCategory,
@@ -24,5 +26,6 @@ export const SKillsController = () => {
     createCategory,
     deleteSC,
     editSC,
+    deleteCategory
   }
 }

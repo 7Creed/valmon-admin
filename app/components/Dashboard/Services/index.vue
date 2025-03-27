@@ -5,7 +5,7 @@ import { SKillsController } from '~/services/modules/Admin/skills'
 
 // Initialize Variable
 const store = useGlobalStore()
-const { parentCategory, createCategory } = SKillsController()
+const { parentCategory, createCategory, deleteCategory } = SKillsController()
 
 provide('services', 'services')
 
@@ -70,6 +70,28 @@ const saveCategory = async () => {
 
   try {
     const { status, data, error } = await createCategory(formData)
+    if (status.value === 'success') {
+      handleALert('success', data.value.message)
+    }
+    if (status.value === 'error') {
+      handleALert('error', error.value.data.message)
+    }
+  }
+  catch (error) {
+    handleError(error)
+  }
+  finally {
+    loading.value = false
+    closeModal(addPCBtn.value)
+  }
+}
+
+
+const deleteParentCategory = async (id) => {
+  loading.value = true
+
+  try {
+    const { status, data, error } = await deleteCategory({id})
     if (status.value === 'success') {
       handleALert('success', data.value.message)
     }
