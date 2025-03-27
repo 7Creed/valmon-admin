@@ -409,7 +409,7 @@ const pagination = (value) => {
                 </template>
               </thead>
               <tbody>
-                <!-- Use this -->
+
                 <template v-if="type == 'skill'">
                   <tr
                     v-for="(item, index) in filteredTxList?.slice(startIndex, endIndex) || filteredTxList?.all_sub_categories?.slice(startIndex, endIndex)"
