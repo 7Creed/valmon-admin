@@ -215,7 +215,7 @@ const pagination = (value) => {
                 />
                 <span
                   ref="addNew"
-                  onclick="my_modal_1.showModal()"
+                  onclick="my_modal_2.showModal()"
                 />
               </span>
             </span>
@@ -409,7 +409,6 @@ const pagination = (value) => {
                 </template>
               </thead>
               <tbody>
-
                 <template v-if="type == 'skill'">
                   <tr
                     v-for="(item, index) in filteredTxList?.slice(startIndex, endIndex) || filteredTxList?.all_sub_categories?.slice(startIndex, endIndex)"
@@ -526,7 +525,7 @@ const pagination = (value) => {
     />
     <!-- Add Category -->
     <dialog
-      id="my_modal_1"
+      id="my_modal_2"
       class="modal"
     >
       <div class="modal-box">
