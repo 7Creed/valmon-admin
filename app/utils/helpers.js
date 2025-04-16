@@ -15,7 +15,7 @@ export const handleALert = (icon, text, title = '', time = 300000) => {
 }
 
 export const handleError = (error) => {
-  handleALert('error', 'An error occurred while processing your request')
+  handleALert('error', 'An error occurred while processing your request, Try again')
   console.log(error)
 }
 

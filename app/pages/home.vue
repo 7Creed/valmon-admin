@@ -37,7 +37,7 @@ const handleSelectedOption = (option) => {
 // Handle the name of the selected profile
 const profileName = computed(() => state.value.isProfileName)
 
-/* -------------- Fetch All Categories  and Services under them ------------- */
+/* -------------- Fetch All Categories and Services under them ------------- */
 const loading = ref(false)
 const CategoryServices = ref([])
 const { getCategory_Services } = categoryController()
@@ -67,18 +67,30 @@ const FilteredCS = ref([])
 
 // Watch for changes in the search term
 watch(() => store.ServicesSearchedTerm, (newVal) => {
-  if (newVal == '') FilteredCS.value = []
-  if (newVal != '' && CategoryServices.value.length) {
-    FilteredCS.value = CategoryServices.value.filter(item =>
-      item.name.toLowerCase().includes(newVal.toLowerCase()),
-    )
-    console.log(newVal) // Log the new search term
+  if (newVal == '') {
+    FilteredCS.value = []
+  } else if (newVal != '' && CategoryServices.value.length) {
+    // First approach: Keep categories that either match by name or have matching services
+    FilteredCS.value = CategoryServices.value.map(category => {
+      // Create a copy of the category
+      const filteredCategory = { ...category }
+
+      // Filter services that match the search term
+      filteredCategory.services = category.services.filter(service =>
+        service.name.toLowerCase().includes(newVal.toLowerCase())
+      )
+
+      return filteredCategory
+    }).filter(category => category.services.length > 0) // Only keep categories with matching services
+
+    console.log("Search term:", newVal)
+    console.log("Filtered results:", FilteredCS.value)
   }
 })
 
 // Compute the rendered list based on the filtered results
 const RenderedCSList = computed(() =>
-  FilteredCS.value.length ? FilteredCS.value : CategoryServices.value,
+  FilteredCS.value.length ? FilteredCS.value : CategoryServices.value
 )
 
 onMounted(() => {
@@ -89,42 +101,16 @@ onMounted(() => {
     activeComp.value = 'skills'
   }
 })
-
-const PingUser = async () => {
-  console.log('Hello there!')
-  const { data, error, status } = await ping()
-  if (status.value === 'success') {
-    console.log(data.value)
-  }
-  if (status.value === 'error') {
-    console.log(error.value.data.message)
-  }
-}
-// Update to services flow
-const serviceRoute = useRoute()
-if (serviceRoute.name == 'home') {
-  store.marketPlaceTab = false
-}
-
-PingUser()
-// Ping user at every 30secs
-// setInterval(ping(), 30000)
 </script>
 
 <template>
-  <div class="px-4 lg:px-16  h-auto overflow-auto">
+  <div class="px-4 lg:px-16 h-auto overflow-auto">
     <!-- BREADCRUMBS -->
-    <div
-      v-if="activeComp !== 'chat'"
-      class="breadcrumbs text-sm text-gray-500 mb-4"
-    >
+    <div v-if="activeComp !== 'chat'" class="breadcrumbs text-sm text-gray-500 mb-4">
       <ul>
         <li><a class="">Home</a></li>
         <li><a class="text-decoration-none">Category</a></li>
-        <li
-          v-if="selectedOption.category"
-          @click="History()"
-        >
+        <li v-if="selectedOption.category" @click="History()">
           <a class="">{{ selectedOption.category }}</a>
         </li>
         <li v-if="selectedOption.skill">
@@ -137,16 +123,15 @@ PingUser()
     </div>
     <main>
       <SharedLoader v-if="loading" />
-      <MarketPlaceEmployer
-        v-if="activeComp === 'category' && !loading"
-        :categories="RenderedCSList"
-        @selected-option="handleSelectedOption"
-      />
-      <MarketPlaceEmployerSkills
-        v-if="activeComp === 'skills' && !loading"
-        :skill="selectedOption.skill"
-        @back-home="History()"
-      />
+      <!-- Search Results Message -->
+      <div v-if="store.ServicesSearchedTerm && !loading" class="my-4 text-center">
+        <p class="text-lg font-medium">Showing results for: <span class="font-bold">{{ store.ServicesSearchedTerm
+            }}</span></p>
+      </div>
+      <MarketPlaceEmployer v-if="activeComp === 'category' && !loading" :categories="RenderedCSList"
+        @selected-option="handleSelectedOption" />
+      <MarketPlaceEmployerSkills v-if="activeComp === 'skills' && !loading" :skill="selectedOption.skill"
+        @back-home="History()" />
     </main>
   </div>
 </template>
