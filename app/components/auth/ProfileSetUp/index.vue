@@ -19,7 +19,7 @@ const toPlatform = () => {
     path: '/home',
   })
 }
-const activeSetupProcess = ref(3)
+const activeSetupProcess = ref(1)
 
 const buttonOption = ref('Next')
 
