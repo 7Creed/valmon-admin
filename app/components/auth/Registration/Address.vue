@@ -22,12 +22,17 @@ const buttonNext = ref('Verify')
 
 const { addAddresses } = accountController()
 const loading = ref(false)
+const showAddressPreview = ref(false)
+
 const handleAddAddress = async () => {
   loading.value = true
   const { status, data, error } = await addAddresses(addresses)
   if (status.value === 'success') {
     buttonNext.value = 'Next'
     loading.value = false
+    showAddressPreview.value = true
+    // Close the modal automatically
+    document.getElementById('my_modal_1').close()
   }
   if (status.value === 'error') {
     handleError('error', error.value.data.message)
@@ -67,6 +72,29 @@ fetchCountries()
       <p class="text-[rgba(106, 106, 106, 1)] text-lg mb-20 text-center lg:text-left">
         Add Physical locations of your business
       </p>
+
+      <!-- Address Preview -->
+      <div
+        v-if="showAddressPreview"
+        class="mb-10 p-4 border rounded-lg bg-gray-50"
+      >
+        <h3 class="font-bold text-lg mb-2">
+          Saved Address:
+        </h3>
+        <p v-if="addresses.addresses[0].street">
+          {{ addresses.addresses[0].street }}
+        </p>
+        <p v-if="addresses.addresses[0].details">
+          {{ addresses.addresses[0].details }}
+        </p>
+        <p v-if="addresses.addresses[0].city || addresses.addresses[0].state || addresses.addresses[0].postal_code">
+          {{ addresses.addresses[0].city }}, {{ addresses.addresses[0].state }} {{ addresses.addresses[0].postal_code }}
+        </p>
+        <p v-if="addresses.addresses[0].country">
+          {{ addresses.addresses[0].country }}
+        </p>
+      </div>
+
       <!-- Add address btn -->
       <button
         class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border"
@@ -87,8 +115,9 @@ fetchCountries()
           />
         </svg>
 
-        Add Address
+        {{ showAddressPreview ? 'Edit Address' : 'Add Address' }}
       </button>
+
       <div class="card-actions justify-between ">
         <BaseButton
           title="Back"
@@ -100,9 +129,8 @@ fetchCountries()
           @click="emitEvent('prevEvent')"
         />
         <BaseButton
-          :disabled="buttonNext === 'Verify'"
-
-          title="Next"
+          :disabled="buttonNext === 'Verify' && !showAddressPreview"
+          :title="buttonNext"
           color="rgba(33, 31, 31, 1)"
           text-color="rgba(255, 255, 255, 1)"
           border="#8B6914"
@@ -119,7 +147,7 @@ fetchCountries()
     >
       <div class="modal-box">
         <h3 class="text-2xl font-bold center mb-4 text-[rgba(30, 30, 30, 1)]">
-          Add Address
+          {{ showAddressPreview ? 'Edit Address' : 'Add Address' }}
         </h3>
 
         <div class="w-full">
@@ -143,9 +171,7 @@ fetchCountries()
                 :key="country.id"
                 :value="country.name"
               >{{ country.name }}</option>
-
             </select>
-
           </label>
           <BaseInput
             v-model="addresses.addresses[0].state"
@@ -177,13 +203,13 @@ fetchCountries()
           />
 
           <BaseButton
-            :title="buttonNext === 'Verify' ? 'Save Address' : 'Address Saved Successfully!'"
+            :title="showAddressPreview ? 'Update Address' : 'Save Address'"
             color="rgba(33, 31, 31, 1)"
             text-color="rgba(255, 255, 255, 1)"
             :outline="false"
             class="block w-full mb-5 mt-4"
             :loading="loading"
-            @click="emitEvent('nextEvent')"
+            @click="handleAddAddress"
           />
 
           <div class="modal-action h-0">

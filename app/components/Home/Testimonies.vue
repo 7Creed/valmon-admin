@@ -1,6 +1,10 @@
 <script setup>
-import archivedTick from '@/assets/icons/archive-tick.svg'
-import Testimonies from '@/assets/images/UIElements/testimoies.png'
+
+const props = defineProps({
+  image: String,
+  name: String,
+  text: String,
+})
 </script>
 
 <template>
@@ -8,8 +12,8 @@ import Testimonies from '@/assets/images/UIElements/testimoies.png'
     <div class="">
       <figure class="flex mb-6">
         <img
-          :src="Testimonies"
-          alt="Shoes"
+          :src="props.image"
+          :alt="props.name"
           class="w-full"
         >
       </figure>
@@ -17,10 +21,10 @@ import Testimonies from '@/assets/images/UIElements/testimoies.png'
         <!-- Profile desc -->
         <div class="text-white">
           <div class="text-sm  satoshiM mb-6">
-            "This platform helped me connect with clients globally and build a diverse portfolio. I’ve landed projects from various industries and expanded my skills significantly."
+            {{ props.text }}
           </div>
           <h3 class="mb-2 font-bold text-sm satoshiM">
-            James Peter
+           {{ props.name }}
           </h3>
         </div>
       </div>

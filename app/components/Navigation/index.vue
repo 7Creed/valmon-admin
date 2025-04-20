@@ -73,7 +73,7 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
         <!-- Left side  -->
         <div class="flex items-center justify-end flex-1 space-x-4">
           <!-- search input -->
-          <div
+          <!-- <div
             class="w-1/4 rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-stone-900"
           >
             <label class="h-10 input input-bordered flex items-center gap-2 bg-inherit search">
@@ -87,7 +87,7 @@ import magnifyLens from '@/assets/icons/magnifyingglass.svg'
                 placeholder="Search For Services"
               >
             </label>
-          </div>
+          </div> -->
           <div class="hidden sm:ml-6 sm:block">
             <div class="flex space-x-4">
               <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->

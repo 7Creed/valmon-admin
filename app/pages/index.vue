@@ -5,6 +5,12 @@ import walletAdd from '../assets/icons/wallet-add.svg'
 import MosesTree from '../assets/images/UIElements/mosesTree.jpg'
 import rectangle from '@/assets/images/UIElements/Rectangle.png'
 
+// Testimonials Images
+import TImage1 from '@/assets/images/UIElements/testimonies1.png'
+import TImage2 from '@/assets/images/UIElements/testimonies2.png'
+import TImage3 from '@/assets/images/UIElements/testimonies3.png'
+import TImage4 from '@/assets/images/UIElements/testimonies4.png'
+
 import SellOnValmon from '~/components/MarketPlace/Market/SellOnValmon.vue'
 
 import { categoryController } from '~/services/modules/category'
@@ -74,6 +80,29 @@ const featuredListing = async () => {
 }
 
 featuredListing()
+
+const testimonies = [
+  {
+    image: TImage1,
+    name: 'Jane Devin',
+    text: 'This platform helped me connect with clients globally and build a diverse portfolio. I’ve landed projects from various industries and expanded my skills significantly.',
+  },
+  {
+    image: TImage2,
+    name: 'Peter Enoch',
+    text: 'I found the perfect developer for my project here. The process was seamless, and the work delivered exceeded my expectations.',
+  },
+  {
+    image: TImage3,
+    name: 'Matthew Rino',
+    text: 'The support team is fantastic and always there when I need help. They assisted me in optimizing my profile, which led to more client inquiries and projects.',
+  },
+  {
+    image: TImage4,
+    name: 'Sarah Simeon',
+    text: 'I found the perfect developer for my project here.',
+  },
+]
 </script>
 
 <template>
@@ -271,7 +300,10 @@ featuredListing()
       </div>
 
       <!-- Featured Product -->
-      <div class="text-white mb-40 px-4 lg:px-0">
+      <div
+        v-show="false"
+        class="text-white mb-40 px-4 lg:px-0"
+      >
         <h4 class="text-2xl lg:text-3xl font-bold md:w-2/4 mx-auto text-center mb-20 relative z-10">
           Our marketplace empowers customers to sell their items with ease, providing a trusted platform for
           high-quality transactions and exceptional service
@@ -306,11 +338,14 @@ featuredListing()
           Testimonials
         </h4>
         <div
-          class="lg:w-[80%] xl:w-[65%]  flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  border border-darkGold rounded-lg"
+          class="lg:w-[90%]  flex flex-wrap text-base  p-4 justify-center mx-auto gap-5 font-bold  rounded-lg"
         >
           <HomeTestimonies
-            v-for="(item, index) in 5"
+            v-for="(item, index) in testimonies"
             :key="index"
+            :image="item.image"
+            :name="item.name"
+            :text="item.text"
             class="max-h-[400px]"
           />
         </div>

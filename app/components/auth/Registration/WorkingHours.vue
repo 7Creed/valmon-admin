@@ -118,6 +118,7 @@ const EditWorkHours = () => {
         e.to = ToComputed.value ?? '23:59 PM'
       }
     })
+    closeModal(hourBtn)
   }
   else {
     applyToAllDays()

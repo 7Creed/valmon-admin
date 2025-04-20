@@ -4,10 +4,10 @@ import { useActiveView } from '@/composables/state'
 import { categoryController } from '~/services/modules/category'
 import { useGlobalStore } from '~/store'
 
-import { authController } from '~/services/modules/auth'
+// import { authController } from '~/services/modules/auth'
 
 const store = useGlobalStore()
-const { ping } = authController()
+// const { ping } = authController()
 
 definePageMeta({
   layout: 'market-place',
@@ -69,28 +69,29 @@ const FilteredCS = ref([])
 watch(() => store.ServicesSearchedTerm, (newVal) => {
   if (newVal == '') {
     FilteredCS.value = []
-  } else if (newVal != '' && CategoryServices.value.length) {
+  }
+  else if (newVal != '' && CategoryServices.value.length) {
     // First approach: Keep categories that either match by name or have matching services
-    FilteredCS.value = CategoryServices.value.map(category => {
+    FilteredCS.value = CategoryServices.value.map((category) => {
       // Create a copy of the category
       const filteredCategory = { ...category }
 
       // Filter services that match the search term
       filteredCategory.services = category.services.filter(service =>
-        service.name.toLowerCase().includes(newVal.toLowerCase())
+        service.name.toLowerCase().includes(newVal.toLowerCase()),
       )
 
       return filteredCategory
     }).filter(category => category.services.length > 0) // Only keep categories with matching services
 
-    console.log("Search term:", newVal)
-    console.log("Filtered results:", FilteredCS.value)
+    console.log('Search term:', newVal)
+    console.log('Filtered results:', FilteredCS.value)
   }
 })
 
 // Compute the rendered list based on the filtered results
 const RenderedCSList = computed(() =>
-  FilteredCS.value.length ? FilteredCS.value : CategoryServices.value
+  FilteredCS.value.length ? FilteredCS.value : CategoryServices.value,
 )
 
 onMounted(() => {
@@ -106,11 +107,17 @@ onMounted(() => {
 <template>
   <div class="px-4 lg:px-16 h-auto overflow-auto">
     <!-- BREADCRUMBS -->
-    <div v-if="activeComp !== 'chat'" class="breadcrumbs text-sm text-gray-500 mb-4">
+    <div
+      v-if="activeComp !== 'chat'"
+      class="breadcrumbs text-sm text-gray-500 mb-4"
+    >
       <ul>
         <li><a class="">Home</a></li>
         <li><a class="text-decoration-none">Category</a></li>
-        <li v-if="selectedOption.category" @click="History()">
+        <li
+          v-if="selectedOption.category"
+          @click="History()"
+        >
           <a class="">{{ selectedOption.category }}</a>
         </li>
         <li v-if="selectedOption.skill">
@@ -123,15 +130,16 @@ onMounted(() => {
     </div>
     <main>
       <SharedLoader v-if="loading" />
-      <!-- Search Results Message -->
-      <div v-if="store.ServicesSearchedTerm && !loading" class="my-4 text-center">
-        <p class="text-lg font-medium">Showing results for: <span class="font-bold">{{ store.ServicesSearchedTerm
-            }}</span></p>
-      </div>
-      <MarketPlaceEmployer v-if="activeComp === 'category' && !loading" :categories="RenderedCSList"
-        @selected-option="handleSelectedOption" />
-      <MarketPlaceEmployerSkills v-if="activeComp === 'skills' && !loading" :skill="selectedOption.skill"
-        @back-home="History()" />
+      <MarketPlaceEmployer
+        v-if="activeComp === 'category' && !loading"
+        :categories="RenderedCSList"
+        @selected-option="handleSelectedOption"
+      />
+      <MarketPlaceEmployerSkills
+        v-if="activeComp === 'skills' && !loading"
+        :skill="selectedOption.skill"
+        @back-home="History()"
+      />
     </main>
   </div>
 </template>

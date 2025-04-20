@@ -6,6 +6,9 @@ const emit = defineEmits(['BasicProfile'])
 const { addNewGig } = accountController()
 const { getAppServices } = servicesController()
 
+// State for saved gigs
+const savedGigs = ref([])
+
 // Fetch service category
 const fetchData = ref([])
 const fetchCategory = async () => {
@@ -41,6 +44,18 @@ const saveGig = async () => {
     const { status, data, error } = await addNewGig(addGig)
     if (status.value === 'success') {
       handleALert('success', data.value.message)
+      // Add the gig to saved gigs
+      savedGigs.value.push({ ...addGig.gigs[0] })
+      // Reset the form
+      addGig.gigs[0] = {
+        service_id: null,
+        title: '',
+        pricing_type: '',
+        price: null,
+        description: '',
+      }
+      // Close the modal
+      document.getElementById('my_modal_3').close()
       emit('BasicProfile')
     }
     if (status.value === 'error') {
@@ -54,6 +69,12 @@ const saveGig = async () => {
     loading.value = false
   }
 }
+
+// Helper function to get category name by ID
+const getCategoryName = (id) => {
+  const category = fetchData.value.find(item => item.id === id)
+  return category ? category.name : 'Unknown Category'
+}
 </script>
 
 <template>
@@ -66,9 +87,38 @@ const saveGig = async () => {
         Gigs are special offerings your create to make it easier for clients to hire you
       </p>
     </div>
-    <p class="text-base text-[#6A6A6A] font-bold mx-auto">
+
+    <!-- Gig Preview Section -->
+    <div
+      v-if="savedGigs.length > 0"
+      class="w-full space-y-4"
+    >
+      <div
+        v-for="(gig, index) in savedGigs"
+        :key="index"
+        class="p-4 border rounded-lg bg-gray-50"
+      >
+        <h3 class="font-bold text-lg">
+          {{ gig.title }}
+        </h3>
+        <p class="text-gray-600">
+          {{ getCategoryName(gig.service_id) }}
+        </p>
+        <p class="font-semibold">
+          ${{ gig.price }} {{ gig.pricing_type }}
+        </p>
+        <p class="text-gray-700">
+          {{ gig.description }}
+        </p>
+      </div>
+    </div>
+    <p
+      v-else
+      class="text-base text-[#6A6A6A] font-bold mx-auto"
+    >
       No Gig Added
     </p>
+
     <button
       class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-2/4 mx-auto"
       onclick="my_modal_3.showModal()"
@@ -111,14 +161,11 @@ const saveGig = async () => {
             class="select select-bordered"
           >
             <option
-
               v-for="(item, index) in fetchData"
               :key="item.id"
               :value="item.id"
             >{{ item.name }}</option>
-
           </select>
-
         </label>
         <BaseInput
           v-model="addGig.gigs[0].title"
@@ -136,10 +183,9 @@ const saveGig = async () => {
             class="select select-bordered"
           >
             <option>per unit</option>
-            <option> per hour</option>
+            <option>per hour</option>
             <option>per day</option>
             <option>per session</option>
-
           </select>
         </label>
         <BaseInput
