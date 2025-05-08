@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { watch } from 'vue'
+import Favorites from '~/pages/favorites.vue'
 import { accountController } from '~/services/modules/account'
 
 const { userAccount } = accountController()
@@ -103,6 +104,9 @@ export const useStore = defineStore('valmon_app_store', {
 
     /* ------------------------------- Pagination ------------------------------- */
     Pages: {},
+
+    // Favorites for Marketplace product description // Not working fix this
+    Favorites: ref([]),
   }),
   actions: {
     updatePages(page, value) {

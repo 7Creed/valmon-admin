@@ -7,18 +7,21 @@ import location from '@/assets/icons/location.svg'
 
 import { accountController } from '~/services/modules/account'
 import { UsersController } from '~/services/modules/Admin/users'
+import { MiscController } from '~/services/modules/misc'
 
 import { useActiveView } from '@/composables/state'
 import { useGlobalStore } from '@/store'
 
 const { users, deleteUser, suspendUser, restoreUser } = UsersController()
+const { addToFavorites } = MiscController()
 
 const { handleGeneralHistory, state } = useActiveView()
 const store = useGlobalStore()
 const workerTab = ref('profile')
+
 const toggleTab = (tab) => {
   workerTab.value = tab
-  if (tab == 'marketplace') fetchUsers(store.adminUserId)
+  // if (tab == 'marketplace') fetchUsers(store.adminUserId)
 }
 
 const viewAll = (tab) => {
@@ -269,6 +272,26 @@ const backToAdmin = () => {
     navigateTo('/admin/user')
   }
 }
+
+// Add to favorites
+const addToFavorite = async (id) => {
+  const FavoriteData = {
+    type: 'user',
+    id: id,
+  }
+  const { data, error, status } = await addToFavorites(FavoriteData)
+
+  if (status.value === 'success') {
+    handleALert('success', data.value.message)
+    setTimeout(async () => {
+      await navigateTo('/favorites')
+    }, 1000)
+  }
+  else if (status.value === 'error') {
+    handleALert('error', 'failed to add to favorites')
+    console.error('Action failed:', error.value.data.message)
+  }
+}
 </script>
 
 <template>
@@ -286,7 +309,6 @@ const backToAdmin = () => {
     <a
       v-if="store.UserAccount?.role === 'Admin' || store.UserAccount?.role === 'super_admin'"
       href="javascript:void(0)"
-
       @click="backToAdmin"
     >
       <BaseBackButton class="absolute top-15 left-[-10px]" />
@@ -315,7 +337,8 @@ const backToAdmin = () => {
                       <span
                         v-if="adminUsers?.profile?.services"
                         class="t#62646Aext-black"
-                      >{{ adminUsers?.profile?.services[0]?.service?.name }}</span>
+                      >{{
+                        adminUsers?.profile?.services[0]?.service?.name }}</span>
                       <span v-else>N/A</span>
                     </div>
                     <div class="flex items-center gap-2">
@@ -342,8 +365,9 @@ const backToAdmin = () => {
                     <span
                       v-if="adminUsers?.profile?.addresses"
                       class="font-medium text-[rgba(0,0,0,1)]"
-                    >{{ adminUsers?.profile?.addresses[ adminUsers?.profile?.addresses.length -1]?.city }}, {{
-                      adminUsers?.profile?.addresses[ adminUsers?.profile?.addresses.length -1]?.country }} </span>
+                    >{{
+                      adminUsers?.profile?.addresses[adminUsers?.profile?.addresses.length -1]?.city }}, {{
+                      adminUsers?.profile?.addresses[adminUsers?.profile?.addresses.length - 1]?.country }} </span>
                     <span v-else>N/A</span>
                   </div>
                   <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
@@ -492,7 +516,8 @@ const backToAdmin = () => {
                 <img
                   :src="heart"
                   alt="heart icon"
-                  class="h-7"
+                  class="h-7 cursor-pointer"
+                  @click="addToFavorite(userInfo.id)"
                 >
                 <img
                   :src="send"
@@ -524,9 +549,7 @@ const backToAdmin = () => {
                   </div>
                 </div>
                 <div class="flex items-center gap-2 ">
-                  <div
-                    class="rating w-4"
-                  >
+                  <div class="rating w-4">
                     <input
                       type="radio"
                       name="rating-1"
@@ -562,8 +585,9 @@ const backToAdmin = () => {
                 alt="Location icon"
                 class="h-5"
               >
-              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.city }}, {{
-                userInfo?.profile?.addresses[ userInfo?.profile?.addresses.length -1]?.country }}</span>
+              <span class="font-medium text-[rgba(0,0,0,1)]">{{ userInfo?.profile?.addresses[
+                userInfo?.profile?.addresses.length -1]?.city }}, {{
+                userInfo?.profile?.addresses[userInfo?.profile?.addresses.length - 1]?.country }}</span>
             </div>
             <div class="flex gap-2 items-center text-[#62646A] text-xs mb-1">
               <img
@@ -571,7 +595,8 @@ const backToAdmin = () => {
                 alt="copy-success icon"
                 class="h-5"
               >
-              <span class="text-[rgba(0,0,0,1)] font-medium">{{ userInfo?.profile?.completed_jobs }} jobs Completed</span>
+              <span class="text-[rgba(0,0,0,1)] font-medium">{{ userInfo?.profile?.completed_jobs }} jobs
+                Completed</span>
             </div>
             <!-- Online Presence -->
             <div class="relative flex gap-2">
@@ -649,9 +674,7 @@ const backToAdmin = () => {
             </div>
 
             <!-- Footer -->
-            <div
-              class="card-actions justify-between gap-4"
-            >
+            <div class="card-actions justify-between gap-4">
               <button
                 v-if="store.UserAccount.account_type == 'employer'"
                 onclick="my_modal_1.showModal()"
@@ -667,7 +690,9 @@ const backToAdmin = () => {
     <!-- main -->
     <section class="flex-1 ">
       <!-- Tab -->
-      <div class="flex  bg-white p-3 rounded-xl lg:w-3/4 xl:w-1/2 items-center gap-4 sm:gap-0 justify-center sm:justify-evenly mb-6 ">
+      <div
+        class="flex  bg-white p-3 rounded-xl lg:w-3/4 xl:w-1/2 items-center gap-4 sm:gap-0 justify-center sm:justify-evenly mb-6 "
+      >
         <a
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
@@ -695,9 +720,10 @@ const backToAdmin = () => {
         <a
           href="javascript:void(0);"
           class="text-sm font-medium text-[#A0A3BD] satoshiM border-b-4 border-b-transparent"
-          :class="{ border_b: workerTab === 'marketplace' } "
+          :class="{ border_b: workerTab === 'marketplace' }"
           @click="toggleTab('marketplace')"
-        >Marketplace Listings </a>
+        >Marketplace Listings
+        </a>
       </div>
       <!-- Content -->
       <MarketPlaceEmployerBriefProfile
@@ -786,6 +812,7 @@ const backToAdmin = () => {
 .border_b {
   @apply border-b-darkGold pb-1 !important;
 }
+
 .alert {
   text-align: start !important;
   justify-items: flex-start !important;

@@ -24,7 +24,7 @@ const fetchSingleListing = async (id) => {
   }
 }
 if (store.UserAccount?.role == 'Admin' || store.UserAccount?.role == 'super_admin') {
-  marketListings.value = props?.listing
+  marketListings.value = props?.listing  
 }
 else {
   fetchSingleListing(store.userIdForProfileCheck)

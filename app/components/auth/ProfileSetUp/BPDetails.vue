@@ -23,6 +23,8 @@ watch(userBio, (newVal, oldVal) => {
       v-model="userBio.bio"
       placeholder="As an expert with over 20 years of experience, I've seen remarkable advancements in technology, making it more accessible and beneficial for everyday use."
       class="textarea textarea-bordered textarea-lg w-full"
+      rows="10"
+      maxlength="1500"
     />
   </div>
 </template>

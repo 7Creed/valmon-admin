@@ -79,7 +79,7 @@ const featuredListing = async () => {
   }
 }
 
-featuredListing()
+// featuredListing()
 
 const testimonies = [
   {

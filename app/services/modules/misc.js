@@ -10,10 +10,16 @@ export const MiscController = () => {
   const getBanks = () => get(`/get/banks`)
   const getCurrencies = () => get(`/get/currencies`)
 
-
+  // Favorites
+  const getFavorites = type => get(`/favourites?type=${type}`)
+  const addToFavorites = data => post(`/favourites`, data)
+  const removeFromFavorites = (type, id) => del(`/favourites?type=${type}&id=${id}`)
   return {
     getCountries,
     getBanks,
     getCurrencies,
+    getFavorites,
+    addToFavorites,
+    removeFromFavorites,
   }
 }

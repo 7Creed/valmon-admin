@@ -201,17 +201,7 @@ onUnmounted(() => {
               {{ paginationInfo.total }} Registered
             </p>
           </div>
-          <div
-            v-show="props.page === 'favorite'"
-            class="skill_header text-white"
-          >
-            <h2 class="text-lg font-semibold">
-              Favourites
-            </h2>
-            <p class="text-sm">
-              8 Saved
-            </p>
-          </div>
+
           <!-- search input -->
           <div class="hidden rounded-lg ring-1 ring-darkGold focus:outline-none focus:ring-2 focus:ring-darkGold bg-white w-1/3">
             <label class="h-10 input input-bordered flex items-center gap-2 bg-inherit search">
@@ -262,24 +252,6 @@ onUnmounted(() => {
               />
             </svg>
           </button>
-          <div
-            v-show="props.page === 'favorite'"
-            role="tablist"
-            class="tabs tabs-boxed bg-[#FFFFFF80]"
-          >
-            <a
-              role="tab"
-              class="tab  text-white"
-              :class="{ 'tab-active': activeTab ==='job' }"
-              @click="toggleTab('job')"
-            >Job Listings</a>
-            <a
-              role="tab"
-              class="tab  text-white"
-              :class="{ 'tab-active': activeTab ==='market' }"
-              @click="toggleTab('market')"
-            >Market Listenings</a>
-          </div>
         </div>
         <!-- more filter options -->
         <span
@@ -406,7 +378,7 @@ onUnmounted(() => {
       />
       <!-- Client Card -->
       <div
-        v-if="activeTab === 'job' || props.page === 'employer'"
+        v-if=" props.page === 'employer'"
         class="flex flex-wrap justify-center gap-6 mb-10"
       >
         <MarketPlaceEmployerClientCard
@@ -415,7 +387,7 @@ onUnmounted(() => {
         />
       </div>
       <div
-        v-if="activeTab === 'market' && props.page === 'favorite'"
+        v-if="activeTab === 'market'"
         class="flex flex-wrap gap-6 mb-10"
       >
         <MarketPlaceEmployerMarket
@@ -475,7 +447,7 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .tab-active {
   background-color: #fff !important;
   color: black !important;

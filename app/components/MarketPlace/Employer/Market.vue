@@ -1,7 +1,12 @@
 <script setup>
 import archivedTick from '@/assets/icons/archive-tick.svg'
+import archivedTickWhite from '@/assets/icons/archive-tick-white.svg'
+
+import { MiscController } from '~/services/modules/misc'
+
 import { useGlobalStore } from '@/store'
 
+const { addToFavorites, getFavorites } = MiscController()
 const store = useGlobalStore()
 
 const props = defineProps({
@@ -16,6 +21,7 @@ const callListing = async () => {
   marketListings.value = props?.otherListings
 }
 
+callListing()
 watch(props, (newVal) => {
   if (newVal) callListing()
 }, {
@@ -32,6 +38,77 @@ const openProduct = (id) => {
     listingId: id,
   })
 }
+
+const favoriteList = ref([])
+const favoriteItemActive = ref(null)
+
+const favoriteLoader = ref(false)
+
+const addToFavourites = async (id) => {
+  favoriteLoader.value = true
+  favoriteItemActive.value = id
+
+  const favoriteData = {
+    type: 'listing',
+    id: id,
+  }
+  console.log('Add to favourites:', id)
+  // Add your logic to add the item to favourites
+  const { status, data, error } = await addToFavorites(favoriteData)
+  try {
+    if (status.value === 'success') {
+      console.log('Added to favourites:', data.value)
+      favoriteList.value.push(id)
+      store.$patch({
+        Favorites: favoriteList.value,
+      })
+      // Optionally, you can show a success message or update the UI
+      handleALert('success', 'Added to favourites')
+    }
+    if (status.value === 'error') {
+      console.error('Error adding to favourites:', error.value)
+      // Optionally, you can show an error message
+      handleALert('error', 'Error adding to favourites')
+    }
+  }
+  catch (err) {
+    console.error('Error:', err)
+    // Optionally, you can show an error message
+    handleALert('error', 'Error adding to favourites')
+  }
+  finally {
+    favoriteLoader.value = false
+    favoriteItemActive.value = null
+  }
+}
+
+// Fetch favourites and update the UI with reflected if the item is already in favourites by a user
+const getFavourites = async (type) => {
+  const { data, status, error } = await getFavorites(type)
+  try {
+    if (status.value === 'success') {
+      console.log('Favourites:', data.value)
+      // modify this to check if the item is already in favourites by the user and pass the owner id to favoriteList
+      Object.values(props.otherListings).forEach((item) => {
+        Object.values(data.value.data).forEach((favoriteItem) => {
+          if (item.id === favoriteItem.id) {
+            favoriteList.value.push(item.id)
+          }
+        })
+      })
+      store.$patch({
+        Favorites: favoriteList.value,
+      })
+    }
+    if (status.value === 'error') {
+      console.error('Error fetching favourites:', error.value)
+    }
+  }
+  catch (err) {
+    console.error('Error fetching favourites:', err)
+  }
+}
+getFavourites('listing')
 </script>
 
 <template>
@@ -108,10 +185,17 @@ const openProduct = (id) => {
       <a
         v-else
         href="javascript:void(0);"
-        class="archived p-2 bg-black rounded-full center "
+        class="archived p-2 bg-white rounded-full center box-shadow-md border-2 border-gray-300"
+
+        @click.stop="addToFavourites(item.id)"
       >
+        <span
+          v-if="favoriteLoader && item.id === favoriteItemActive"
+          class="loading loading-spinner loading-xs"
+        />
         <img
-          :src="archivedTick"
+          v-else
+          :src="favoriteList.includes(item.id) ? archivedTickWhite : archivedTick"
           alt="favorite icon"
           class="w-5"
         >
@@ -131,10 +215,10 @@ const openProduct = (id) => {
         <!-- Profile desc -->
         <div>
           <div class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2">
-            <span class="text-black">{{ item.title }}</span>
+            <span class="text-black"> {{ item.category.name }}</span>
           </div>
           <p class="mb-2 text-[#24242] font-semibold text-sm">
-            {{ item.category.name }}
+            {{ item.title }}
           </p>
 
           <div class="text-base md:text-lg text-[#242424] satoshiM">

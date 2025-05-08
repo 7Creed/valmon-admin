@@ -226,7 +226,7 @@ onMounted(fetchNotifications)
               </NuxtLink>
             </div>
           </div>
-          <NuxtLink to="javascript:void(0);">
+          <NuxtLink to="favorites">
             <button
 
               type="button"

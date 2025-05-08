@@ -51,7 +51,7 @@ async function openContact(id) {
           <figure class="flex h-full w-full xl:w-[60%]">
             <img
               :src="ProductView ?? products?.listing?.images[0]"
-              alt="Shoes"
+              alt="product image"
               class="h-full w-full "
             >
           </figure>
@@ -79,6 +79,7 @@ async function openContact(id) {
               </h2>
               <span class="w-fit p-1 center bg-white rounded-full border-2">
                 <svg
+                  v-if="store.Favorites.includes(props.products.listing.id)"
                   width="22"
                   height="22"
                   viewBox="0 0 22 22"
@@ -95,6 +96,11 @@ async function openContact(id) {
                     fill="#292D32"
                   />
                 </svg>
+                <img
+                  v-else
+                  src="../../../assets/icons/archive-tick.svg"
+                  alt=""
+                >
               </span>
             </div>
             <hr class="mb-5">

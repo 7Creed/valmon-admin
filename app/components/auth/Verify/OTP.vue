@@ -127,7 +127,7 @@ const resendOTP = async () => {
         v-model.trim="OTPData.code"
         type="text"
         label="OTP"
-        placeholder="placeholder"
+        placeholder="verify your OTP"
         class="mb-5"
       />
       <p class="text-[rgba(30, 30, 30, 1)] text-center mb-5">
