@@ -167,15 +167,10 @@ import tikTok from '@/assets/icons/facebook.svg'
       </p>
       <div class="text-sm p-3 gap-4 lg:px-0  w-full flex justify-between flex-1 text-center">
         <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
-          <a
-            href="javascript:void(0)"
-            class="link link-hover text-gray-600 flex-1"
-          >Copyright Infringement</a>
           <NuxtLink
-            to="terms"
+            href="copyright-infringement"
             class="link link-hover text-gray-600 flex-1"
-          >Code of Conduct
-          </nuxtlink></span>
+          >Copyright Infringement</NuxtLink></span>
         <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
           <NuxtLink
             to="privacy"
