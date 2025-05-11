@@ -1,147 +1,153 @@
 <script setup>
 // import { useGlobalStore } from '@/store/index'
-import { useActiveView } from '@/composables/state'
-import { categoryController } from '~/services/modules/category'
-import { useGlobalStore } from '~/store'
+import { useActiveView } from "@/composables/state";
+import { categoryController } from "~/services/modules/category";
+import { useGlobalStore } from "~/store";
 
 // import { authController } from '~/services/modules/auth'
 
-const store = useGlobalStore()
+const store = useGlobalStore();
 // const { ping } = authController()
 
 definePageMeta({
-  layout: 'market-place',
-})
+	layout: "market-place",
+});
 
-const { state } = useActiveView('activeView')
+const { state } = useActiveView("activeView");
 
 // Handles breadcrumbs and Components rendering
-const activeComp = ref('category')
+const activeComp = ref("category");
 const selectedOption = reactive({
-  category: '',
-  skill: '',
-})
+	category: "",
+	skill: "",
+});
 
 const History = () => {
-  activeComp.value = 'category'
-  selectedOption.category = ''
-  selectedOption.skill = ''
-}
+	activeComp.value = "category";
+	selectedOption.category = "";
+	selectedOption.skill = "";
+};
 
 const handleSelectedOption = (option) => {
-  selectedOption.category = option.category
-  selectedOption.skill = option.skill
-  activeComp.value = 'skills'
-}
+	selectedOption.category = option.category;
+	selectedOption.skill = option.skill;
+	activeComp.value = "skills";
+};
 
 // Handle the name of the selected profile
-const profileName = computed(() => state.value.isProfileName)
+const profileName = computed(() => state.value.isProfileName);
 
 /* -------------- Fetch All Categories and Services under them ------------- */
-const loading = ref(false)
-const CategoryServices = ref([])
-const { getCategory_Services } = categoryController()
+const loading = ref(false);
+const CategoryServices = ref([]);
+const { getPublicCategory_Services } = categoryController();
 const fetchCategoryServices = async () => {
-  loading.value = true
-  try {
-    const { status, data, error } = await getCategory_Services()
-    if (status.value === 'success') {
-      CategoryServices.value = data.value.data
-    }
-    if (status.value === 'error') {
-      handleError('error', error.value.data.message)
-    }
-  }
-  catch (error) {
-    handleError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
+	loading.value = true;
+	try {
+		const { status, data, error } = await getPublicCategory_Services();
+		if (status.value === "success") {
+			CategoryServices.value = data.value.data;
+		}
+		if (status.value === "error") {
+			handleError("error", error.value.data.message);
+		}
+	} catch (error) {
+		handleError(error);
+	} finally {
+		loading.value = false;
+	}
+};
 
-fetchCategoryServices()
+fetchCategoryServices();
 
 /* ------------------------------ Search Filter ----------------------------- */
-const FilteredCS = ref([])
+const FilteredCS = ref([]);
 
 // Watch for changes in the search term
-watch(() => store.ServicesSearchedTerm, (newVal) => {
-  if (newVal == '') {
-    FilteredCS.value = []
-  }
-  else if (newVal != '' && CategoryServices.value.length) {
-    // First approach: Keep categories that either match by name or have matching services
-    FilteredCS.value = CategoryServices.value.map((category) => {
-      // Create a copy of the category
-      const filteredCategory = { ...category }
+watch(
+	() => store.ServicesSearchedTerm,
+	(newVal) => {
+		if (newVal == "") {
+			FilteredCS.value = [];
+		} else if (newVal != "" && CategoryServices.value.length) {
+			// First approach: Keep categories that either match by name or have matching services
+			FilteredCS.value = CategoryServices.value
+				.map((category) => {
+					// Create a copy of the category
+					const filteredCategory = { ...category };
 
-      // Filter services that match the search term
-      filteredCategory.services = category.services.filter(service =>
-        service.name.toLowerCase().includes(newVal.toLowerCase()),
-      )
+					// Filter services that match the search term
+					filteredCategory.services = category.services.filter(
+						(service) =>
+							service.name
+								.toLowerCase()
+								.includes(newVal.toLowerCase())
+					);
 
-      return filteredCategory
-    }).filter(category => category.services.length > 0) // Only keep categories with matching services
+					return filteredCategory;
+				})
+				.filter((category) => category.services.length > 0); // Only keep categories with matching services
 
-    console.log('Search term:', newVal)
-    console.log('Filtered results:', FilteredCS.value)
-  }
-})
+			console.log("Search term:", newVal);
+			console.log("Filtered results:", FilteredCS.value);
+		}
+	}
+);
 
 // Compute the rendered list based on the filtered results
 const RenderedCSList = computed(() =>
-  FilteredCS.value.length ? FilteredCS.value : CategoryServices.value,
-)
+	FilteredCS.value.length ? FilteredCS.value : CategoryServices.value
+);
 
 onMounted(() => {
-  store.getAccount()
+	if (getAuth()) {
+		store.getAccount();
+	}
 
-  // Check if General History is true and set the History from user profile to true
-  if (state.value.GeneralHistory) {
-    activeComp.value = 'skills'
-  }
-})
+	// Check if General History is true and set the History from user profile to true
+	if (state.value.GeneralHistory) {
+		activeComp.value = "skills";
+	}
+});
 </script>
 
 <template>
-  <div class="px-4 lg:px-16 h-auto overflow-auto">
-    <!-- BREADCRUMBS -->
-    <div
-      v-if="activeComp !== 'chat'"
-      class="breadcrumbs text-sm text-gray-500 mb-4"
-    >
-      <ul>
-        <li><a class="">Home</a></li>
-        <li><a class="text-decoration-none">Category</a></li>
-        <li
-          v-if="selectedOption.category"
-          @click="History()"
-        >
-          <a class="">{{ selectedOption.category }}</a>
-        </li>
-        <li v-if="selectedOption.skill">
-          <a :class="{ 'text-gray-900': profileName === '' }">{{ selectedOption.skill }}</a>
-        </li>
-        <li v-if="profileName !== ''">
-          <a class="text-gray-900">{{ profileName }}</a>
-        </li>
-      </ul>
-    </div>
-    <main>
-      <SharedLoader v-if="loading" />
-      <MarketPlaceEmployer
-        v-if="activeComp === 'category' && !loading"
-        :categories="RenderedCSList"
-        @selected-option="handleSelectedOption"
-      />
-      <MarketPlaceEmployerSkills
-        v-if="activeComp === 'skills' && !loading"
-        :skill="selectedOption.skill"
-        @back-home="History()"
-      />
-    </main>
-  </div>
+	<div class="px-4 lg:px-16 h-auto overflow-auto">
+		<!-- BREADCRUMBS -->
+		<div
+			v-if="activeComp !== 'chat'"
+			class="breadcrumbs text-sm text-gray-500 mb-4"
+		>
+			<ul>
+				<li><a class="">Home</a></li>
+				<li><a class="text-decoration-none">Category</a></li>
+				<li v-if="selectedOption.category" @click="History()">
+					<a class="">{{ selectedOption.category }}</a>
+				</li>
+				<li v-if="selectedOption.skill">
+					<a :class="{ 'text-gray-900': profileName === '' }">{{
+						selectedOption.skill
+					}}</a>
+				</li>
+				<li v-if="profileName !== ''">
+					<a class="text-gray-900">{{ profileName }}</a>
+				</li>
+			</ul>
+		</div>
+		<main>
+			<SharedLoader v-if="loading" />
+			<MarketPlaceEmployer
+				v-if="activeComp === 'category' && !loading"
+				:categories="RenderedCSList"
+				@selected-option="handleSelectedOption"
+			/>
+			<MarketPlaceEmployerSkills
+				v-if="activeComp === 'skills' && !loading"
+				:skill="selectedOption.skill"
+				@back-home="History()"
+			/>
+		</main>
+	</div>
 </template>
 
 <style></style>

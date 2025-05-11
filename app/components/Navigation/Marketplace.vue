@@ -440,13 +440,13 @@ onMounted(fetchNotifications)
   <!-- New JOb Offer Modal -->
   <!-- Open the modal using ID.showModal() method -->
   <button
-    v-show="store.UserAccount.account_type == 'worker'"
+    v-show="store?.UserAccount?.account_type == 'worker'"
     ref="popUp"
     class="absolute"
     onclick="my_modal_100.showModal()"
   />
   <dialog
-    v-show="store.UserAccount.account_type == 'worker'"
+    v-show="store?.UserAccount?.account_type == 'worker'"
     id="my_modal_100"
     class="modal"
   >
