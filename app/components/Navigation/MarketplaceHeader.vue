@@ -5,7 +5,7 @@ import { useGlobalStore } from '@/store'
 import { MarketplaceController } from '~/services/modules/marketplace'
 
 const store = useGlobalStore()
-const { getListingCategories } = MarketplaceController()
+const { getListingCategories, getPublicListingCategories } = MarketplaceController()
 
 // Update Tab
 const activeTab = ref(null)
@@ -15,7 +15,7 @@ const MLCategory = ref([])
 const routeId = useRoute().query.id
 // Get Listing category with proper initialization
 const fetchMLCategory = async () => {
-  const { status, data, error } = await getListingCategories()
+  const { status, data, error } = await getPublicListingCategories()
   if (status.value === 'success') {
     MLCategory.value = data.value.data
     activeTab.value = store.activeHeaderTab

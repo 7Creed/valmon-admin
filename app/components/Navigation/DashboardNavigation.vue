@@ -27,7 +27,10 @@ const fetchUnreadNotifications = async () => {
     console.error('fetch User rate failed:', error.value.data.message)
   }
 }
-fetchUnreadNotifications()
+if (getAuth()) {
+  fetchUnreadNotifications()
+}
+
 
 const route = useRoute()
 const getRouteName = () => {
