@@ -98,3 +98,11 @@ body {
 .table_adjustment {
   @apply w-[90%] xxl:w-full !important;
 }
+
+.gradient-background {
+  background: linear-gradient(66.86deg, #EFBF87 5.8%, #C09742 14.98%, #CFB159 46.4%, #E2CE72 83.31%, #AD7A22 94.28%);
+}
+
+.font-app-primary {
+  font-family: "Poppins";
+}

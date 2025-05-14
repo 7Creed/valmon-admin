@@ -53,13 +53,13 @@ const popUp = ref(null)
 </script>
 
 <template>
-  <div class="bg-[#C09742] p-8 fixed w-full z-[1000] top-[60px]">
-    <div class="hidden text-black lg:flex items-center justify-between container mx-auto">
+  <div class="p-2 flex justify-center fixed w-full h-[50px] z-[1000] top-[60px] gradient-background">
+    <div class="hidden w-auto text-black lg:flex items-center container">
       <a
         v-for="item in MLCategory"
         :key="item.id"
         href="javascript:void(0);"
-        class="text-base w-fit p-2 rounded-lg"
+        class="text-[12px] font-[400] w-fit p-2 mx-3 rounded-lg font-app-primary"
         :class="{ activeClass: activeTab == item.id || (routeId == item.id) }"
         @click="changeTab(item.id, item.name)"
       >
@@ -68,7 +68,7 @@ const popUp = ref(null)
     </div>
     <!-- Mobile View -->
     <div class="flex items-center justify-center gap-4 lg:hidden">
-      <p class="text-base text-[#242424] satoshiB">
+      <p class="text-[12px] font-[400] text-[#242424] satoshiB">
         Browse Our Product Categories
       </p>
       <div class="dropdown dropdown-end  flex">
