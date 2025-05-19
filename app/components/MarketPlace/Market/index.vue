@@ -119,7 +119,7 @@ fetchMFL();
 				class="w-full mx-auto"
 			>
 				<MarketPlaceMarketFeaturedListings
-					type="featuredListings"
+					:type="item.name"
 					:header-title="item.name"
 					:list-data="item.Items"
 					class="mb-20"

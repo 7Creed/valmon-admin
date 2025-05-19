@@ -53,7 +53,7 @@ const popUp = ref(null)
 </script>
 
 <template>
-  <div class="p-2 flex justify-center fixed w-full h-[50px] z-[1000] top-[60px] gradient-background">
+  <div class="p-2 flex justify-center fixed w-full h-[50px] z-[10] lg:top-[80px] top-[60px] gradient-background">
     <div class="hidden w-auto text-black lg:flex items-center container">
       <a
         v-for="item in MLCategory"

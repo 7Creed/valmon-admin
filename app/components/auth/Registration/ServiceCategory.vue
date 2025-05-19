@@ -315,7 +315,7 @@ const removeServiceCategory = (index) => {
 					</span>
 				</button>
 				<p
-					v-if="store.UserAccount.profile.services?.length === 0"
+					v-if="store.UserAccount.profile?.services?.length === 0"
 					class="text-[rgba(105, 102, 113, 1)] text-sm font-bold text-pink-700 text-center mb-2"
 				>
 					No Services Available!

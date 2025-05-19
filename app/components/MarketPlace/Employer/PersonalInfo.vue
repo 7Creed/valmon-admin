@@ -108,12 +108,13 @@ const GigsLoading = ref(false);
 if (getAuth()) {
 	store.getAccount();
 }
+
 const addGig = reactive({
-	gigs: [...(store.UserAccount.profile.gigs || [])],
+	gigs: [...(store.UserAccount?.profile?.gigs || [])],
 });
 
 watch(
-	() => store.UserAccount.profile.gigs,
+	() => store.UserAccount?.profile?.gigs,
 	(newVal) => {
 		if (newVal) {
 			addGig.gigs = [...newVal];

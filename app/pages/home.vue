@@ -119,7 +119,7 @@ onMounted(() => {
 			class="breadcrumbs text-sm text-gray-500 mb-4"
 		>
 			<ul>
-				<li><a class="">Home</a></li>
+				<li><a class="" href="/">Home</a></li>
 				<li><a class="text-decoration-none">Category</a></li>
 				<li v-if="selectedOption.category" @click="History()">
 					<a class="">{{ selectedOption.category }}</a>
