@@ -81,14 +81,8 @@ watch(isNegotiable, (newVal, oldVal) => {
 				class="select select-bordered bg-[#EFEFEF]"
 				required
 			>
-				<option disabled selected>Pick one</option>
-				<option
-					v-for="category in ListingCategories"
-					:key="category.id"
-					:value="category.id"
-				>
-					{{ category.name }}
-				</option>
+				<option value="used">Used</option>
+				<option value="new">Brand New</option>
 			</select>
 		</label>
 		<label class="form-control">

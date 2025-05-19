@@ -53,6 +53,10 @@ const selectCurrency = (id) => {
 	toggle(dropDown);
 };
 
+const filterCurrencies = () => {
+	return (currencies?.value ?? []).filter((c) => c.code.toLowerCase() == "ngn");
+};
+
 const fetchCurrencies = async () => {
 	const { data, status, error } = await getCurrencies();
 	if (status.value === "success") {
@@ -63,8 +67,11 @@ const fetchCurrencies = async () => {
 				code,
 			});
 		});
-		selectedCurrency.code = data.value.data[0].code;
-		selectedCurrency.id = data.value.data[0].id;
+		// selectedCurrency.code = data.value.data[0].code;
+		// selectedCurrency.id = data.value.data[0].id;
+		const defaultCurrency =  data.value.data.filter((c) => c.code == 'NGN')[0];
+		selectedCurrency.code = defaultCurrency.code;
+		selectedCurrency.id = defaultCurrency.id;
 	}
 	if (status.value === "error") {
 		console.log(error.value);
@@ -360,7 +367,7 @@ onMounted(fetchNotifications);
         Highlighted: "bg-indigo-600 text-white", Not Highlighted: "text-gray-900"
       -->
 								<li
-									v-for="value in currencies"
+									v-for="value in filterCurrencies()"
 									id="listbox-option-0"
 									:key="value.id"
 									class="relative cursor-default select-none py-2 pl-3 text-gray-900"
@@ -375,7 +382,7 @@ onMounted(fetchNotifications);
 										/>
 										<!-- Selected: "font-semibold", Not Selected: "font-normal" -->
 										<span
-											class="ml-3 block truncate font-normal text-black w-full"
+											class="block truncate font-normal text-black w-full"
 											>{{ value.code }}</span
 										>
 									</div>
@@ -387,7 +394,7 @@ onMounted(fetchNotifications);
         -->
 									<span
 										v-if="value.id === selectedCurrency.id"
-										class="absolute inset-y-0 right-[0px] flex items-center text-indigo-600"
+										class="absolute inset-y-0 right-[8px] flex items-center text-indigo-600"
 									>
 										<svg
 											class="h-5 w-5"
