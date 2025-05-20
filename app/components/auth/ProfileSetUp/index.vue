@@ -78,7 +78,6 @@ const nextProcess = (step) => {
   }
 }
 const Next = (param) => {
-  console.log('called')
   if (param === 'next' && activeSetupProcess.value < 5) {
     activeSetupProcess.value++
   }

@@ -71,7 +71,6 @@ const register = async () => {
   try {
     const { data, error, status } = await createUser(userData)
     if (status.value === 'success') {
-      console.log('SignUp api call ->', data.value)
 
       handleALert(status.value, data.value.message)
       // save Email to cookies
@@ -85,7 +84,6 @@ const register = async () => {
       }
     }
     if (status.value === 'error') {
-      console.log('SignUp api call ->', error.value)
       handleALert(status.value, error.value.data.message)
     }
   }

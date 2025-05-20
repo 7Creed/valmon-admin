@@ -26,7 +26,6 @@ const signIn = async () => {
   try {
     const { data, error, status } = await loginUser(userData)
     if (status.value === 'success') {
-      console.log(data)
       tokenCookies.value = {
         token: data.value.data.token,
         type: 'User',

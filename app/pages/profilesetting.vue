@@ -33,6 +33,9 @@ const toggleTab = (tab) => {
 };
 
 const token = useCookie("token");
+if (!token || !token?.value) {
+	navigateTo("/login");
+}
 
 const logOut = async () => {
 	if (token.value) {

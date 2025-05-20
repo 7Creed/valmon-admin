@@ -14,12 +14,10 @@ const fetchData = ref([])
 const fetchCategory = async () => {
   const { data, status } = await getAppServices()
   if (status.value === 'success' && data.value.data) {
-    console.log('account', data.value.data)
     fetchData.value = data.value.data
   }
   if (status.value === 'error') {
     handleALert('error', error.value.data.message)
-    console.log(error.value.data.message)
   }
 }
 

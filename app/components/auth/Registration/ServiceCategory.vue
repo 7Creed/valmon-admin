@@ -30,7 +30,6 @@ const fetchData = ref([]);
 const fetchCategory = async () => {
 	const { data, status, error } = await getAppServices();
 	if (status.value === "success" && data.value.data) {
-		console.log("account", data.value.data);
 		fetchData.value = data.value.data;
 	}
 	if (status.value === "error") {
@@ -97,7 +96,6 @@ const updateCategoryRegister = () => {
 };
 
 const removeSCRegistration = (index) => {
-	console.log("delete", index);
 
 	categoryData.value.splice(index, 1);
 	// Update the store;

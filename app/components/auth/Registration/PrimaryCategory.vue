@@ -14,7 +14,6 @@ const props = defineProps({
   },
 })
 
-console.log('This is from service Data sent to primary', props?.serviceData)
 // For Updating the UI
 
 const renderServiceData = ref([])
@@ -67,7 +66,6 @@ const savePrimaryCategory = async () => {
       buttonOption.value = 'Next'
       loading.value = false
       handleALert('success', data.value.message)
-      console.log('Update the store ->', 'Update the store ->')
       // Reset the service category store property when rendering the service category
       store.serviceCategory = []
     }
