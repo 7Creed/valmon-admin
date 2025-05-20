@@ -1,13 +1,23 @@
 <script setup>
 import { useGlobalStore } from "@/store";
 import { accountController } from "~/services/modules/account";
-import states from "../../../data/states.json"
+import states from "../../../data/states.json";
+
+const props = defineProps({
+	canProceed: Function,
+	onUpdate: Function,
+});
 
 const store = useGlobalStore();
 
 const { getListingCategories } = accountController();
 const ListingCategories = ref([]);
 const loading = ref(false);
+const stepData = ref({
+	listing_category_id : "",
+	location : ""
+});
+
 const fetchListingCategories = async () => {
 	loading.value = true;
 	const { status, data, error } = await getListingCategories();
@@ -22,7 +32,7 @@ const fetchListingCategories = async () => {
 	}
 };
 fetchListingCategories();
-console.log(store.UserAccount.profile.addresses);
+
 </script>
 
 <template>
@@ -35,11 +45,16 @@ console.log(store.UserAccount.profile.addresses);
 				<span class="text-xl text-red-600 satoshiB">*</span>
 			</div>
 			<select
-				v-model="store.listingData.listing_category_id"
+				v-model="stepData.listing_category_id"
 				class="select select-bordered bg-[#EFEFEF]"
+				@change="
+					(event) => {
+						onUpdate({ listing_category_id: event.target.value });
+					}
+				"
 				required
 			>
-				<option disabled selected>Pick one</option>
+				<option disabled selected value="">Pick one</option>
 				<option
 					v-for="category in ListingCategories"
 					:key="category.id"
@@ -57,8 +72,13 @@ console.log(store.UserAccount.profile.addresses);
 				<span class="text-xl text-red-600 satoshiB">*</span>
 			</div>
 			<select
-				v-model="store.listingData.location"
+				v-model="stepData.location"
 				class="select select-bordered bg-[#EFEFEF]"
+				@change="
+					(event) => {
+						onUpdate({ location: event.target.value });
+					}
+				"
 				required
 			>
 				<!-- <option
@@ -68,13 +88,14 @@ console.log(store.UserAccount.profile.addresses);
 				>
 					{{ address.state }}, {{ address.country }}
 				</option> -->
-        <option
-          v-for="(state, index) in states"
-          :key="index"
-          :value="state"
-        >
-          {{ state }}
-        </option>
+				<option selected disabled value="">Select location</option>
+				<option
+					v-for="(state, index) in states"
+					:key="index"
+					:value="state"
+				>
+					{{ state }}
+				</option>
 			</select>
 		</label>
 	</div>
