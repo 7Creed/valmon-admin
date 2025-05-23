@@ -78,20 +78,21 @@ body {
 }
 
 .skill-wrapper {
-  transform: rotate(-5deg);
+  width: fit-content;
   position: relative;
   margin-bottom: 8rem;
 }
 .skill {
+  will-change: transform;
   animation: scroll 20s linear infinite;
 }
 /* Infinite scroll animation */
 @keyframes scroll {
   0% {
-    left: 0;
+    transform: translateX(0);
   }
   100% {
-    left: -100%;
+    transform: translateX(-100%);
   }
 }
 
