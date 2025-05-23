@@ -284,14 +284,14 @@ const testimonies = [
 				<SharedLoader v-if="loader" />
 				<div
 					v-else
-					class="h-auto rounded-lg w-full lg:w-[80%] xl:w-[65%] flex flex-col lg:flex-row text-base p-4 justify-center mx-auto gap-5 font-bold border border-darkGold"
+					class="h-auto rounded-lg w-full xl:w-[85%] flex flex-col lg:flex-row text-base p-4 justify-center mx-auto gap-5 font-bold border border-darkGold"
 				>
 					<!-- Technical Services Section -->
 					<div
 						class="flex-1 flex flex-col min-w-0 lg:min-w-[300px] max-w-full lg:max-w-[400px]"
 					>
 						<h5
-							class="_header font-extrabold mb-4 p-3 text-center bg-darkGold"
+							class="_header font-extrabold mb-4 p-3 text-center dark-gradient-background"
 						>
 							{{
 								CategoryServices.length
@@ -300,14 +300,14 @@ const testimonies = [
 							}}
 						</h5>
 						<div
-							class="flex gap-4 justify-center items-center flex-wrap"
+							class="grid grid-cols-2 gap-[15px] justify-center items-center flex-wrap"
 						>
 							<span
 								v-for="(items, index) in CategoryServices.length
 									? CategoryServices[0].services.slice(0, 15)
 									: 21"
 								:key="index"
-								class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base truncate max-w-[150px]"
+								class="border py-2 px-4 rounded-lg text-sm lg:text-base truncate dark-btn-gradient"
 								:title="items.name"
 							>
 								{{ items.name ?? "Placeholder" }}
@@ -322,11 +322,11 @@ const testimonies = [
 					</div>
 
 					<!-- Center Image (Hidden on Small Screens) -->
-					<div class="hidden lg:flex items-center justify-center">
+					<div class="hidden lg:flex items-center justify-center w-[40%">
 						<img
 							:src="MosesTree"
 							alt=""
-							class="max-h-[200px] object-contain"
+							class="w-[100%] rounded-[10px]"
 						/>
 					</div>
 
@@ -335,7 +335,7 @@ const testimonies = [
 						class="flex-1 flex flex-col min-w-0 lg:min-w-[300px] max-w-full lg:max-w-[400px]"
 					>
 						<h5
-							class="_header font-extrabold p-3 mb-4 text-center bg-darkGold"
+							class="_header font-extrabold p-3 mb-4 text-center dark-gradient-background"
 						>
 							{{
 								CategoryServices.length
@@ -344,14 +344,14 @@ const testimonies = [
 							}}
 						</h5>
 						<div
-							class="flex gap-4 items-center flex-wrap justify-center"
+							class="grid grid-cols-2 gap-[15px] items-center flex-wrap justify-center"
 						>
 							<span
 								v-for="(items, index) in CategoryServices.length
 									? CategoryServices[1].services.slice(0, 15)
 									: 21"
 								:key="index"
-								class="border border-darkGold py-2 px-4 rounded-lg text-sm lg:text-base truncate max-w-[150px]"
+								class="border py-2 px-4 rounded-lg text-sm lg:text-base truncate dark-btn-gradient"
 								:title="items.name"
 							>
 								{{ items.name ?? "Placeholder" }}
@@ -514,7 +514,6 @@ const testimonies = [
 
 ._header {
 	color: #fff;
-	background-color: #b8860b;
 }
 
 .border-darkGold {
