@@ -38,6 +38,29 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 <style scoped>
 .hero {
   background-image: url('../../assets/images/UIElements/Hero.png');
+  animation: hero-animation 10s ease-in infinite;
+}
+
+@keyframes hero-animation {
+  0% {
+    background-image: url('../../assets/images/UIElements/Hero.png');
+  }
+
+  45% {
+    background-image: url('../../assets/images/UIElements/Hero.png');
+  }
+
+  50% {
+    background-image: url('../../assets/images/UIElements/Hero2.png');
+  }
+
+  95% {
+    background-image: url('../../assets/images/UIElements/Hero2.png');
+  }
+  
+  100% {
+    background-image: url('../../assets/images/UIElements/Hero.png');
+  }
 }
 
 .rectangle {
