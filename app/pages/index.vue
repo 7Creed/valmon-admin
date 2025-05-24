@@ -153,7 +153,7 @@ const testimonies = [
 			</div>
 			<!-- Carousel -->
 
-			<div class="w-auto flex -rotate-5" style="transform:rotate(-5deg)">
+			<div class="w-auto flex -rotate-5" style="transform: rotate(-5deg)">
 				<div
 					class="flex items-center justify-evenly w-full skill-wrapper skill"
 				>
@@ -208,8 +208,8 @@ const testimonies = [
 						</p>
 					</div>
 				</div>
-        <div
-          aria-hidden
+				<div
+					aria-hidden
 					class="flex items-center justify-evenly w-full skill-wrapper skill"
 				>
 					<div
@@ -322,7 +322,9 @@ const testimonies = [
 					</div>
 
 					<!-- Center Image (Hidden on Small Screens) -->
-					<div class="hidden lg:flex items-center justify-center w-[40%">
+					<div
+						class="hidden lg:flex items-center justify-center w-[40%"
+					>
 						<img
 							:src="MosesTree"
 							alt=""
@@ -370,7 +372,7 @@ const testimonies = [
 			<!-- Other solutions -->
 			<div class="text-white mb-40 px-4 lg:px-0">
 				<h4
-					class="text-2xl lg:text-3xl font-bold md:w-2/4 mx-auto text-center mb-20 relative z-10"
+					class="text-2xl lg:text-3xl font-bold md:w-[80%] mx-auto text-center mb-20 relative z-10"
 				>
 					We hosts skilled professionals delivering innovative web
 					designs, cutting-edge software solutions, and more with
@@ -381,19 +383,141 @@ const testimonies = [
 						class="absolute rectangular"
 					/>
 				</h4>
-				<div
-					class="lg:w-[80%] xl:w-[65%] flex flex-wrap text-base p-4 justify-center mx-auto gap-5 font-bold border border-darkGold rounded-lg"
-				>
+				<div class="w-full relative">
+					<div class="w-auto flex scrolling-background absolute">
+						<div
+							class="w-auto py-[10px] scrolling-area flex items-center justify-evenly"
+						>
+							<div
+								v-for="(items, index) in Skills"
+								:key="index"
+								class="flex items-end whitespace-nowrap px-4 py-2 gap-4"
+							>
+								<svg
+									width="31"
+									height="31"
+									viewBox="0 0 31 31"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M13.1001 1.83742C13.4843 0.204464 15.7337 0.0171661 16.3827 1.56408L19.4316 8.83142C19.7218 9.52323 20.4245 9.94946 21.1722 9.88721L29.026 9.23323C30.6977 9.09402 31.571 11.1754 30.3003 12.2706L24.3308 17.4161C23.7626 17.9059 23.5743 18.7059 23.8646 19.3977L26.9135 26.6651C27.5625 28.212 25.8529 29.6856 24.4186 28.8156L17.6803 24.7283C17.0388 24.3393 16.2198 24.4075 15.6516 24.8973L9.68207 30.0427C8.41142 31.138 6.48157 29.9674 6.86578 28.3344L8.67077 20.6629C8.8426 19.9326 8.52464 19.1748 7.8832 18.7857L1.14492 14.6984C-0.289383 13.8284 0.227568 11.6313 1.89932 11.492L9.75315 10.8381C10.5008 10.7758 11.1233 10.2392 11.2951 9.50894L13.1001 1.83742Z"
+										fill="#242424"
+									/>
+									<defs>
+										<linearGradient
+											id="paint0_linear_1840_4388"
+											x1="-2.85987"
+											y1="30.3099"
+											x2="38.0205"
+											y2="8.66535"
+											gradientUnits="userSpaceOnUse"
+										>
+											<stop stop-color="#EFE687" />
+											<stop
+												offset="0.328152"
+												stop-color="#C09742"
+											/>
+											<stop
+												offset="0.60818"
+												stop-color="#AC7729"
+											/>
+											<stop
+												offset="0.741407"
+												stop-color="#CFB159"
+											/>
+											<stop
+												offset="0.876021"
+												stop-color="#E2CE72"
+											/>
+											<stop
+												offset="1"
+												stop-color="#AD7A22"
+											/>
+										</linearGradient>
+									</defs>
+								</svg>
+								<p
+									class="text-[#242424] satoshiM font-bold md:text-xl w-auto"
+								>
+									{{ items }}
+								</p>
+							</div>
+						</div>
+						<div
+							class="w-auto py-[10px] scrolling-area flex items-center justify-evenly"
+						>
+							<div
+								v-for="(items, index) in Skills"
+								:key="index"
+								class="flex items-end whitespace-nowrap px-4 py-2 gap-4"
+							>
+								<svg
+									width="31"
+									height="31"
+									viewBox="0 0 31 31"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M13.1001 1.83742C13.4843 0.204464 15.7337 0.0171661 16.3827 1.56408L19.4316 8.83142C19.7218 9.52323 20.4245 9.94946 21.1722 9.88721L29.026 9.23323C30.6977 9.09402 31.571 11.1754 30.3003 12.2706L24.3308 17.4161C23.7626 17.9059 23.5743 18.7059 23.8646 19.3977L26.9135 26.6651C27.5625 28.212 25.8529 29.6856 24.4186 28.8156L17.6803 24.7283C17.0388 24.3393 16.2198 24.4075 15.6516 24.8973L9.68207 30.0427C8.41142 31.138 6.48157 29.9674 6.86578 28.3344L8.67077 20.6629C8.8426 19.9326 8.52464 19.1748 7.8832 18.7857L1.14492 14.6984C-0.289383 13.8284 0.227568 11.6313 1.89932 11.492L9.75315 10.8381C10.5008 10.7758 11.1233 10.2392 11.2951 9.50894L13.1001 1.83742Z"
+										fill="#242424"
+									/>
+									<defs>
+										<linearGradient
+											id="paint0_linear_1840_4388"
+											x1="-2.85987"
+											y1="30.3099"
+											x2="38.0205"
+											y2="8.66535"
+											gradientUnits="userSpaceOnUse"
+										>
+											<stop stop-color="#EFE687" />
+											<stop
+												offset="0.328152"
+												stop-color="#C09742"
+											/>
+											<stop
+												offset="0.60818"
+												stop-color="#AC7729"
+											/>
+											<stop
+												offset="0.741407"
+												stop-color="#CFB159"
+											/>
+											<stop
+												offset="0.876021"
+												stop-color="#E2CE72"
+											/>
+											<stop
+												offset="1"
+												stop-color="#AD7A22"
+											/>
+										</linearGradient>
+									</defs>
+								</svg>
+								<p
+									class="text-[#242424] satoshiM font-bold md:text-xl w-auto"
+								>
+									{{ items }}
+								</p>
+							</div>
+						</div>
+					</div>
 					<div
-						v-for="(items, index) in ImageArray"
-						:key="index"
-						class="sm:w-[300px] h-[300px] flex"
+						class="relative xl:w-[85%] grid grid-cols-3 lg:grid-cols-4 flex-wrap text-base p-2 justify-center mx-auto gap-5 font-bold border border-darkGold rounded-lg black-transparent"
 					>
-						<img
-							:src="items"
-							alt=""
-							class="border border-darkGold rounded-lg"
-						/>
+						<div
+							v-for="(items, index) in ImageArray"
+							:key="index"
+							class="aspect-[0.95] flex"
+						>
+							<img
+								:src="items"
+								alt=""
+								class="border border-darkGold rounded-lg"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -522,5 +646,30 @@ const testimonies = [
 
 .text-brightGold {
 	color: #ffd700;
+}
+
+.scrolling-area {
+	will-change: transform;
+	animation: scroll 20s linear infinite;
+}
+
+.scrolling-background {
+	background: linear-gradient(
+		66.86deg,
+		rgba(239, 230, 135, 0.6) 5.8%,
+		rgba(192, 151, 66, 0.6) 34.83%,
+		rgba(172, 119, 41, 0.6) 59.61%,
+		rgba(207, 177, 89, 0.6) 71.4%,
+		rgba(226, 206, 114, 0.6) 83.31%,
+		rgba(173, 122, 34, 0.6) 94.28%
+	);
+  position: absolute;
+  top : 45%;
+
+}
+
+.black-transparent {
+  background : rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(36px)
 }
 </style>
