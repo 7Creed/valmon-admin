@@ -578,7 +578,7 @@ const testimonies = [
 
 			<!-- Join Our Community -->
 			<div
-				class="lg:w-[70%] mx-auto hero justify-items-start heroCommunity min-h-[500px] lg:min-h-[700px] bg-cover bg-no-repeat border border-darkGold rounded-lg"
+				class="mb-[10%] lg:w-[70%] mx-auto hero justify-items-start heroCommunity min-h-[500px] lg:min-h-[700px] bg-cover bg-no-repeat border border-darkGold rounded-lg"
 			>
 				<div class="hero-overlay w-full bg-black bg-opacity-50" />
 
