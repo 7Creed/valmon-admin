@@ -563,8 +563,11 @@ const testimonies = [
 					Testimonials
 				</h4>
 				<div
-					class="lg:w-[90%] flex flex-wrap text-base p-4 justify-center mx-auto gap-5 font-bold rounded-lg"
+					class="lg:w-[90%] flex flex-wrap text-base py-4 px-8 justify-between mx-auto gap-5 font-bold rounded-lg relative"
 				>
+					<div class="absolute -top-[5%] -left-[2%]">
+						<img src="../assets/icons/quote.svg"/>
+					</div>
 					<HomeTestimonies
 						v-for="(item, index) in testimonies"
 						:key="index"
@@ -573,6 +576,9 @@ const testimonies = [
 						:text="item.text"
 						class="max-h-[400px]"
 					/>
+					<div class="absolute -bottom-[5%] -right-[2%]" style="transform: rotate(180deg);">
+						<img src="../assets/icons/quote.svg"/>
+					</div>
 				</div>
 			</div>
 
