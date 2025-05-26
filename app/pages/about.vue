@@ -76,7 +76,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
           <h2 class="text-xl md:text-2xl  font-bold mb-2">
             Our Core Values
           </h2>
-          <ul class="text-sm md:text-2xl font-bold flex flex-wrap gap-4 list-disc list-inside">
+          <ul class="ml-[5%] text-sm md:text-2xl font-bold grid grid-cols-2 text-left flex-wrap gap-4 list-disc list-inside">
             <li>Empowerment</li>
             <li>Value</li>
             <li>Positivity</li>
@@ -118,7 +118,12 @@ p, h3, li{
 }
 p:not(.heroTitle), li {
   font-weight: 500;
-  font-size: 18px;
+  font-size: 22px;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 16px;
 }
 
 h3 {
