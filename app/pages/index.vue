@@ -563,7 +563,7 @@ const testimonies = [
 					Testimonials
 				</h4>
 				<div
-					class="lg:w-[90%] grid grid-cols-2 lg:grid-cols-2 flex-wrap text-base py-4 px-8 justify-between mx-auto gap-5 font-bold rounded-lg relative"
+					class="lg:w-[90%] grid grid-cols-2 lg:grid-cols-4 flex-wrap text-base py-4 px-8 justify-between mx-auto gap-5 font-bold rounded-lg relative"
 				>
 					<div class="absolute -top-[5%] -left-[2%]">
 						<img src="../assets/icons/quote.svg"/>

@@ -55,7 +55,7 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    'api/': { proxy: { to: `https://valmon.techr.me/api/**` } },
+    'api/': { proxy: { to: `https://valmon.ctrixx.com/api/**` } },
     // 'api/**': { proxy: { to: `https://valmon.techr.me/api/**` }, ssr: false },
   },
 })
