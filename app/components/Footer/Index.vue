@@ -169,17 +169,17 @@ import tikTok from '@/assets/icons/facebook.svg'
         <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
           <NuxtLink
             href="copyright-infringement"
-            class="link link-hover text-gray-600 flex-1"
+            class="link link-hover text-[#868686] flex-1"
           >Copyright Infringement</NuxtLink></span>
         <span class="flex justify-between gap-6 lg:gap-3 flex-col lg:flex-row  flex-wrap flex-1">
           <NuxtLink
             to="privacy"
-            class="link link-hover  text-gray-600"
+            class="link link-hover  text-[#868686]"
           >Privacy Policy</NuxtLink>
           <NuxtLink
             to="terms"
             href=""
-            class="link link-hover  text-gray-600"
+            class="link link-hover text-[#868686]"
           >Terms of Service</NuxtLink>
         </span>
       </div>
