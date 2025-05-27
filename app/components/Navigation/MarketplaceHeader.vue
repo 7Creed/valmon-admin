@@ -12,7 +12,8 @@ const activeTab = ref(null)
 
 const MLCategory = ref([])
 
-const routeId = useRoute().query.id
+
+const routeId = ref(useRoute().query.id)
 // Get Listing category with proper initialization
 const fetchMLCategory = async () => {
   const { status, data, error } = await getPublicListingCategories()
@@ -28,6 +29,7 @@ const fetchMLCategory = async () => {
 
 async function changeTab(id, name) {
   activeTab.value = id
+  routeId.value = id;
   await navigateTo({
     path: 'product',
     query: {
@@ -37,9 +39,14 @@ async function changeTab(id, name) {
   })
 }
 
+
 // Initialize on mount
 onMounted(async () => {
   await fetchMLCategory()
+  // Set default selected category if present
+  if (routeId?.value) {
+    activeTab.value = routeId.value;
+  }
   // Show popup if needed
   setTimeout(() => {
     if (popUp.value && store.UserAccount.account_type == 'worker') {

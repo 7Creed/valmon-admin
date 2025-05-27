@@ -5,7 +5,7 @@ export const useBaseApi = () => {
   //  This function retrieves runtime configuration settings defined in your Nuxt application
   const apiFetch = async (url, options = {}) => {
     const defaults = {
-      baseURL: 'https://valmon.techr.me/api/',
+      baseURL: 'https://valmon.ctrixx.com/api/',
       key: url,
       watch: false,
       // timeout: 10000,
