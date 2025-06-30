@@ -285,10 +285,10 @@ onUnmounted(() => {
                     class="checkbox border-white"
                     @change="selectedRating(index)"
                   >
-                  <span class="lg:label-text text-white text-xs">{{ index + 1 }} Star</span>
+                  <span class="lg:label-text lg:text-white text-white text-xs">{{ index + 1 }} Star</span>
                 </label>
               </div>
-              <div class="lg:text-sm badge text-xs badge-white px-3 rounded-md">
+              <div class="gradient-text-1 lg:text-sm badge text-xs badge-white px-3 rounded-md">
                 {{ index + 1 }}
               </div>
             </div>

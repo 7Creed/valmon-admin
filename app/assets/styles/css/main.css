@@ -114,6 +114,13 @@ body {
   background: linear-gradient(90deg, rgba(15, 14, 14, 0.79) 0%, rgba(26, 23, 23, 0.79) 100%);
 }
 
+.gradient-text-1 {
+  background: linear-gradient(66.86deg, #C09742 5.8%, #AC7729 8.79%, #AC7729 9.67%, #CFB159 20.74%, #AD7A22 29.58%, #AD7A22 74.27%, #C09742 94.28%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 
 .font-app-primary {
   font-family: "Poppins";
