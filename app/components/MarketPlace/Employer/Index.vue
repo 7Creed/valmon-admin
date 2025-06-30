@@ -29,6 +29,21 @@ const selectSkill = (option, category, serviceId) => {
     usersByServices: serviceId,
   })
 }
+
+const sortByAlphabet = (list) => {
+  const result = list;
+  return result.sort((a,b) => {
+    const nameA = a.name.toUpperCase();
+    const nameB = b.name.toUpperCase();
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+  });
+}
+
 </script>
 
 <template>
@@ -76,7 +91,7 @@ const selectSkill = (option, category, serviceId) => {
           <div class="flex flex-row items-center justify-center flex-wrap gap-4 py-14 px-6 grow">
             <!-- Skill placeholder -->
             <SkillPlaceHolder
-              v-for="(service, index) in category.services"
+              v-for="(service, index) in sortByAlphabet(category.services)"
               :key="index"
               :title="service.name"
               @click="selectSkill(service.name, category.name, service.id)"
