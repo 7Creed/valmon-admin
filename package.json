@@ -24,6 +24,7 @@
     "pinia": "^2.2.2",
     "sweetalert": "^2.1.2",
     "vue": "latest",
+    "vue-remix-icons": "^3.15.0",
     "vue3-apexcharts": "^1.8.0"
   },
   "devDependencies": {

@@ -584,13 +584,13 @@ const testimonies = [
 
 			<!-- Join Our Community -->
 			<div
-				class="mb-[10%] lg:w-[70%] mx-auto hero justify-items-start heroCommunity min-h-[500px] lg:min-h-[700px] bg-cover bg-no-repeat border border-darkGold rounded-lg"
+				class="mb-[10%] lg:w-[90%] mx-auto hero justify-items-start heroCommunity min-h-[500px] lg:min-h-[550px] bg-cover bg-no-repeat border border-darkGold rounded-lg"
 			>
-				<div class="hero-overlay w-full bg-black bg-opacity-50" />
+				<div class="hero-overlay w-full bg-black bg-opacity-10" />
 
 				<div class="hero-content text-white justify-start">
-					<div class="max-w-full relative">
-						<h2 class="text-2xl lg:text-5xl font-extrabold mb-3">
+					<div class="max-w-full relative ml-[10%]">
+						<h2 class="text-2xl font-extrabold mb-3">
 							Join Our Community Today
 						</h2>
 						<p class="mb-4 text-lg font-medium">
