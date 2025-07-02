@@ -79,7 +79,7 @@ const signIn = async () => {
 						:icon="true"
 						icon-type="password"
 					/>
-          <button class="absolute right-0 w-[20px] h-[20px] bg-red-400">
+          <button class="absolute right-0 w-[20px] h-[20px]">
             <!-- <RiEyeFill/> -->
           </button>
 				</div>

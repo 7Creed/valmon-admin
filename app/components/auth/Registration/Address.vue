@@ -57,8 +57,8 @@ const fetchCountries = async () => {
   const { data, error, status } = await getCountries()
   if (status.value === 'success')
     CountriesList.value = data.value.data
-  if (status.value === 'error')
-    console.log(error.value.data.message)
+  if (status.value === 'error') {}
+    // console.log(error.value.data.message)
 }
 fetchCountries()
 </script>

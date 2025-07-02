@@ -15,6 +15,7 @@ const store = useGlobalStore();
 const view = ref("viewProduct");
 const route = useRoute();
 const selectedListingsCategoryId = ref(route.query.id);
+const listingRange = ref(null);
 
 if (selectedListingsCategoryId.value) {
 	view.value = "";
@@ -64,14 +65,13 @@ const paginationInfo = ref({});
 const fetchAppListings = async (params) => {
 	const { status, data, error } = await getAppListing(params);
 	if (status.value === "success") {
-		console.log("MFLC", data.value.data);
 		if (data.value.data.length === 0 || !data.value.data) {
 			MFLCloader.value = false;
 			return;
 		} else {
-			console.log("HereApp", data.value.data.data);
 			MPAppListings.value = data.value.data.data;
 			paginationInfo.value = data.value.data;
+			listingRange.value = [data.value.data.min, data.value.data.max];
 		}
 	}
 	if (status.value === "error") {
@@ -113,8 +113,8 @@ const params = reactive({
 });
 
 const updateRangeValues = (rangeValues) => {
-	params.minPrice = parseInt(rangeValues.min) * 1000;
-	params.maxPrice = parseInt(rangeValues.max) * 1000;
+	params.minPrice = parseInt(rangeValues.min);
+	params.maxPrice = parseInt(rangeValues.max);
 };
 
 const updatedFilter = (value) => {
@@ -320,7 +320,7 @@ const handlePagination = (value) => {
 						</div>
 					</div>
 					<!-- Price Range with Min and Max Sliders -->
-					<RangeSlider @range-values="updateRangeValues" />
+					<RangeSlider @range-values="updateRangeValues" :range="listingRange"/>
 				</div>
 
 				<!-- Price -->

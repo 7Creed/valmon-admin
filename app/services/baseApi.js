@@ -23,7 +23,7 @@ export const useBaseApi = () => {
       },
       onResponseError({ request, response, options }) {
         const store = useGlobalStore()
-        console.log('response', response)
+        // console.log('response', response)
         // Handle errors (e.g., redirect on 401)
         // if (response.status === 401) {
         //   // Reset the User Information
@@ -37,7 +37,7 @@ export const useBaseApi = () => {
 
     // Call the useFetch function
     const res = useFetch(url, defaults)
-    console.log('This is from BaseApi ->', res)
+    // console.log('This is from BaseApi ->', res)
 
     return res
   }

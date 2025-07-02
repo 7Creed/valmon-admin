@@ -2,30 +2,50 @@
 import { ref, computed } from "vue";
 
 const emits = defineEmits(["rangeValues"]);
+
+const props = defineProps({
+	range: Array,
+});
 /**
  * Reactive variables for the min and max values of the slider.
  * These will store the selected min and max range values.
  */
-const minRange = ref(1); // Default starting min value
-const maxRange = ref(100); // Default starting max value
+
+const minRange = ref(props.range ? props.range[0] : 1); // Default min value
+const maxRange = ref(props.range ? props.range[1] : 100); // Default max value
+
+const minValue = ref(props.range ? props.range[0] : 1); // Default starting min value
+const maxValue = ref(props.range ? props.range[1] : 100); // Default starting max value
+
+
+watch(props, async (oldProps, newProps) => {
+	if (newProps?.range) {
+		if (eval(newProps?.range[0]) != minRange.value) {
+			minValue.value = eval(newProps.range[0]);
+			maxValue.value = eval(newProps.range[1]);
+		}
+		minRange.value = eval(newProps.range[0]);
+		maxRange.value = eval(newProps.range[1]);
+	}
+});
 
 /**
  * Minimum gap allowed between the two slider handles.
  * This prevents the sliders from overlapping completely.
  */
-const minRangeValueGap = 6;
+const minRangeValueGap = 1000;
 
 /**
  * Function to update the minimum value of the slider.
  * - Ensures the new min value does not exceed (max value - min gap).
  */
 const updateMinRange = (value) => {
-	if (value >= maxRange.value - minRangeValueGap) {
-		minRange.value = maxRange.value - minRangeValueGap;
+	if (value >= maxValue.value - minRangeValueGap) {
+		minValue.value = maxValue.value - minRangeValueGap;
 	} else {
-		minRange.value = value;
+		minValue.value = Math.max(minRange.value, value);
 	}
-	emits("rangeValues", { min: minRange.value, max: maxRange.value });
+	emits("rangeValues", { min: minValue.value, max: maxValue.value });
 };
 
 /**
@@ -33,13 +53,17 @@ const updateMinRange = (value) => {
  * - Ensures the new max value does not go below (min value + min gap).
  */
 const updateMaxRange = (value) => {
-	if (value <= minRange.value + minRangeValueGap) {
-		maxRange.value = minRange.value + minRangeValueGap;
+	if (value <= minValue.value + minRangeValueGap) {
+		maxValue.value = minValue.value + minRangeValueGap;
 	} else {
-		maxRange.value = value;
+		maxValue.value = value;
 	}
-	emits("rangeValues", { min: minRange.value, max: maxRange.value });
+	emits("rangeValues", { min: minValue.value, max: maxValue.value });
 };
+
+const handleInputUpdate = () => {
+	emits("rangeValues", { min: minValue.value, max: maxValue.value });
+}
 
 /**
  * Computed property to dynamically adjust the track (colored range) between min and max handles.
@@ -47,8 +71,8 @@ const updateMaxRange = (value) => {
  * - Right position is based on the max value.
  */
 const trackStyle = computed(() => ({
-	left: `${(minRange.value / 100) * 100}%`, // Adjusts the start of the track
-	right: `${Math.max(100 - (maxRange.value / 100) * 100, 0)}%`, // Adjusts the end of the track
+	left: `${(minValue.value / maxRange.value) * 100}%`, // Adjusts the start of the track
+	right: `${Math.max(100 - (maxValue.value / maxRange.value) * 100, 0)}%`, // Adjusts the end of the track
 }));
 </script>
 
@@ -68,10 +92,10 @@ const trackStyle = computed(() => ({
 			<!-- Min Range Slider -->
 			<input
 				type="range"
-				min="0"
-				max="100"
+				:min="minRange"
+				:max="maxRange"
 				step="1"
-				:value="minRange"
+				v-model="minValue"
 				class="absolute w-full h-2 bg-transparent appearance-none pointer-events-auto cursor-pointer"
 				@input="updateMinRange($event.target.value)"
 			/>
@@ -79,10 +103,11 @@ const trackStyle = computed(() => ({
 			<!-- Max Range Slider -->
 			<input
 				type="range"
-				min="0"
-				max="100"
+				:min="minRange"
+				:max="maxRange"
 				step="1"
-				:value="maxRange"
+				:value="maxValue"
+				v-model="maxValue"
 				class="absolute w-full h-2 bg-transparent appearance-none pointer-events-auto cursor-pointer"
 				@input="updateMaxRange($event.target.value)"
 			/>
@@ -90,8 +115,14 @@ const trackStyle = computed(() => ({
 
 		<!-- Display selected min and max values -->
 		<div class="flex justify-between w-full mt-3 text-sm font-semibold">
-			<span>Min: {{ minRange }}K</span>
-			<span>Max: {{ maxRange }}K</span>
+			<div class="flex flex-col w-[45%]">
+				<span>Min: {{ minValue }}</span>
+				<input class="p-1 w-[70%] border-[1px] border-[#b2b2b2] rounded-[5px]" type="number" :min="minRange" :max="maxRange - minRangeValueGap" v-model="minValue" @change="handleInputUpdate"/>
+			</div>
+			<div class="flex flex-col w-[45%] items-end">
+				<span>Max: {{ maxValue }}</span>
+				<input class="p-1 w-[70%] border-[1px] border-[#b2b2b2] rounded-[5px]" type="number" :min="minValue + minRangeValueGap" :max="maxRange" v-model="maxValue" @change="handleInputUpdate"/>
+			</div>
 		</div>
 	</div>
 </template>

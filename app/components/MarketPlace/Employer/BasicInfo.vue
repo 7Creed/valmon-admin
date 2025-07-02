@@ -328,7 +328,7 @@ fetchCountries();
 					{{ store.UserAccount?.profile?.bio ?? "Nil" }}
 				</p>
 			</div>
-			<button
+			<!-- <button
 				v-show="store.UserAccount.account_type === 'employer'"
 				class="btn mb-10 text-base font-bold text-[rgba(118, 127, 140, 1)] border-2 _border w-1/2"
 				onclick="my_modal_1.showModal()"
@@ -349,7 +349,7 @@ fetchCountries();
 				</svg>
 
 				Become A Service Provider
-			</button>
+			</button> -->
 			<!-- For Employee view -->
 			<div v-show="store.UserAccount.account_type === 'worker'" class="">
 				<div class="mb-5">
