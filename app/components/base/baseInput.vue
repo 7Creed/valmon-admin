@@ -19,7 +19,7 @@ const passwordVisibility = ref(false)
 
 const emits = defineEmits(['passwordVisible'])
 const toggleVisibility = () => {
-  if (props.instanceId) passwordVisibility.value = !passwordVisibility.value
+  if (props.iconType == 'password') passwordVisibility.value = !passwordVisibility.value
   emits('passwordVisible', { visibility: passwordVisibility.value, id: props.instanceId })
 }
 </script>
@@ -36,7 +36,7 @@ const toggleVisibility = () => {
 
       <div class="relative flex items-center mt-2 mb-1">
         <button
-          v-if="props?.icon && props.instanceId"
+          v-if="props?.icon"
           class="absolute right-0 focus:outline-none"
           @click.prevent="toggleVisibility"
         >
@@ -83,7 +83,7 @@ const toggleVisibility = () => {
 
         <input
           v-model="inputValue"
-          :type="props?.type"
+          :type="iconType == 'password' ? passwordVisibility ? 'text' : 'password' : props?.type"
           :required="props?.required"
           :placeholder="props?.placeholder"
           class=" block w-full py-2.5 text-[rgba(16, 16, 17, 1)] placeholder-gray-400/70 bg-white border border-[rgba(0, 0, 0, 0.4)] rounded-lg pl-5 pr-11 focus:border-blue-400  focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
