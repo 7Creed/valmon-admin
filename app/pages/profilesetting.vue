@@ -30,6 +30,7 @@ onUnmounted(() => {
 const toggleTab = (tab) => {
 	mobileTabContent.value = isMobile.value;
 	activeTab.value = tab;
+	console.log(activeTab)
 };
 
 const token = useCookie("token");
@@ -69,7 +70,7 @@ const tabTitle = computed(() => {
 				class="w-full lg:w-auto"
 			>
 				<div
-					class="card card-compact bg-base-100 w-full lg:w-72 shadow-xl"
+					class="card card-compact bg-base-100 font-semibold w-full lg:w-72 shadow-xl"
 				>
 					<div class="card-body">
 						<!-- Row 1 -->
@@ -77,7 +78,7 @@ const tabTitle = computed(() => {
 							href="javascript:void(0);"
 							class="flex items-center gap-3 alert lg:alert hover:bg-valmon_yellow p-3 mb-2"
 							:class="{
-								'bg-valmon_yellow': activeTab === 'personal',
+								'!bg-valmon_yellow': activeTab === 'personal',
 							}"
 							@click="toggleTab('personal')"
 						>
@@ -105,7 +106,7 @@ const tabTitle = computed(() => {
 							href="javascript:void(0);"
 							class="flex items-center gap-3 lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
 							:class="{
-								'bg-valmon_yellow': activeTab === 'jobs',
+								'!bg-valmon_yellow': activeTab === 'jobs',
 							}"
 							@click="toggleTab('jobs')"
 						>
@@ -133,7 +134,7 @@ const tabTitle = computed(() => {
 							href="javascript:void(0);"
 							class="flex items-center gap-3 lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
 							:class="{
-								'bg-valmon_yellow': activeTab === 'payment',
+								'!bg-valmon_yellow': activeTab === 'payment',
 							}"
 							@click="toggleTab('payment')"
 						>
@@ -161,7 +162,7 @@ const tabTitle = computed(() => {
 							href="javascript:void(0);"
 							class="flex items-center gap-3 lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
 							:class="{
-								'bg-valmon_yellow': activeTab === 'password',
+								'!bg-valmon_yellow': activeTab === 'password',
 							}"
 							@click="toggleTab('password')"
 						>
@@ -189,7 +190,7 @@ const tabTitle = computed(() => {
 							href="javascript:void(0);"
 							class="flex items-center gap-3 lg:alert alert hover:bg-valmon_yellow p-3 mb-2"
 							:class="{
-								'bg-valmon_yellow':
+								'!bg-valmon_yellow':
 									activeTab === 'notification',
 							}"
 							@click="toggleTab('notification')"
