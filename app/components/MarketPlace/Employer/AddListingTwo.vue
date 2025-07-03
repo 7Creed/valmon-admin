@@ -4,16 +4,17 @@ import { useGlobalStore } from "@/store";
 const props = defineProps({
 	canProceed: Function,
 	onUpdate: Function,
+	listingData : Object,
 });
 
 const store = useGlobalStore();
 
 const stepData = ref({
-	title: "",
-	color: "",
-	price: "",
-	condition : "",
-	description : ""
+	title: props?.listingData.title || "",
+	color: props?.listingData.color || "",
+	price: props?.listingData.price || "",
+	condition : props?.listingData.condition || "",
+	description : props?.listingData.description || ""
 });
 
 const isNegotiable = ref(true);

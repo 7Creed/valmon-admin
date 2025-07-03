@@ -115,11 +115,13 @@ const setCanProceed = () => {
 					v-if="activeStep === 1"
 					:can-proceed="setCanProceed"
 					:onUpdate="onUpdate"
+					:listingData="listingData"
 				/>
 				<MarketPlaceEmployerAddListingTwo
 					v-if="activeStep === 2"
 					:can-proceed="setCanProceed"
 					:onUpdate="onUpdate"
+					:listingData="listingData"
 				/>
 				<MarketPlaceEmployerAddListingThree
 					v-if="activeStep === 3"

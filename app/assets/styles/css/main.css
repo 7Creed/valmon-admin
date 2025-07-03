@@ -121,6 +121,11 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.select-gradient {
+  background: linear-gradient(66.86deg, #C09742 5.8%, #AC7729 8.79%, #AC7729 9.67%, #CFB159 20.74%, #AD7A22 29.58%, #AD7A22 74.27%, #C09742 94.28%);
+
+}
+
 
 .font-app-primary {
   font-family: "Poppins";

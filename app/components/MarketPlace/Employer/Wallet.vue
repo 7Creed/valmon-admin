@@ -348,7 +348,7 @@ handlePagination(store.Pages.walletTx)
   <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center justify-between text-[#727376] ">
     <div class="flex flex-wrap items-baseline lg:w-[28rem] justify-between">
       <span class="text-sm">Number Of Items displayed per page</span>
-      <select class="select select-bordered select-xs w-full max-w-14 bg-black text-white">
+      <select class="select select-bordered select-xs w-full max-w-14 select-gradient text-white">
         <option>{{ walletTxn.per_page }}</option>
       </select>
       <span class="text-sm">{{ walletTxn?.current_page }}-{{ walletTxn.data?.length }} of {{ walletTxn?.total }} items</span>
@@ -364,7 +364,7 @@ handlePagination(store.Pages.walletTx)
         v-for="(count, index) of paginationList?.slice(0, walletTxn?.last_page)"
         :key="index"
 
-        class="join-item btn bg-black text-white  btn-sm"
+        class="join-item btn bg-black text-white  btn-sm select-gradient"
         @click="pagination(count)"
       >
         {{ count }}
