@@ -58,12 +58,11 @@ const addToFavourites = async (id) => {
 		type: "listing",
 		id: id,
 	};
-	console.log("Add to favourites:", id);
+
 	// Add your logic to add the item to favourites
 	const { status, data, error } = await addToFavorites(favoriteData);
 	try {
 		if (status.value === "success") {
-			console.log("Added to favourites:", data.value);
 			favoriteList.value.push(id);
 			store.$patch({
 				Favorites: favoriteList.value,
@@ -91,7 +90,6 @@ const getFavourites = async (type) => {
 	const { data, status, error } = await getFavorites(type);
 	try {
 		if (status.value === "success") {
-			console.log("Favourites:", data.value);
 			// modify this to check if the item is already in favourites by the user and pass the owner id to favoriteList
 			Object.values(props.otherListings).forEach((item) => {
 				Object.values(data.value.data).forEach((favoriteItem) => {
@@ -113,14 +111,18 @@ const getFavourites = async (type) => {
 };
 
 const handleDeleteListing = async (id) => {
-  const { status, data, error } = await deleteListing(id)
-  if (status.value === 'success') {
-    // console.log(data.value.data)
-    marketListings.value = marketListings.value.filter(
-	  (item) => item.id !== id
-	);
-  }
+	const { status, data, error } = await deleteListing(id);
+	if (status.value === "success") {
+		// console.log(data.value.data)
+		marketListings.value = marketListings.value.filter(
+			(item) => item.id !== id
+		);
+	}
+};
 
+const handleEdit = (item) => {
+	store.editListingData = item;
+	navigateTo(`/editlisting/${item.id}`);
 };
 
 if (getAuth()) {
@@ -139,6 +141,7 @@ if (getAuth()) {
 				v-if="props.listings"
 				href="javascript:void(0);"
 				class="archived p-2 bg-white rounded-full center shadow-md"
+				@click="handleEdit(item)"
 			>
 				<svg
 					width="20"

@@ -58,7 +58,7 @@ export const useBaseApi = () => {
     apiFetch(url, { ...options, method: 'PACTH', body })
 
   const put = (url, body, options = {}) =>
-    apiFetch(url, { ...options, method: 'PUT', body })
+    apiFetch(url + `?_method=PUT`, { ...options, method: 'POST', body })
 
   const del = (url, options = {}) =>
     apiFetch(url, { ...options, method: 'DELETE' })

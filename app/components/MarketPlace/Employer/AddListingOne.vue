@@ -24,7 +24,6 @@ const fetchListingCategories = async () => {
 	const { status, data, error } = await getListingCategories();
 	if (status.value === "success") {
 		ListingCategories.value = data.value.data;
-		console.log(data.value.data);
 		loading.value = false;
 		store.ListingCategories = data.value.data;
 	}
