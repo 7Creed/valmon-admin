@@ -35,7 +35,7 @@ const viewMore = async (id, name) => {
 					props?.headerTitle !== 'Featured Listings'
 				"
 				href="javascript:void(0)"
-				class="text-darkGold lg:mr-[15rem] text-lg md:text-2xl"
+				class="text-darkGold  text-lg md:text-2xl"
 				@click="
 					viewMore(
 						props?.listData[0].category.id,
@@ -57,7 +57,7 @@ const viewMore = async (id, name) => {
 				No products under this category.
 			</p>
 		</div>
-		<div class="flex flex-wrap gap-8 justify-center md:justify-start">
+		<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-8 justify-center md:justify-start">
 			<MarketPlaceEmployerMarket
 				:type="props.type"
 				:other-listings="props.listData"

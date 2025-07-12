@@ -110,7 +110,7 @@ fetchMFL();
 		</div>
 	</div>
 	<!-- Renders featured category -->
-	<div class="p-20 px-14 bg-[#F0F2F5]">
+	<div class="p-20 px-3 sm:px-14 bg-[#F0F2F5]">
 		<SharedLoader v-if="MFLCloader" />
 		<div v-else>
 			<div
