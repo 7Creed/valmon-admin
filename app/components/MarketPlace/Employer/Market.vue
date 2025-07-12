@@ -3,10 +3,12 @@ import archivedTick from "@/assets/icons/archive-tick.svg";
 import archivedTickWhite from "@/assets/icons/archive-tick-white.svg";
 
 import { MiscController } from "~/services/modules/misc";
+import { MarketplaceController } from "~/services/modules/marketplace";
 
 import { useGlobalStore } from "@/store";
 
 const { addToFavorites, getFavorites } = MiscController();
+const { deleteListing } = MarketplaceController();
 const store = useGlobalStore();
 
 const props = defineProps({
@@ -56,12 +58,11 @@ const addToFavourites = async (id) => {
 		type: "listing",
 		id: id,
 	};
-	console.log("Add to favourites:", id);
+
 	// Add your logic to add the item to favourites
 	const { status, data, error } = await addToFavorites(favoriteData);
 	try {
 		if (status.value === "success") {
-			console.log("Added to favourites:", data.value);
 			favoriteList.value.push(id);
 			store.$patch({
 				Favorites: favoriteList.value,
@@ -89,7 +90,6 @@ const getFavourites = async (type) => {
 	const { data, status, error } = await getFavorites(type);
 	try {
 		if (status.value === "success") {
-			console.log("Favourites:", data.value);
 			// modify this to check if the item is already in favourites by the user and pass the owner id to favoriteList
 			Object.values(props.otherListings).forEach((item) => {
 				Object.values(data.value.data).forEach((favoriteItem) => {
@@ -110,6 +110,21 @@ const getFavourites = async (type) => {
 	}
 };
 
+const handleDeleteListing = async (id) => {
+	const { status, data, error } = await deleteListing(id);
+	if (status.value === "success") {
+		// console.log(data.value.data)
+		marketListings.value = marketListings.value.filter(
+			(item) => item.id !== id
+		);
+	}
+};
+
+const handleEdit = (item) => {
+	store.editListingData = item;
+	navigateTo(`/editlisting/${item.id}`);
+};
+
 if (getAuth()) {
 	getFavourites("listing");
 }
@@ -120,13 +135,13 @@ if (getAuth()) {
 		v-for="(item, index) in marketListings"
 		:key="item.id"
 		class="card card-compact bg-base-100 w-[280px] md:w-80 shadow-xl"
-		@click="productCardFunction(item.id)"
 	>
 		<div class="absolute right-0 flex items-center gap-2">
 			<a
 				v-if="props.listings"
 				href="javascript:void(0);"
 				class="archived p-2 bg-white rounded-full center shadow-md"
+				@click="handleEdit(item)"
 			>
 				<svg
 					width="20"
@@ -154,7 +169,8 @@ if (getAuth()) {
 			<a
 				v-if="props.listings"
 				href="javascript:void(0);"
-				class="archived p-2 bg-white rounded-full center shadow-md"
+				class="archived p-2 bg-white rounded-full center shadow-md relative hover:bg-[#f2f2f2]"
+				@click="handleDeleteListing(item.id)"
 			>
 				<svg
 					width="18"
@@ -209,7 +225,7 @@ if (getAuth()) {
 			</a>
 		</div>
 
-		<div class="card-body">
+		<div class="card-body" @click="productCardFunction(item.id)">
 			<figure class="h-[260px] center">
 				<img
 					:src="item.images[0]"

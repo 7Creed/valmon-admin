@@ -18,6 +18,7 @@ export const MarketplaceController = () => {
 		});
 		return get(url + paramList.join("&"));
 	};
+	const deleteListing = (id) => del(`marketplace/listings/${id}`);
 
 	return {
 		getListingById,
@@ -26,5 +27,6 @@ export const MarketplaceController = () => {
 		getListingCategories,
 		getPublicListingCategories,
 		getAppListing,
+		deleteListing
 	};
 };

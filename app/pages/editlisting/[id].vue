@@ -2,9 +2,12 @@
 import { accountController } from "~/services/modules/account";
 
 import { useGlobalStore } from "@/store";
+
 // Define Data
 const activeStep = ref(1);
 const store = useGlobalStore();
+const route = useRoute()
+const id = route.params.id;
 
 // Vaidate required fields
 const validate = () => {
@@ -31,11 +34,13 @@ const updateStep = (step) => {
 	canProceed.value = false;
 };
 
-const { addListing } = accountController();
+const { editListing } = accountController();
 const loading = ref(false);
 
 const listingData = ref({
-	negotiable: 1,
+	...(store?.editListingData ?? {
+		negotiable: 1,
+	}),
 });
 
 const canProceed = ref(false);
@@ -48,7 +53,6 @@ const onUpdate = (data) => {
 };
 
 const postListing = async () => {
-	console.log(listingData.value);
 	loading.value = true;
 	const formData = new FormData();
 	for (const key in listingData.value) {
@@ -61,25 +65,12 @@ const postListing = async () => {
 	}
 
 	try {
-		const { status, data, error } = await addListing(
-			formData,
-			listingData.value.listing_category_id,
-			listingData.value.location
+		const { status, data, error } = await editListing(
+            id,
+			formData
 		);
 		if (status.value === "success") {
-			console.log(data.value.data);
 			handleALert("success", data.value.message);
-			store.$patch({
-				listing_category_id: "",
-				location: "",
-				title: "",
-				color: "",
-				price: "",
-				negotiable: 1,
-				condition: "",
-				description: "",
-				images: [],
-			});
 			store.fetchListing = true;
 			await navigateTo("/profilesetting");
 		}
@@ -128,6 +119,8 @@ const setCanProceed = () => {
 					class="center"
 					:can-proceed="setCanProceed"
 					:onUpdate="onUpdate"
+                    :listingData="listingData"
+                    :isEdit="true"
 				/>
 				<div class="flex items-center justify-between mt-4">
 					<button
@@ -154,7 +147,7 @@ const setCanProceed = () => {
 							v-if="loading"
 							class="loading loading-spinner loading-md"
 						/>
-						<span v-else>Post</span>
+						<span v-else>Save</span>
 					</button>
 				</div>
 			</div>

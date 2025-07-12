@@ -22,7 +22,8 @@ export const accountController = () => {
   const getUserServices = () => get(`account/services`)
   // Market listings
 
-  const addListing = (data, listing_category_id, location) => post(`account/marketplace?listing_category_id=${listing_category_id}?location=${location}`, data)
+  const addListing = (data) => post(`account/marketplace`, data);
+  const editListing = (id, data) => put(`account/marketplace/listings/${id}`, data)
   const getListings = () => get('account/marketplace')
   const getListingCategories = () => get('account/marketplace/categories')
   const singleListingCategory = id => get(`account/info/${id}/marketplace`)
@@ -56,6 +57,7 @@ export const accountController = () => {
     deleteGallery,
     getUserServices,
     addListing,
+    editListing,
     getListings,
     getListingCategories,
     addAddresses,

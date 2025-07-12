@@ -6,16 +6,17 @@ import states from "../../../data/states.json";
 const props = defineProps({
 	canProceed: Function,
 	onUpdate: Function,
+	listingData : Object,
 });
 
 const store = useGlobalStore();
 
 const { getListingCategories } = accountController();
-const ListingCategories = ref([]);
+const ListingCategories = ref(store?.ListingCategories ?? []);
 const loading = ref(false);
 const stepData = ref({
-	listing_category_id : "",
-	location : ""
+	listing_category_id : props.listingData?.listing_category_id || "",
+	location : props.listingData?.location || "",
 });
 
 const fetchListingCategories = async () => {
@@ -23,8 +24,8 @@ const fetchListingCategories = async () => {
 	const { status, data, error } = await getListingCategories();
 	if (status.value === "success") {
 		ListingCategories.value = data.value.data;
-		console.log(data.value.data);
 		loading.value = false;
+		store.ListingCategories = data.value.data;
 	}
 	if (status.value === "error") {
 		handleError("error", error.value.data.message);

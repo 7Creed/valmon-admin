@@ -107,6 +107,7 @@ export const useStore = defineStore('valmon_app_store', {
 
     // Favorites for Marketplace product description // Not working fix this
     Favorites: ref([]),
+    editListingData : null
   }),
   actions: {
     updatePages(page, value) {
