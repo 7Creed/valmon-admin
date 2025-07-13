@@ -3,7 +3,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 </script>
 
 <template>
-  <div class="bg-stone-950 min-h-screen mb-20 lg:mb-30 relative">
+  <div class="bg-stone-950 min-h-screen pb-20 lg:mb-30 relative">
     <h1 class="text-3xl lg:text-5xl font-bold text-white text-center pt-20 mb-12 relative w-fit mx-auto z-10">
       Privacy Policy
       <img
