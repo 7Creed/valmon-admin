@@ -106,7 +106,6 @@ const trackStyle = computed(() => ({
 				:min="minRange"
 				:max="maxRange"
 				step="1"
-				:value="maxValue"
 				v-model="maxValue"
 				class="absolute w-full h-2 bg-transparent appearance-none pointer-events-auto cursor-pointer"
 				@input="updateMaxRange($event.target.value)"
