@@ -24,7 +24,7 @@ const viewMore = async (id, name) => {
 		>
 			<span
 				:class="[
-					props.type === 'electronics' ? 'text-white' : 'text-black',
+					props.type === 'highlight' ? 'text-white' : 'text-black',
 				]"
 				>{{ props.headerTitle }}</span
 			>
@@ -35,7 +35,7 @@ const viewMore = async (id, name) => {
 					props?.headerTitle !== 'Featured Listings'
 				"
 				href="javascript:void(0)"
-				class="text-darkGold  text-lg md:text-2xl"
+				:class="`text-darkGold  text-lg md:text-xl ${props.type === 'highlight' && 'gradient-text-1'}`"
 				@click="
 					viewMore(
 						props?.listData[0].category.id,

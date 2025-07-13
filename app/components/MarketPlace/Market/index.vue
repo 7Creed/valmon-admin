@@ -98,11 +98,14 @@ fetchMFL();
 		<!-- Featured Listings -->
 		<SharedLoader v-if="MFLoader" />
 		<div v-else class="w-full mx-auto">
-			<MarketPlaceMarketFeaturedListings
-				type="featuredListings"
-				header-title="Featured Listings"
-				:list-data="MFListing"
-			/>
+			<div class="w-[95%] mx-auto">
+				<MarketPlaceMarketFeaturedListings
+					type="featuredListings"
+					header-title="Featured Listings"
+					:list-data="MFListing"
+				/>
+			</div>
+
 			<SharedAvailable
 				v-if="!MFListing || MFListing.length === 0"
 				message="Product"
@@ -110,20 +113,22 @@ fetchMFL();
 		</div>
 	</div>
 	<!-- Renders featured category -->
-	<div class="p-20 px-3 sm:px-14 bg-[#F0F2F5]">
+	<div class="bg-[#F0F2F5]">
 		<SharedLoader v-if="MFLCloader" />
 		<div v-else>
 			<div
-				v-for="item in Object.values(MLCategoryList).slice(0, 3)"
+				v-for="(item, index) in Object.values(MLCategoryList).slice(0, 3)"
 				:key="item.id"
-				class="w-full mx-auto"
+				:class="`w-full mx-auto ${index == 0 && 'bg-[#1A1A1A]'}`"
 			>
-				<MarketPlaceMarketFeaturedListings
-					:type="item.name"
-					:header-title="item.name"
-					:list-data="item.Items"
-					class="mb-20"
-				/>
+				<div class="w-[95%] mx-auto p-5 px-3 sm:px-14 ">
+					<MarketPlaceMarketFeaturedListings
+						:type="index == 0 ? 'highlight' : item.name"
+						:header-title="item.name"
+						:list-data="item.Items"
+						class="mb-10"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>

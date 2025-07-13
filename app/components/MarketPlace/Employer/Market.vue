@@ -223,13 +223,13 @@ if (getAuth()) {
       </a>
     </div>
 
-    <div class="card-body" @click="productCardFunction(item.id)">
-      <figure class="h-[200px] center rounded-xl overflow-hidden">
+    <div class="card-body !p-[10px]" @click="productCardFunction(item.id)">
+      <figure class="h-[180px] aspect-[1.2] center rounded-xl overflow-hidden border-[1px] border-[rgba(0,0,0,0.08)]">
         <img
           v-if="item.images.length > 0"
           :src="item.images[0]"
           alt="ProductImage"
-          class="w-full"
+          class="object-contain"
         />
         <svg
           v-else
@@ -258,7 +258,7 @@ if (getAuth()) {
           </g>
         </svg>
       </figure>
-      <div class="flex items-center gap-6 mb-2">
+      <div class="flex items-center gap-6">
         <!-- Profile desc -->
         <div>
           <p class="mb-2 text-[#24242] text-[14px] poppins-regular">

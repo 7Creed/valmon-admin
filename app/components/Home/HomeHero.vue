@@ -38,7 +38,7 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
 <style scoped>
 .hero {
   background-image: url('../../assets/images/UIElements/Hero.png');
-  animation: hero-animation 10s ease-in infinite;
+  animation: hero-animation 50s ease-in infinite;
 }
 
 @keyframes hero-animation {
@@ -46,18 +46,30 @@ import rectangle from '@/assets/images/UIElements/Rectangle.png'
     background-image: url('../../assets/images/UIElements/Hero.png');
   }
 
-  45% {
-    background-image: url('../../assets/images/UIElements/Hero.png');
-  }
-
-  50% {
+  14% {
     background-image: url('../../assets/images/UIElements/Hero2.png');
   }
 
-  95% {
-    background-image: url('../../assets/images/UIElements/Hero2.png');
+  28% {
+    background-image: url('../../assets/images/UIElements/Hero3.png');
+  }
+
+  42% {
+    background-image: url('../../assets/images/UIElements/Hero4.png');
+  }
+
+  56% {
+    background-image: url('../../assets/images/UIElements/Hero5.png');
+  }
+
+  70% {
+    background-image: url('../../assets/images/UIElements/Hero6.png');
   }
   
+  84% {
+    background-image: url('../../assets/images/UIElements/Hero7.png');
+  }
+
   100% {
     background-image: url('../../assets/images/UIElements/Hero.png');
   }

@@ -6,6 +6,7 @@ export const MarketplaceController = () => {
 
 	//
 	const getListingById = (id) => get(`marketplace/listings/${id}`);
+	const getPublicListingById = (id) => get(`get/marketplace/listings/${id}`);
 	const getFeaturedListings = () => get(`marketplace/featured-listings`);
 	const getPublicFeaturedListings = () => get(`get/featured-listings`);
 	const getListingCategories = () => get(`marketplace/categories`);
@@ -22,6 +23,7 @@ export const MarketplaceController = () => {
 
 	return {
 		getListingById,
+		getPublicListingById,
 		getFeaturedListings,
 		getPublicFeaturedListings,
 		getListingCategories,

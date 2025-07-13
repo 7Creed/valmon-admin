@@ -27,13 +27,13 @@ function viewProduct(product) {
 	view.value = product;
 }
 
-const { getListingById, getAppListing } = MarketplaceController();
+const { getPublicListingById, getAppListing } = MarketplaceController();
 // Handles the product information view
 const marketListings = ref([]);
 const loader = ref(false);
 const fetchMPListingById = async (id) => {
 	loader.value = true;
-	const { status, data, error } = await getListingById(id);
+	const { status, data, error } = await getPublicListingById(id);
 	if (status.value === "success") {
 		// console.log('product', data.value.data)
 		marketListings.value = data.value.data;
