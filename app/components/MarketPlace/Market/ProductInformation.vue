@@ -33,7 +33,7 @@ async function openContact(id) {
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="w-full xl:px-10 px-0">
     <SharedLoader
       v-if="!props.products || props.products.length === 0"
     />
@@ -43,38 +43,38 @@ async function openContact(id) {
         message="Product"
       />
       <div
-
-        class=" w-full lg:h-[630px] flex flex-col lg:flex-row gap-10 xl:container items-center mx-auto mb-8"
+        class="w-full lg:h-[630px] flex bg justify-between flex-col lg:flex-row gap-10 xl:container items-stretch mx-auto mb-8"
       >
         <!-- Left -->
-        <div class="card lg:flex-row justify-center items-start flex-col card-compact bg-base-100 w-full  sm:w-[80%] lg:w-[60%] shadow-xl p-4">
-          <figure class="flex h-full w-full xl:w-[60%]">
+        <div class="card lg:flex-row justify-center items-start flex-col card-compact bg-base-100 w-full xl:w-fit shadow-xl p-4">
+          <figure class="flex sm:h-[600px] w-full xl:w-[650px] overflow-hidden">
             <img
               :src="ProductView ?? products?.listing?.images[0]"
               alt="product image"
-              class="h-full w-full "
+              class="h-full w-full object-cover object-center rounded-lg"
             >
           </figure>
-          <div class="card-body flex-row  lg:flex-col">
+          <div class="card-body flex-row lg:flex-col  w-full sm:w-auto h-full overflow-auto">
+            
             <div
               v-for="(item, index) in props.products.listing.images"
               :key="index"
               class="avatar"
               @click="updateProductImage(item)"
             >
-              <div class=" w-10 md:w-20 rounded-lg">
+              <div class="w-10 md:w-20 rounded-lg">
                 <img :src="item">
               </div>
             </div>
           </div>
         </div>
 
-        <!-- right -->
-        <div class="card card-compact bg-base-100 w-full sm:w-[80%] lg:w-[40%] shadow-xl text-[#242424]">
+        <!-- Right -->
+        <div class="card card-compact bg-base-100 w-full sm:w-[80%] lg:w-[40%] shadow-xl text-[#242424] poppins-regular">
           <div class="card-body">
-            <!-- header -->
-            <div class="flex justify-between items-center mb-3">
-              <h2 class="card-title">
+            <!-- Content -->
+            <div class="flex justify-between items-center mb-1">
+              <h2 class="">
                 {{ props.products.listing.title }}
               </h2>
               <span class="w-fit p-1 center bg-white rounded-full border-2">
@@ -106,41 +106,41 @@ async function openContact(id) {
             <hr class="mb-5">
             <div class="flex items-center justify-between mb-4">
               <p>Price</p>
-              <strong>NGN {{ props.products.listing.price }}</strong>
+              <span class="font-semibold !text-[#242424]">NGN {{ Number(props.products.listing.price)?.toLocaleString() }}</span>
             </div>
             <div class="flex items-center justify-between mb-4">
               <p>Negotiable</p>
-              <strong>{{ props.products.listing.negotiable ? 'Yes' : 'No' }}</strong>
+              <span class="font-semibold !text-[#242424]">{{ props.products.listing.negotiable ? 'Yes' : 'No' }}</span>
             </div>
             <div class="flex items-center justify-between mb-4">
               <p>Condition</p>
-              <strong>{{ props.products.listing.condition }}</strong>
+              <span class="font-semibold !text-[#242424]">{{ props.products.listing.condition }}</span>
             </div>
 
             <div class="flex items-center justify-between mb-4">
               <p>Colour</p>
-              <strong>{{ props.products.listing.color }}</strong>
+              <span class="font-semibold !text-[#242424]">{{ props.products.listing.color }}</span>
             </div>
 
             <!-- Description -->
-            <div class="bg-[#F4F4F4] p-2 mb-5">
-              <h2 class="font-extrabold satoshiM">
+            <div class="bg-[#F4F4F4] rounded-lg p-3 mb-5 grow overflow-y-auto ">
+              <h2 class="font-semibold poppins-semibold mb-3">
                 Description
               </h2>
-              <p>
+              <p class="satoshiM text-gray-600 h-full max-h-32">
                 {{ props.products.listing.description }}
               </p>
             </div>
             <!-- Profile Details -->
             <div
               v-if="store.UserAccount.id != props?.products?.listing?.user?.id"
-              class="flex flex-wrap items-center justify-between mb-5"
+              class="flex items-center justify-between mb-5"
             >
-              <div class="flex  items-center gap-3 mb-2">
+              <div class="flex  items-center gap-3">
                 <!-- avatar -->
                 <div class="avatar">
                   <div
-                    class="ring-darkGold ring-offset-base-100 w-12 rounded-full ring ring-offset-2"
+                    class="ring-[#C09742] ring-offset-base-100 w-12 rounded-full ring ring-offset-2"
                   >
                     <img
                       :src="props.products.listing.user.profile_pic ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'"
@@ -168,7 +168,7 @@ async function openContact(id) {
               </div>
 
               <button
-                class="btn btn-outline  sm:w-2/4 mt-4 "
+                class="btn btn-outline  px-12 "
                 @click="openContact(props.products.listing.user.id)"
               >
                 Profile
@@ -193,7 +193,7 @@ async function openContact(id) {
         <h1 class="font-extrabold text-xl satoshiM mb-4">
           Similar Listings
         </h1>
-        <div class="flex flex-wrap justify-center items-center lg:justify-start gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-8  justify-center items-center lg:justify-start gap-4">
           <MarketPlaceEmployerMarket
             type="featuredListings"
             :other-listings="props.products.similar.slice(0, 6)"
