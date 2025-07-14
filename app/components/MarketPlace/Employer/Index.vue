@@ -94,6 +94,7 @@ const sortByAlphabet = (list) => {
               v-for="(service, index) in sortByAlphabet(category.services)"
               :key="index"
               :title="service.name"
+              :count="service.worker_count"
               @click="selectSkill(service.name, category.name, service.id)"
               @back="backHome"
             />

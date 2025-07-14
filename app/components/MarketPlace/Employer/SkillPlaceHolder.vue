@@ -1,7 +1,9 @@
 <script setup>
 const props = defineProps({
   title: String,
+  count : Number
 })
+
 </script>
 
 <template>
@@ -13,7 +15,7 @@ const props = defineProps({
       {{ props.title }}
     </div>
     <div class="h-[18px] px-[5px] hidden group-hover:flex text-[10px] aspect-square bg-black absolute -top-[0.2px] -right-[0.2px] rounded-tr-lg rounded-bl-lg justify-center items-center">
-      50
+      {{props.count}}
     </div>
   </a>
 </template>
