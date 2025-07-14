@@ -495,7 +495,7 @@ const handlePagination = (value) => {
 					<h1 class="mb-4 text-xl font-extrabold">
 						{{ route.query.name }}
 					</h1>
-					<div class="flex flex-row flex-wrap gap-6">
+					<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-6">
 						<MarketPlaceEmployerMarket
 							type="featuredListings"
 							:other-listings="MPAppListings"

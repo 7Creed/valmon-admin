@@ -670,8 +670,9 @@ const testimonies = [
 		rgba(173, 122, 34, 0.6) 94.28%
 	);
   position: absolute;
-  top : 45%;
-
+  top : 65%;
+  left : -10%;
+  transform: rotate(3deg);
 }
 
 .black-transparent {
