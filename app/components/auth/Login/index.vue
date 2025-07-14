@@ -13,17 +13,38 @@ const tokenCookies = useCookie("token", {
   // secure: true,
 });
 
-const { loginUser, ping } = authController();
+const { loginUser, ping, googleRedirect } = authController();
 const loading = ref(false);
+const googleLoading = ref(false);
+
 const userData = reactive({
   email: "",
   password: "",
 });
 
+
+const loginWithGoogle = async () => {
+  googleLoading.value = true;
+  try {
+    const { data, error, status } = await googleRedirect({ auth_type: 'login'});
+    if (status.value === "success") {
+      window.location.assign(data.value.url);
+    }
+    if (status.value === "error") {
+      handleALert("error", error.value.data.message);
+    }
+  } catch (error) {
+    handleError(error);
+    googleLoading.value = false;
+  } finally {
+  }
+
+}
+
+
 // emit signup event
 const signIn = async () => {
   loading.value = true; // Set loading to true before making the request
-
   try {
     const { data, error, status } = await loginUser(userData);
     if (status.value === "success") {
@@ -114,6 +135,8 @@ const signIn = async () => {
         <div class="divider mb-5">OR</div>
         <div>
           <BaseButton
+            :loading="googleLoading"
+            @click="loginWithGoogle"
             title="Sign in with Google"
             color="rgba(255, 255, 255, 1)"
             text-color="rgba(35, 35, 35, 1)"

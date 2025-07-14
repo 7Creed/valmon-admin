@@ -3,6 +3,9 @@ import { accountController } from '~/services/modules/account'
 import { MiscController } from '~/services/modules/misc'
 
 const emits = defineEmits(['nextEvent', 'prevEvent'])
+const props = defineProps({
+  hasback: Boolean
+})
 
 const addresses = {
   addresses: [
@@ -119,8 +122,10 @@ fetchCountries()
       </button>
 
       <div class="card-actions justify-between ">
+        <p v-i="!hasback"></p>
         <BaseButton
           title="Back"
+          v-if="props.hasback"
           color="rgba(255, 255, 255, 1)"
           text-color="#8B6914"
           border="#8B6914"
