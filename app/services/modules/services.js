@@ -6,13 +6,16 @@ export const servicesController = () => {
 
   // Users
   const getAppServices = () => get(`services`)
-  const getUserByService = (id, query, location, rating) => {
+  const getUserByService = (id, query, filters) => {
     let url = `services/${id}/users?page=${query}`
-    if (location) {
-      url += `&country=${location}`
+    if (filters.country) {
+      url += `&country=${filters.country}`
     }
-    if (rating) {
-      url += `&ratings=${rating}`
+    if (filters.state) {
+      url += `&state=${filters.state}`
+    }
+    if (filters.rating) {
+      url += `&ratings=${filters.rating}`
     }
 
     return get(url)

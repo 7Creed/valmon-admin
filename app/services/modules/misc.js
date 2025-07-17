@@ -6,6 +6,7 @@ export const MiscController = () => {
 
   // Users
   const getCountries = () => get(`/get/countries`)
+  const getStatesByCountry = (countryId) => get(`/get/countries/${countryId}/states`)
 
   const getBanks = () => get(`/get/banks`)
   const getCurrencies = () => get(`/get/currencies`)
@@ -16,6 +17,7 @@ export const MiscController = () => {
   const removeFromFavorites = (type, id) => del(`/favourites?type=${type}&id=${id}`)
   return {
     getCountries,
+    getStatesByCountry,
     getBanks,
     getCurrencies,
     getFavorites,
