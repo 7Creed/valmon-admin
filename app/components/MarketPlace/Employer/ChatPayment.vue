@@ -109,25 +109,28 @@ const conservationTab = () => {
   }
 }
 
+
+
 /* ---------------------- Manage selected Conversation ---------------------- */
 const selectedConversation = ref(null)
 const fetchConversation = async () => {
   try {
     const { status, data, error } = await getConversation()
     if (status.value === 'success') {
-      console.log('fetched convorsations->', data.value.data)
       // Check if conversation falls under Job or marketplace or admin
       const marketplace = data.value.data.filter(conv => conv.listing_id != null)
       const job = data.value.data.filter(conv => conv.service_id != null)
       // Set conversations
       if (activeTab.value === 'job') {
-        console.log('job')
         conversations.value = job
       }
       if (activeTab.value === 'marketPlace') {
-        console.log('marketplace')
         conversations.value = marketplace
       }
+      if (activeTab.value === 'admin') {
+        conversations.value = []
+      }
+
       conservationTab()
     }
     if (status.value === 'error') {
@@ -337,7 +340,8 @@ watch(allMessages, (newVal) => {
   }
 
   // Filter negotiation messages
-  const recipientMessages = newVal.filter(message => message.type === 'negotiation' && message.user_id != store.UserAccount.id)
+  // const recipientMessages = newVal.filter(message => message.type === 'negotiation' && message.user_id != store.UserAccount.id)
+  const recipientMessages = newVal.filter(message => message.type === 'negotiation')
 
   // Get the latest negotiation messages
   const recipientLatest = recipientMessages[recipientMessages.length - 1] || null

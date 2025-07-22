@@ -191,7 +191,6 @@ const updateCategoryFromAccount = async () => {
 		if (edit.value) {
 			saveEditCategory(editIndex.value);
 		}
-		console.log("before update 2", serviceData);
 		const { status, data, error } = await addServiceCategory(serviceData);
 		if (status.value === "success") {
 			handleALert("success", data.value.message);
@@ -199,6 +198,7 @@ const updateCategoryFromAccount = async () => {
 			store.$patch({
 				callUserAccount: true,
 			});
+			edit.value = false;
 		}
 		if (status.value === "error") {
 			handleALert("error", error.value.data.message);
@@ -235,7 +235,6 @@ const saveCategory = () => {
 
 // Delete  Category
 const removeServiceCategory = (index) => {
-	console.log("delete", index);
 	serviceData.services.splice(index, 1);
 	serviceData.services[0].primary = true;
 	updateCategoryFromAccount();
