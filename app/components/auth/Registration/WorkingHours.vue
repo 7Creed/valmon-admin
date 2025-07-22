@@ -46,6 +46,22 @@ const UserWorkingHours = ref(store.UserAccount?.profile?.working_hours)
 onMounted(() => {
   if (UserWorkingHours.value?.length) {
     workingHours.value = UserWorkingHours.value
+    return;
+  }
+  if (store.AuthSetup.workingHours?.length) {
+    workingHours.value = store.AuthSetup.workingHours
+  }
+  else {
+    // Set default working hours if not set
+    workingHours.value = [
+      { day: 'Monday', from: '12:00 AM', to: '11:59PM', open: false },
+      { day: 'Tuesday', from: '12:00 AM', to: '11:59PM', open: false },
+      { day: 'Wednesday', from: '12:00 AM', to: '11:59PM', open: false },
+      { day: 'Thursday', from: '12:00 AM', to: '11:59PM', open: false },
+      { day: 'Friday', from: '12:00 AM', to: '11:59PM', open: false },
+      { day: 'Saturday', from: '12:00 AM', to: '11:59PM', open: false },
+      { day: 'Sunday', from: '12:00 AM', to: '11:59PM', open: false },
+    ]
   }
 })
 
@@ -130,6 +146,7 @@ const workHours = reactive({
 })
 
 const updateWorkingHours = () => {
+  store.AuthSetup.workingHours = workingHours.value;
   workingHours.value.forEach((e) => {
     workHours.working_hours.push({
       day: e.day,
@@ -146,11 +163,10 @@ const buttonOption2 = ref('Save')
 const { addWorkHours } = accountController()
 const loading = ref(false)
 const saveWorkHours = async () => {
-  loading.value = true
-  updateWorkingHours()
+  loading.value = true;
+  updateWorkingHours();
   if (workHours.working_hours.length) {
     const { data, error, status } = await addWorkHours(workHours)
-    console.log(data.value)
     if (status.value === 'success') {
       if (props.useType === 'account') {
         buttonOption.value = 'save'

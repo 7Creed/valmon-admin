@@ -17,7 +17,7 @@ const PERSISTED_KEYS = {
     'listingData',
     'adminUserId',
     'viewAdminChatId',
-    'selectedCurrency'
+    'selectedCurrency',
   ],
   // Should clear on component unmount
   component: [
@@ -50,6 +50,10 @@ export const useStore = defineStore('valmon_app_store', {
     serviceCategory: [],
     userOnline: ref(false),
     UserAccount: null,
+    AuthSetup : {
+      addresses : [],
+      workingHours : []
+    },
     // Services information used under skills page
     usersByServices: ref(null),
     userIdForProfileCheck: null,

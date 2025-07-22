@@ -103,7 +103,7 @@ const getCategoryName = (id) => {
           {{ getCategoryName(gig.service_id) }}
         </p>
         <p class="font-semibold">
-          ${{ gig.price }} {{ gig.pricing_type }}
+          ₦{{ gig.price }} {{ gig.pricing_type }}
         </p>
         <p class="text-gray-700">
           {{ gig.description }}

@@ -1,13 +1,18 @@
 <script setup>
 import { accountController } from '~/services/modules/account'
 import { MiscController } from '~/services/modules/misc'
+import { useGlobalStore } from "~/store";
+
+const store = useGlobalStore();
 
 const emits = defineEmits(['nextEvent', 'prevEvent'])
 const props = defineProps({
   hasback: Boolean
 })
 
-const addresses = {
+const addresses = store.AuthSetup.addresses.length ? {
+  addresses : store.AuthSetup.addresses
+} :  {
   addresses: [
     {
       details: null,
@@ -15,10 +20,11 @@ const addresses = {
       city: '',
       state: '',
       country: '',
-      postal_code: '',
+      postal_code: '234',
     },
   ],
 }
+
 
 const { getCountries } = MiscController()
 const buttonNext = ref('Verify')
@@ -27,6 +33,11 @@ const { addAddresses } = accountController()
 const loading = ref(false)
 const showAddressPreview = ref(false)
 
+if (store.AuthSetup.addresses.length) {
+  buttonNext.value = 'Next'
+  showAddressPreview.value = true
+}
+
 const handleAddAddress = async () => {
   loading.value = true
   const { status, data, error } = await addAddresses(addresses)
@@ -34,6 +45,7 @@ const handleAddAddress = async () => {
     buttonNext.value = 'Next'
     loading.value = false
     showAddressPreview.value = true
+    store.AuthSetup.addresses = addresses.addresses;
     // Close the modal automatically
     document.getElementById('my_modal_1').close()
   }
@@ -157,6 +169,7 @@ fetchCountries()
 
         <div class="w-full">
           <BaseInput
+            v-if="false"
             v-model="addresses.addresses[0].postal_code"
             label="Postal Code"
             type="text"

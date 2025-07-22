@@ -67,7 +67,7 @@ const savePrimaryCategory = async () => {
       loading.value = false
       handleALert('success', data.value.message)
       // Reset the service category store property when rendering the service category
-      store.serviceCategory = []
+      // store.serviceCategory = []
     }
     if (status.value === 'error') {
       loading.value = false

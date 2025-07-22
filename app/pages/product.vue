@@ -127,6 +127,16 @@ const applyFilter = () => {
 	fetchAppListings(params);
 };
 
+
+const resetFilter = () => {
+	params.minPrice = "";
+	params.maxPrice = "";
+	params.color = "";
+	params.condition = "";
+	params.location = "";
+	fetchAppListings(params);
+};
+
 // set pagination page number
 const pagination = (value) => {
 	// Render The pagination contents
@@ -483,6 +493,13 @@ const handlePagination = (value) => {
 				>
 					Apply Filter</a
 				>
+				<a
+					href="javascript:void(0)"
+					class="btn btn-outline border-red-400 text-lg text-red-500 font-extrabold mb-3 w-full"
+					@click="resetFilter"
+				>
+					Reset Filter
+				</a>
 			</div>
 			<!-- PRODUCTS -->
 			<div

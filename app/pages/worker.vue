@@ -5,7 +5,10 @@ import ServiceCategory from "@/components/auth/Registration/ServiceCategory.vue"
 import PrimaryCategory from "@/components/auth/Registration/PrimaryCategory.vue";
 import WorkingHours from "@/components/auth/Registration/WorkingHours.vue";
 import UploadPicture from "@/components/auth/Verify/UploadPicture.vue";
+import { useGlobalStore } from "~/store";
 
+
+const store = useGlobalStore();
 definePageMeta({
   layout: false,
 });
@@ -48,6 +51,7 @@ const sendToPrimaryCategory = (data) => {
   increaseStep();
 };
 const setupProfile = () => {
+  store.AuthSetup = {};
   step.value = 0;
   profileSetup.value = "setup";
 };
@@ -98,7 +102,7 @@ const setupProfile = () => {
       <authRegistrationAddress
         v-if="step === 3"
         class="w-full md:w-1/2 xl:w-1/3"
-        :hasback="!stage"
+        :hasback="false"
         @next-event="increaseStep"
         @prev-event="decreaseStep"
       />
