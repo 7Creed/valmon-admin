@@ -1,11 +1,14 @@
 <script setup>
 const emit = defineEmits(['BasicProfile'])
 
+const props = defineProps({
+  data : Object
+})
 // Handle address addition
 const userBio = reactive({
-  bio: '',
-  first_name: 'James',
-  last_name: 'John',
+  bio: props?.data?.bio || '',
+  // first_name: 'James',
+  // last_name: 'John',
 })
 
 watch(userBio, (newVal, oldVal) => {

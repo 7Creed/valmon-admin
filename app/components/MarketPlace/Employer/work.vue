@@ -458,9 +458,9 @@ const addToFavorite = async (id) => {
               <!-- contact -->
               <div>
                 <div class="card-actions justify-between gap-4">
-                  <button class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2">
+                  <a :href="`mailto:${adminUsers.email}`" class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2">
                     Contact
-                  </button>
+                  </a>
                   <button
                     class="btn bg-[#FF9F12CC]  flex-1 rounded-2xl border-[#FF9F12CC] border-2"
                     @click="manageUser(adminUsers.id, adminUsers?.account_status)"

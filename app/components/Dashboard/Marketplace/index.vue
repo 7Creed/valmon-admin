@@ -12,7 +12,7 @@ definePageMeta({
 
 const store = useGlobalStore()
 
-const { getListingSummary } = ListingsController()
+const { getListingSummary, deleteListing} = ListingsController()
 const listingSummary = ref({})
 const fetchListingSummary = async () => {
   const { status, data, error } = await getListingSummary()
@@ -25,6 +25,23 @@ const fetchListingSummary = async () => {
 }
 
 fetchListingSummary()
+
+const handleDeleteListing = async (id) => {
+  const { status, data, error } = await deleteListing(id);
+  if (status.value === 'success') {
+    swal({
+      title: 'Success',
+      text: 'Listing deleted successfully',
+      icon: 'success',
+      button: 'OK',
+    });
+    // Refresh the listing summary after deletion
+    fetchListingSummary();
+  }
+  if (status.value === 'error') {
+    console.error(error.value.data.message)
+  }
+}
 
 const emit = defineEmits('products')
 
@@ -418,7 +435,7 @@ const pagination = (value) => {
                     <li @click="emitEvent(item.id)">
                       <a href="javascript:void(0)">View</a>
                     </li>
-                    <li><a>Delete</a></li>
+                    <li @click="handleDeleteListing(item.id)"><a>Delete</a></li>
                   </ul>
                 </td>
               </tr>

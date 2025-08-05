@@ -14,7 +14,7 @@ const props = defineProps({
 });
 
 const isReplacingImage = ref(false);
-const initialListingData = ref(props.listingData);
+const initialListingData = ref(props.type === "BasicProfileSetup" ? null : props?.listingData);
 
 function handleClick(index) {
 	if (
@@ -37,15 +37,12 @@ function handleClick(index) {
 				imageFiles.value.push(file);
 			} else {
 				if (props.isEdit && isReplacingImage.value) {
-					console.log(index);
-					console.log(initialListingData.value.images);
-					console.log(URL.createObjectURL(file));
-					initialListingData.value.images[index] = URL.createObjectURL(file);
+					initialListingData.value.images[index] =
+						URL.createObjectURL(file);
 					isReplacingImage.value = false;
 				}
 				imageFiles.value[index] = file;
-				console.log(imageFiles.value);
-				console.log(ImageContent.value);
+
 				// if (imageFiles.value.length > index) {
 				// 	imageFiles.value[index] = file;
 				// } else {
@@ -64,12 +61,15 @@ const ImageContent = ref([
 		? initialListingData?.value.images.map((img) => ({
 				image_url: img,
 		  }))
-		: []),
+		: (props.type === "BasicProfileSetup" && props?.listingData ? props.listingData?.images.map((img) => ({
+			Image : img,
+			image_url : URL.createObjectURL(img)
+		})) : [])),
 ]);
 const imageFiles = ref([
 	...(props.isEdit && props.listingData?.images
 		? props.listingData.images
-		: []),
+		: (props.type === "BasicProfileSetup" && props?.listingData ? props.listingData?.images : [])),
 ]);
 
 const editImage = (index) => {
@@ -91,7 +91,7 @@ watch(
 	imageFiles,
 	(newVal, oldVal) => {
 		if (props.type === "BasicProfileSetup") {
-			emit("BasicProfile", newVal);
+			emit("BasicProfile", { images : newVal });
 		}
 	},
 	{ deep: true }
@@ -106,7 +106,10 @@ watch(
 				class="flex justify-center border-[2px] border-[rgba(38,44,63,0.48)] border-dotted relative"
 				v-if="(initialListingData?.images ?? []).length > index"
 			>
-				<img class="max-h-[200px]" :src="initialListingData?.images[index]" />
+				<img
+					class="max-h-[200px]"
+					:src="initialListingData?.images[index]"
+				/>
 				<div
 					v-if="index == imageFiles.length - 1"
 					class="absolute opacity-[0] w-[100%] h-[100%] hover:bg-[rgba(0,0,0,0.6)] hover:opacity-[1]"

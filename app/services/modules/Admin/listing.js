@@ -12,6 +12,7 @@ export const ListingsController = () => {
   const getMarketPlaceListing = () => get('listings/categories')
   const createMarketPlaceListing = data => post('marketplace/listing-category', data)
   const getConversation = id => get(`listings/conversations/${id}`)
+  const deleteListing = id => del(`listings/${id}`)
 
   return {
     getListingSummary,
@@ -22,7 +23,8 @@ export const ListingsController = () => {
     getCloseListing,
     getMarketPlaceListing,
     createMarketPlaceListing,
-    getConversation
+    getConversation,
+    deleteListing
 
   }
 }
