@@ -109,21 +109,21 @@ const pagination = (value) => {
     />
     <div v-else>
       <div
-        class="flex flex-wrap flex-row justify-center lg:justify-start gap-10"
+        class="flex flex-wrap  flex-row justify-center lg:justify-start gap-10"
       >
         <div
           v-for="(image, index) in displayGallery.slice(startIndex, endIndex)"
           :key="image.id"
-          class="card card-compact bg-base-100 w-[300px] h-[320px] shadow-xl p-4 relative"
+          class="card card-compact justify-center flex items-center bg-base-100 w-[300px] h-[320px] shadow-xl p-4 relative"
         >
           <img
             :src="image.asset_url"
             :alt="`Image ${image.id + 1}`"
-            class=" h-[100%] "
+            class="w-full bg-orange-400"
           >
           <div
             v-show="store.UserAccount.account_type === 'worker'"
-            class="absolute w-fit center p-2 bg-white rounded-full right-0 shadow-xl"
+            class="absolute w-fit top-3 center p-2 bg-white rounded-full right-0 shadow-xl"
           >
             <svg
 
