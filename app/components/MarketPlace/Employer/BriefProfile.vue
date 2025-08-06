@@ -1,8 +1,8 @@
 <script setup>
-import { useGlobalStore } from '@/store'
+import { useGlobalStore } from "@/store";
 
-const emits = defineEmits(['openTab'])
-const store = useGlobalStore()
+const emits = defineEmits(["openTab"]);
+const store = useGlobalStore();
 // rating
 const ratings = [
   { id: 5, value: 100 },
@@ -10,34 +10,37 @@ const ratings = [
   { id: 3, value: 60 },
   { id: 2, value: 40 },
   { id: 1, value: 20 },
-]
+];
 
 const viewAll = (tab) => {
-  emits('openTab', tab)
-}
+  emits("openTab", tab);
+};
 
 const props = defineProps({
   type: String, // type is profile if from User dashboard
   UserGallery: Array,
   gigs: Array,
   reviews: Object,
-})
+});
 
 const hire = (item) => {
-  console.log(item)
-  store.updateNewConversationDetails(store.userIdForProfileCheck, item.service.id)
-  store.updateGig(item.title, item.price)
-  navigateTo('/chat')
-}
+  console.log(item);
+  store.updateNewConversationDetails(
+    store.userIdForProfileCheck,
+    item.service.id
+  );
+  store.updateGig(item.title, item.price);
+  navigateTo("/chat");
+};
 
 const getRatingPercentage = (reviewCount, totalReviews) => {
-  const RP = (reviewCount / totalReviews) * 100
-  return parseInt(RP)
-}
+  const RP = (reviewCount / totalReviews) * 100;
+  return parseInt(RP);
+};
 </script>
 
 <template>
-  <div class="md:w-[90%] mx-auto">
+  <div class="md:w-[90%] mx-auto lg:mx-0">
     <!-- Carousel Section -->
     <div class="card card-compact bg-base-100 shadow-xl px-4 mb-6">
       <div class="card-body">
@@ -48,7 +51,9 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
             v-if="props.UserGallery && props.UserGallery.length > 0"
             class="link link-hover text-darkGold hover:decoration-darkGold"
             @click="viewAll('gallery')"
-          >View All</a>
+            >
+            View All
+          </a>
         </div>
 
         <SharedAvailable
@@ -56,49 +61,59 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
           message="Gallery"
         />
         <!-- CAROUSEL -->
-        <div
-          v-else
-          class="relative"
-        >
+        <div v-else class="relative">
           <!-- indicators  -->
-          <div class="absolute bg-white w-fit center p-2 z-20 rounded-full top-[40%] left-[-20px] shadow-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#00000"
-              class="size-6"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M7.72 12.53a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 1 1 1.06 1.06L9.31 12l6.97 6.97a.75.75 0 1 1-1.06 1.06l-7.5-7.5Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="absolute bg-white w-fit center p-2 z-20 rounded-full top-[40%] right-[-20px] shadow-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#00000"
-              class="size-6"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="carousel rounded-box min-w-5/6  gap-4 relative">
+          <div class="carousel rounded-box gap-4 relative w-full">
             <div
               v-for="(item, index) in props?.UserGallery.slice(0, 5)"
               :key="index"
-              class="carousel-item"
+              :id="'slide' + index"
+              class="carousel-item relative w-full"
             >
-              <img
-                :src="item.asset_url"
-                class="w-full"
+              <img :src="item.asset_url" class="mx-auto " />
+              <!-- Prev Button -->
+              <a
+                :href="
+                  '#slide' +
+                  ((index - 1 + props?.UserGallery.slice(0, 5).length) %
+                    props?.UserGallery.slice(0, 5).length)
+                "
+                class="btn btn-circle absolute duration-0 left-2 top-1/2 transform -translate-y-1/2"
               >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="#00000"
+                  class="size-6"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M7.72 12.53a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 1 1 1.06 1.06L9.31 12l6.97 6.97a.75.75 0 1 1-1.06 1.06l-7.5-7.5Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </a>
+              <!-- Next Button -->
+              <a
+                :href="
+                  '#slide' +
+                  ((index + 1) % props?.UserGallery.slice(0, 5).length)
+                "
+                class="btn btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="#00000"
+                  class="size-6"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -115,44 +130,53 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
             v-if="props.gigs && props.gigs.length > 0"
             class="link link-hover text-darkGold hover:decoration-darkGold"
             @click="viewAll('service')"
-          >View All</a>
+            >View All</a
+          >
         </div>
         <SharedAvailable
           v-if="!props.gigs || props.gigs.length === 0"
           message="Gigs"
         />
-        <div
-          v-else
-          class="md:card-body"
-        >
+        <div v-else class="md:card-body">
           <!-- row -->
           <div
             v-for="(item, index) in props.gigs.slice(0, 5)"
             :key="index"
             class="rounded-lg overflow-hidden mb-3 border-gray-200 border"
           >
-            <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div class="w-full flex flex-col sm:flex-row sm:items-center flex-wrap gap-2 sm:gap-6">
+            <div
+              class="px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+            >
+              <div
+                class="w-full flex flex-col sm:flex-row sm:items-center flex-wrap gap-2 sm:gap-6"
+              >
                 <span class="text-sm md:text-base font-semibold text-gray-700">
-                  <span class="text-gray-500">Title:</span> <span class="satoshiM ml-1">{{ item.title }}</span>
+                  <span class="text-gray-500">Title:</span>
+                  <span class="satoshiM ml-1">{{ item.title }}</span>
                 </span>
                 <span class="text-sm md:text-base font-semibold text-gray-700">
-                  <span class="text-gray-500">Pricing Type:</span> <span class="satoshiM ml-1">{{ item.pricing_type }}</span>
+                  <span class="text-gray-500">Pricing Type:</span>
+                  <span class="satoshiM ml-1">{{ item.pricing_type }}</span>
                 </span>
                 <span class="text-sm md:text-base font-semibold text-gray-700">
-                  <span class="text-gray-500">Price:</span> <span class="satoshiM ml-1">NGN {{ item.price }}</span>
+                  <span class="text-gray-500">Price:</span>
+                  <span class="satoshiM ml-1">NGN {{ item.price }}</span>
                 </span>
               </div>
 
               <div
-                v-show="store.UserAccount?.role !== 'admin' && store.UserAccount?.role !== 'super_admin'"
+                v-show="
+                  store.UserAccount?.role !== 'admin' &&
+                  store.UserAccount?.role !== 'super_admin'
+                "
                 class="w-full sm:w-auto text-center sm:text-left"
               >
                 <a
                   href="javascript:void(0)"
                   class="text-darkGold text-sm md:text-base font-semibold satoshiM transition duration-300 hover:text-gold hover:underline"
                   @click="hire(item)"
-                >Hire</a>
+                  >Hire</a
+                >
               </div>
             </div>
           </div>
@@ -169,7 +193,8 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
           <a
             class="link link-hover text-darkGold hover:decoration-darkGold"
             @click="viewAll('review')"
-          >View All</a>
+            >View All</a
+          >
         </div>
 
         <div class="card-body flex-row gap-5 flex-wrap">
@@ -177,43 +202,50 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
             v-if="!props.reviews.data || props.reviews.data.length === 0"
             message="Review"
           />
-          <div
-            v-else
-            class="center"
-          >
-            <div class="flex flex-col flex-wrap gap-2 items-center border-r-4 w-[300px] pe-[40px]">
+          <div v-else class="center">
+            <div
+              class="flex flex-col flex-wrap gap-2 items-center border-r-4 w-[300px] pe-[40px]"
+            >
               <!-- rating -->
               <span class="text-black flex items-center gap-3">
-                <span class="font-extrabold satoshiB text-7xl">{{ props.reviews.average }}</span>
+                <span class="font-extrabold satoshiB text-7xl">{{
+                  props.reviews.average
+                }}</span>
                 <div class="rating">
                   <input
                     type="radio"
                     name="rating-2"
                     class="mask mask-star-2 bg-darkGold"
-                  >
+                  />
                 </div>
               </span>
               <!-- reviews -->
-              <button class="btn btn-neutral btn-sm rounded-full w-fit text-xs text-white mb-3">
+              <button
+                class="btn btn-neutral btn-sm rounded-full w-fit text-xs text-white mb-3"
+              >
                 {{ props.reviews.data.length }} Reviews
               </button>
-              <div class="rating_container ">
+              <div class="rating_container">
                 <div
-                  v-for="(rating, index) in Object.values(props.reviews.ratings) "
+                  v-for="(rating, index) in Object.values(
+                    props.reviews.ratings
+                  )"
                   :key="index"
                   class="center gap-2"
                 >
-                  <span>{{ (index + 1) }}</span>
+                  <span>{{ index + 1 }}</span>
                   <div class="rating rating-sm">
                     <input
                       type="radio"
                       name="rating-2"
                       class="mask mask-star-2 bg-orange-400"
-                    >
+                    />
                   </div>
                   <progress
                     class="progress w-56"
-                    :value="getRatingPercentage(rating, props.reviews.data.length)"
+                    :value="
+                      getRatingPercentage(rating, props.reviews.data.length)
+                    "
                     max="100"
                   />
                 </div>
@@ -229,14 +261,16 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
               class="alert bg-white rounded-none items-start gap-3 mb-6"
             >
               <!-- avatar -->
-              <div class="avatar ">
+              <div class="avatar">
                 <div class="w-12 rounded-full">
-                  <img :src="item.reviewer.profile_pic">
+                  <img :src="item.reviewer.profile_pic" />
                 </div>
               </div>
               <!-- comment -->
               <div>
-                <div class="flex text-[rgba(36,36,36,1)] items-center gap-2 mb-2">
+                <div
+                  class="flex text-[rgba(36,36,36,1)] items-center gap-2 mb-2"
+                >
                   <h4 class="text-base font-bold satoshiB">
                     {{ item.reviewer.first_name }} {{ item.reviewer.last_name }}
                   </h4>
@@ -247,7 +281,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
                       type="radio"
                       name="rating-1"
                       class="mask mask-star bg-darkGold"
-                    >
+                    />
                   </div>
                 </div>
                 <p>
