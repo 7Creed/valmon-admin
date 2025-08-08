@@ -34,7 +34,7 @@ const showContactButton = () =>
 <template>
 	<div
 		v-for="(item, index) in props?.serviceByUsers"
-		:key="item.user.id"
+		:key="item.user?.id"
 		class="card card-compact bg-base-100 w-80 shadow-xl"
 	>
 		<div class="card-body">
@@ -45,7 +45,7 @@ const showContactButton = () =>
 					<div
 						class="ring-brightGold ring-offset-base-100 w-16 rounded-full ring ring-offset-2"
 					>
-						<img :src="item.user.profile_pic" />
+						<img :src="item.user?.profile_pic" />
 					</div>
 				</div>
 				<!-- Profile desc -->
@@ -53,7 +53,7 @@ const showContactButton = () =>
 					<h3
 						class="mb-1 text-[#24242] font-semibold text-sm satoshiM"
 					>
-						{{ item.user.first_name }} {{ item.user.last_name }}
+						{{ item.user?.first_name }} {{ item.user?.last_name }}
 					</h3>
 					<div
 						class="text-xs py-1 px-2 bg-gray-200 tag rounded-sm mb-2"
@@ -69,10 +69,10 @@ const showContactButton = () =>
 							/>
 						</div>
 						<span class="text-xs font-bold">{{
-							item.user.rating
+							item.user?.rating
 						}}</span>
 						<span class="text-black text-xs"
-							>({{ item.user.ratings_count }} Ratings)</span
+							>({{ item.user?.ratings_count }} Ratings)</span
 						>
 					</div>
 				</div>
@@ -90,13 +90,13 @@ const showContactButton = () =>
 				<button
 					v-if="showContactButton()"
 					class="btn btn-outline flex-1 rounded-2xl border-gray-300 border-2"
-					@click="openContact(item.user.id, item.selected_service_id)"
+					@click="openContact(item.user?.id, item.selected_service_id)"
 				>
 					Contact
 				</button>
 				<button
 					class="btn btn-neutral flex-1 rounded-2xl border-2"
-					@click="openProfile(item.user.id)"
+					@click="openProfile(item.user?.id)"
 				>
 					Profile
 				</button>
