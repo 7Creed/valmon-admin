@@ -110,6 +110,7 @@ const activeConversation = ref(null);
 const targetConversationId = ref(null);
 const selectedFile = ref(null);
 const textInput = ref(null);
+const fileInput = ref(null);
 const fileType = ref(null);
 
 /* -------------------------- close modal function -------------------------- */
@@ -1424,7 +1425,7 @@ function handleSendButtonClick() {
             <!-- Select File Button -->
             <button
               class="w-fit p-1 bg-darkGold rounded-md"
-              @click="this.$refs.fileInput.click()"
+              @click="fileInput.value.click()"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
