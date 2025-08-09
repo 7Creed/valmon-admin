@@ -14,6 +14,10 @@ export const handleALert = (icon, text, title = "", time = 300000) => {
 	});
 };
 
+export const remoteAsset = (path) => {
+	return `https://valmon.ctrixx.com/storage/${path}`
+}
+
 export const handleError = (error) => {
 	handleALert(
 		"error",

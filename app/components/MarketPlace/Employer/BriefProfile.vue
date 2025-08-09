@@ -70,7 +70,7 @@ const getRatingPercentage = (reviewCount, totalReviews) => {
               :id="'slide' + index"
               class="carousel-item relative w-full"
             >
-              <img :src="item.asset_url" class="mx-auto " />
+              <img :src="item.asset_url" class="mx-auto max-w-40" />
               <!-- Prev Button -->
               <a
                 :href="

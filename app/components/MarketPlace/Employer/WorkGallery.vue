@@ -114,12 +114,12 @@ const pagination = (value) => {
         <div
           v-for="(image, index) in displayGallery.slice(startIndex, endIndex)"
           :key="image.id"
-          class="card card-compact justify-center flex items-center bg-base-100 w-[300px] h-[320px] shadow-xl p-4 relative"
+          class="card card-compact overflow-hidden justify-center flex items-center bg-base-100 w-[300px] h-[320px] shadow-xl p-4 relative"
         >
           <img
             :src="image.asset_url"
             :alt="`Image ${image.id + 1}`"
-            class="w-full bg-orange-400"
+            class="w-full "
           >
           <div
             v-show="store.UserAccount.account_type === 'worker'"
