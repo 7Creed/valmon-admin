@@ -451,7 +451,7 @@ onUnmounted(() => {
 					<select
 						class="select select-bordered select-xs w-full max-w-14 bg-black text-white"
 					>
-						<option>16</option>
+						<option>{{ paginationInfo.per_page }}</option>
 					</select>
 					<span class="text-sm"
 						>{{ paginationInfo.current_page }}-{{

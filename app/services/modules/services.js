@@ -6,8 +6,8 @@ export const servicesController = () => {
 
   // Users
   const getAppServices = () => get(`services`)
-  const getUserByService = (id, query, filters) => {
-    let url = `services/${id}/users?page=${query}`
+  const getUserByService = (id, query, filters, perPage = 20) => {
+    let url = `services/${id}/users?page=${query}&per_page=${perPage}`
     if (filters.country) {
       url += `&country=${filters.country}`
     }
