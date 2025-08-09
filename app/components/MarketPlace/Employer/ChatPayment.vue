@@ -836,6 +836,11 @@ const conversationStarts = () => {
 function handleSendButtonClick() {
   selectedFile.value ? sendMessageWithFile() : sendMessage();
 }
+
+
+function handleOpenFileClick(){
+  fileInput.value.click()
+}
 </script>
 
 <template>
@@ -1425,7 +1430,7 @@ function handleSendButtonClick() {
             <!-- Select File Button -->
             <button
               class="w-fit p-1 bg-darkGold rounded-md"
-              @click="fileInput.value.click()"
+              @click="handleOpenFileClick"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
