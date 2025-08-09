@@ -62,6 +62,22 @@ watch(
 // Get app listings
 const MPAppListings = ref([]);
 const paginationInfo = ref({});
+
+/* --------------------------------- Filter --------------------------------- */
+const brandColors = ["red", "black", "yellow", "white", "blue", "gold"];
+// filter
+const params = reactive({
+	page: store.Pages.product,
+	category: selectedListingsCategoryId.value,
+	location: "",
+	minPrice: "",
+	maxPrice: "",
+	color: "",
+	condition: "",
+	per_page: 20,
+});
+
+
 const fetchAppListings = async (params) => {
 	const { status, data, error } = await getAppListing(params);
 	if (status.value === "success") {
@@ -80,7 +96,7 @@ const fetchAppListings = async (params) => {
 };
 
 if (selectedListingsCategoryId.value) {
-	fetchAppListings({ category: selectedListingsCategoryId.value });
+	fetchAppListings({ ...params,category: selectedListingsCategoryId.value });
 }
 
 // watch for route query changes and recall the api function
@@ -88,7 +104,7 @@ watch(
 	() => route.query.id,
 	(newVal) => {
 		if (newVal) {
-			fetchAppListings({ category: newVal });
+			fetchAppListings({ ...params,category: newVal });
 			view.value = "";
 		} else {
 			view.value = "viewProduct";
@@ -99,18 +115,6 @@ watch(
 const activeTab = ref("categories");
 store.Pages["product"] = store.Pages["product"] ? store.Pages["product"] : 1;
 
-/* --------------------------------- Filter --------------------------------- */
-const brandColors = ["red", "black", "yellow", "white", "blue", "gold"];
-// filter
-const params = reactive({
-	page: store.Pages.product,
-	category: selectedListingsCategoryId.value,
-	location: "",
-	minPrice: "",
-	maxPrice: "",
-	color: "",
-	condition: "",
-});
 
 const updateRangeValues = (rangeValues) => {
 	params.minPrice = parseInt(rangeValues.min);
