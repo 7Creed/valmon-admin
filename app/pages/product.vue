@@ -399,7 +399,7 @@ const handlePagination = (value) => {
 							v-model="params.location"
 							class="block appearance-none w-full bg-white text-gray-700 py-1 px-3 pr-8 rounded focus:outline-none"
 						>
-							<option selected disabled>Select location</option>
+							<option selected value="">Select location</option>
 
 							<option v-for="(state, index) in states" :key="index" :value="state">{{ state }}</option>
 						</select>
