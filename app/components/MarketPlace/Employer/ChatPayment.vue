@@ -6,6 +6,8 @@ import { accountController } from "~/services/modules/account";
 import { chatController } from "@/services/modules/chat";
 import { TicketController } from "~/services/modules/Admin/Tickets";
 
+const  MAX_UPLOAD_FILE_SIZE = 5120; // 5mb
+
 const {
   createConversation,
   getConversation,
@@ -302,6 +304,12 @@ function handleFileSelection(event) {
   console.log("selected file", file, textInput.value);
 
   if (file) {
+
+    if(file.size/1024 >= MAX_UPLOAD_FILE_SIZE){
+      handleALert('error','max file upload size is 5mb')
+      return;
+    }
+    
     selectedFile.value = file;
     textInput.value.readOnly = true;
     textInput.value.value = file.name;
@@ -837,9 +845,8 @@ function handleSendButtonClick() {
   selectedFile.value ? sendMessageWithFile() : sendMessage();
 }
 
-
-function handleOpenFileClick(){
-  fileInput.value.click()
+function handleOpenFileClick() {
+  fileInput.value.click();
 }
 </script>
 
@@ -1295,6 +1302,38 @@ function handleOpenFileClick(){
                   : 'bg-[#FEFDDA]'
               "
             >
+            <div class="absolute inset-0 hover:bg-orange-400/30 flex items-center justify-center">
+              <a
+                  :download="mesg.file_name"
+                  class="rounded-full w-8 h-8 bg-gray-400/30"
+                  :href="remoteAsset(mesg.file_path)"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-decoration: none;
+                    color: #0078d4;
+                    cursor: pointer;
+                  "
+                  title="Download file"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </a>
+            </div>
               <img
                 class="w-full rounded-lg"
                 :src="remoteAsset(mesg.file_path)"
@@ -1332,7 +1371,9 @@ function handleOpenFileClick(){
                 alt=""
               />
               <div style="display: flex; align-items: center; gap: 8px">
-                <p style="margin: 0" class="p-3 rounded bg-gray-200">{{ mesg.file_name }}</p>
+                <p style="margin: 0" class="p-3 rounded bg-gray-200">
+                  {{ mesg.file_name }}
+                </p>
                 <a
                   target="_blank"
                   download
@@ -1482,7 +1523,7 @@ function handleOpenFileClick(){
           </label>
           <!-- Send button -->
           <button
-            class="  w-8 h-8 flex justify-center items-center shrink-0 bg-darkGold rounded-full absolute right-[12px]"
+            class="w-8 h-8 flex justify-center items-center shrink-0 bg-darkGold rounded-full absolute right-[12px]"
             @click="handleSendButtonClick"
           >
             <span
