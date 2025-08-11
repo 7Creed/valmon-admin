@@ -2,6 +2,7 @@
 import { MarketplaceController } from "~/services/modules/marketplace";
 import { useGlobalStore } from "@/store";
 import RangeSlider from "~/components/MarketPlace/Employer/RangeSlider.vue";
+import states from "@/data/states.json"
 
 // const { state } = useActiveView()
 // const headerTab = computed(() => state.value.marketPlaceHeaderTab)
@@ -399,9 +400,8 @@ const handlePagination = (value) => {
 							class="block appearance-none w-full bg-white text-gray-700 py-1 px-3 pr-8 rounded focus:outline-none"
 						>
 							<option selected disabled>Select location</option>
-							<option>Lagos</option>
-							<option>Abuja</option>
-							<option>Port Harcourt</option>
+
+							<option v-for="(state, index) in states" :key="index" :value="state">{{ state }}</option>
 						</select>
 						<div
 							class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2"
