@@ -400,11 +400,12 @@ const userLocation = (address) => {
 const Chat = (conv) => {
   isMobileChat.value = isMobile.value; // open chat in mobile view format
   selectedConversation.value = conv;
+  targetConversationId.value = null;
   MarkAsRead();
 };
 
 watch(selectedConversation, (newVal) => {
-  if (newVal) chatApiWithParam(getMessages, newVal.id, getMessagesLoader);
+  if (newVal && !targetConversationId.value) chatApiWithParam(getMessages, newVal.id, getMessagesLoader);
 });
 
 watch(
@@ -415,7 +416,7 @@ watch(
       const found = convs.find((conv) => conv.id == convId);
       if (found) {
         selectedConversation.value = found;
-        // Chat(found);
+        Chat(found);
         // Optionally set the tab if needed (e.g., based on conversation type)
         if (found.listing_id) {
           activeTab.value = "marketPlace";

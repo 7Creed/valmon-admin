@@ -97,7 +97,7 @@ onMounted(() => {
 				<span> Notifications</span>
 				<a
 					href="javascript:void(0);"
-					class="text-red-600 text-base satoshiM font-medium"
+					class="text-red-600 hidden text-base satoshiM font-medium"
 					>Clear All</a
 				>
 			</h1>

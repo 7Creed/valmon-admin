@@ -12,12 +12,14 @@ export const NotificationsController = () => {
   // topNavNotification
   const getAllNotifications = () => get(`notifications`)
   const getUnreadNotifications = () => get(`notifications/unread`)
+  const getUnreadMessages = () => get('notifications/unread/messages')
   const markAsRead = () => post(`notifications/read`)
   return {
     getNotifications,
     createNotifications,
     getAllNotifications,
     getUnreadNotifications,
+    getUnreadMessages,
     markAsRead
   }
 }
