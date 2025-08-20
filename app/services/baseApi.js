@@ -24,14 +24,17 @@ export const useBaseApi = () => {
       },
       onResponseError({ request, response, options }) {
         const store = useGlobalStore()
-        // console.log('response', response)
+        console.log('response error', response)
         // Handle errors (e.g., redirect on 401)
-        // if (response.status === 401) {
-        //   // Reset the User Information
-        //   store.UserAccount = null
+        if (response.status === 401) {
+          const token = useCookie('token');
+          token.value = null;
+          // Reset the User Information
+          store.UserAccount = null
+          localStorage.clear();
+          window.location.href = '/login';
 
-        //   navigateTo('/login')
-        // }
+        }
         // Redirect on 404
       },
     }
