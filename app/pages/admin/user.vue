@@ -1,111 +1,114 @@
 <script setup>
-import profile from '@/assets/icons/cardprofile.svg'
-import { useGlobalStore } from '@/store'
-import { UsersController } from '~/services/modules/Admin/users'
+import profile from "@/assets/icons/cardprofile.svg";
+import { useGlobalStore } from "@/store";
+import { UsersController } from "~/services/modules/Admin/users";
 
-const { showAllUsers, deleteUser, getUsersSummary } = UsersController()
+const { showAllUsers, deleteUser, getUsersSummary } = UsersController();
 
-const store = useGlobalStore()
+const store = useGlobalStore();
 
 definePageMeta({
-  layout: 'dashboard-layout',
-})
+  layout: "dashboard-layout",
+});
 
 const viewProfile = (id) => {
   store.$patch({
     adminUserId: id,
-  })
-  navigateTo('/profile')
-}
+  });
+  navigateTo("/profile");
+};
 
 // Loaders
 
-const summary = ref({})
+const summary = ref({});
 const Fetch = async (func, loader = null, alert = true) => {
-  if (loader) loader.value = true
-  const { status, data, error } = await func()
-  if (status.value === 'success') {
-    console.log(data.value.data)
-    if (alert) handleALert('success', data.value.message)
-    if (loader) loader.value = true
+  if (loader) loader.value = true;
+  const { status, data, error } = await func();
+  if (status.value === "success") {
+    console.log(data.value.data);
+    if (alert) handleALert("success", data.value.message);
+    if (loader) loader.value = true;
     switch (func) {
       case getUsersSummary:
-        summary.value = data.value.data
-        break
+        summary.value = data.value.data;
+        break;
     }
   }
-  if (status.value === 'error') {
-    if (alert) handleALert('error', error.value.data.message)
-    if (loader) loader.value = true
+  if (status.value === "error") {
+    if (alert) handleALert("error", error.value.data.message);
+    if (loader) loader.value = true;
   }
-}
+};
 
-const allUsersLoader = ref(false)
-const allUsers = ref({})
-const pagination = ref({})
+const allUsersLoader = ref(false);
+const allUsers = ref({});
+const pagination = ref({});
 
 const fetchAllUsers = async (page, perPage, search, pageUrl) => {
   try {
-    allUsersLoader.value = true
-    const { status, data, error } = await showAllUsers(page, perPage, search, pageUrl)
-    if (status.value === 'success') {
-      allUsersLoader.value = false
-      allUsers.value = data.value.data.users
-      pagination.value = data.value.data.pagination
+    allUsersLoader.value = true;
+    const { status, data, error } = await showAllUsers(
+      page,
+      perPage,
+      search,
+      pageUrl
+    );
+    if (status.value === "success") {
+      allUsersLoader.value = false;
+      allUsers.value = data.value.data.users;
+      pagination.value = data.value.data.pagination;
     }
-    if (status.value === 'error') {
-      handleALert('error', error.value.message)
-      allUsersLoader.value = false
+    if (status.value === "error") {
+      handleALert("error", error.value.message);
+      allUsersLoader.value = false;
     }
+  } catch (error) {
+    console.error(error);
   }
-  catch (error) {
-    console.error(error)
-  }
-}
+};
 
 const removeUser = async (id) => {
-  const { data, error, status } = await deleteUser(id)
+  const { data, error, status } = await deleteUser(id);
 
-  if (status.value === 'success') {
-    handleALert('success', data.value.message)
-    fetchAllUsers()
+  if (status.value === "success") {
+    handleALert("success", data.value.message);
+    fetchAllUsers();
+  } else if (status.value === "error") {
+    console.error("Delete User failed:", error.value.data.message);
   }
-  else if (status.value === 'error') {
-    console.error('Delete User failed:', error.value.data.message)
-  }
-}
+};
 
-fetchAllUsers(1, 14, null, null)
-Fetch(getUsersSummary)
+fetchAllUsers(1, 14, null, null);
+Fetch(getUsersSummary);
 
 /* ------------------------------- Pagination ------------------------------- */
-const searchTerm = ref('')
+const searchTerm = ref("");
 const extractUrl = (url) => {
-  const extractedUrl = url.split('admin/')
-  return extractedUrl[1]
-}
+  const extractedUrl = url.split("admin/");
+  return extractedUrl[1];
+};
 const paginate = (value) => {
-  if (value === 'prev' && pagination.value.prev_page_url) {
-    const url = extractUrl(pagination.value.prev_page_url)
-    fetchAllUsers(null, null, null, url)
+  if (value === "prev" && pagination.value.prev_page_url) {
+    const url = extractUrl(pagination.value.prev_page_url);
+    fetchAllUsers(null, null, null, url);
   }
-  if (value === 'next' && pagination.value.next_page_url) {
-    const url = extractUrl(pagination.value.next_page_url)
-    fetchAllUsers(null, null, null, url)
+  if (value === "next" && pagination.value.next_page_url) {
+    const url = extractUrl(pagination.value.next_page_url);
+    fetchAllUsers(null, null, null, url);
   }
-}
+};
 
 watch(searchTerm, (newVal, oldVal) => {
   if (newVal) {
-    fetchAllUsers(1, 14, newVal, null)
+    fetchAllUsers(1, 14, newVal, null);
   }
-})
+});
 </script>
 
 <template>
   <div class="text-card bg-primary_bg w-full p-10 px-8">
     <!-- Stats card -->
-    <div class=" flex flex-wrap gap-6 mb-10">
+    <div class="flex flex-wrap gap-6 mb-10">
       <DashboardStatsCard
         title="All Users"
         :value="summary?.total_users"
@@ -137,14 +140,16 @@ watch(searchTerm, (newVal, oldVal) => {
           <div class="text-sm">
             <div class="mb-2">
               <span class="text-valmon_menu font-medium">Customers</span>
-              <span class="inline-block text-valmon_Gold text-xs ms-3">{{ pagination?.total }} Registered</span>
+              <span class="inline-block text-valmon_Gold text-xs ms-3"
+                >{{ pagination?.total }} Registered</span
+              >
             </div>
             <p>List Of All Customers on The Platform</p>
           </div>
           <!-- Content 2 -->
-          <div class=" flex items-center flex-wrap gap-8 justify-between">
+          <div class="flex items-center flex-wrap gap-8 justify-between">
             <!-- Search -->
-            <label class=" input input-bordered flex items-center gap-2 flex-1">
+            <label class="input input-bordered flex items-center gap-2 flex-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -165,7 +170,7 @@ watch(searchTerm, (newVal, oldVal) => {
                 type="text"
                 class="grow"
                 placeholder="Search"
-              >
+              />
             </label>
             <!-- filter -->
             <!-- <span class=" center gap-2">
@@ -190,20 +195,12 @@ watch(searchTerm, (newVal, oldVal) => {
         </div>
         <!-- Table -->
         <div class="overflow-x-auto">
-          <span
-            v-if="allUsersLoader"
-            class="loading loading-spinner"
-          />
-          <table
-            v-else
-            class="table table-auto"
-          >
+          <span v-if="allUsersLoader" class="loading loading-spinner" />
+          <table v-else class="table table-auto">
             <!-- head -->
             <thead>
               <tr>
-                <th>
-                  Serial Number
-                </th>
+                <th>Serial Number</th>
                 <th>Image</th>
                 <th>
                   <span>Name</span>
@@ -362,10 +359,7 @@ watch(searchTerm, (newVal, oldVal) => {
             </thead>
             <tbody>
               <!-- Use this -->
-              <tr
-                v-for="(item, index) in allUsers"
-                :key="item.id"
-              >
+              <tr v-for="(item, index) in allUsers" :key="item.id">
                 <th>
                   {{ index + 1 }}
                 </th>
@@ -376,7 +370,7 @@ watch(searchTerm, (newVal, oldVal) => {
                         <img
                           :src="item.image"
                           alt="Avatar Tailwind CSS Component"
-                        >
+                        />
                       </div>
                     </div>
                   </div>
@@ -389,28 +383,28 @@ watch(searchTerm, (newVal, oldVal) => {
                 <td>{{ formatDate(item.join_date) }}</td>
                 <td>{{ item.reported_count ?? 0 }}</td>
                 <td>{{ item.type }}</td>
-                <td>{{ item.last_seen_at === 'Never' ? 'Never' : formatDate(item.last_seen_at) }}</td>
+                <td>
+                  {{
+                    item.last_seen_at === "Never"
+                      ? "Never"
+                      : formatDate(item.last_seen_at)
+                  }}
+                </td>
                 <th>
                   <button
                     v-if="item.status === 'ACTIVE'"
-                    class="btn text-[#364254]  btn-xs"
+                    class="btn text-[#364254] btn-xs"
                   >
                     <span class="inline-block p-1 bg-[#6C778B] rounded-full" />
                     <span>{{ item.status }}</span>
                   </button>
 
-                  <button
-                    v-else
-                    class="btn text-[#AD7A22]  btn-xs "
-                  >
+                  <button v-else class="btn text-[#AD7A22] btn-xs">
                     <span class="inline-block p-1 bg-[#E79E1F] rounded-full" />
                     <span>{{ item.status }}</span>
                   </button>
                 </th>
-                <td
-                  class="dropdown dropdown-end"
-                  tabindex="0"
-                >
+                <td class="dropdown dropdown-end" tabindex="0">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -430,10 +424,7 @@ watch(searchTerm, (newVal, oldVal) => {
                     class="dropdown-content menu bg-base-100 rounded-box z-[1] w-24 p-2 shadow"
                   >
                     <li @click="viewProfile(item.id)">
-                      <a
-
-                        href="javascript:void(0)"
-                      >View</a>
+                      <a href="javascript:void(0)">View</a>
                     </li>
                     <li @click="removeUser(item.id)">
                       <a>Delete</a>
@@ -447,19 +438,15 @@ watch(searchTerm, (newVal, oldVal) => {
       </div>
     </div>
     <!-- pagination -->
-    <div class="pagination flex flex-wrap gap-4 lg:gap-0 items-center mt-10 text-[#727376] ">
+    <div
+      class="pagination flex flex-wrap gap-4 lg:gap-0 items-center mt-10 text-[#727376]"
+    >
       <div class="join">
-        <button
-          class="join-item btn btn-sm bg-white"
-          @click="paginate('prev')"
-        >
+        <button class="join-item btn btn-sm bg-white" @click="paginate('prev')">
           «
         </button>
 
-        <button
-          class="join-item btn btn-sm bg-white"
-          @click="paginate('next')"
-        >
+        <button class="join-item btn btn-sm bg-white" @click="paginate('next')">
           »
         </button>
       </div>
