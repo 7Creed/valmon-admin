@@ -1,7 +1,7 @@
 <script setup>
 import google from "@/assets/icons/google.svg";
 import { RiEyeFill } from "vue-remix-icons";
-import User from "~/pages/admin/user.vue";
+import User from "~/pages/user.vue";
 
 import { authController } from "~/services/modules/auth";
 import { useGlobalStore } from "~/store";
