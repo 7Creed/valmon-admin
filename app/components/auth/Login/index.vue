@@ -1,7 +1,7 @@
 <script setup>
 import google from "@/assets/icons/google.svg";
 import { RiEyeFill } from "vue-remix-icons";
-import User from "~/pages/admin/user.vue";
+import User from "~/pages/user.vue";
 
 import { authController } from "~/services/modules/auth";
 import { useGlobalStore } from "~/store";
@@ -22,11 +22,12 @@ const userData = reactive({
   password: "",
 });
 
-
 const loginWithGoogle = async () => {
   googleLoading.value = true;
   try {
-    const { data, error, status } = await googleRedirect({ auth_type: 'login'});
+    const { data, error, status } = await googleRedirect({
+      auth_type: "login",
+    });
     if (status.value === "success") {
       window.location.assign(data.value.url);
     }
@@ -38,9 +39,7 @@ const loginWithGoogle = async () => {
     googleLoading.value = false;
   } finally {
   }
-
-}
-
+};
 
 // emit signup event
 const signIn = async () => {

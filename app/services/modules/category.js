@@ -1,16 +1,15 @@
-import { useBaseApi } from '../baseApi'
+import { useBaseApi } from "../baseApi";
 
 export const categoryController = () => {
-  const { get, post } = useBaseApi()
+  const { get, post } = useBaseApi();
 
-
-  const getCategory_Services = () => get('categories')
+  const getCategory_Services = () => get("categories");
 
   // Public services view
-  const getPublicCategory_Services = () => get('get/categories')
+  const getPublicCategory_Services = () => get("get/categories");
 
   return {
     getCategory_Services,
     getPublicCategory_Services,
-  }
-}
+  };
+};
